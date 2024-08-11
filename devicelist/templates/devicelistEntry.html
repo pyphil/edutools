@@ -1,0 +1,79 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="card shadow bg-light">
+    <div class="card-body">
+      <h2 class="mb-3">Support Ticket {% if support_id %}{{ support_id }}{% else %} erstellen {% endif %}</h2>
+
+      <div class="row mb-4">
+        <div class="col">
+          <form method="POST">
+          {% csrf_token %}
+            <div class="row">
+              <div class="col">
+                <label class="mt-3" for="Koffer" class="form-label">Raum/Standort:</label>
+                {{ devicelist.room }}
+              </div>
+              <div class="col">
+                <label class="mt-3" for="Datum" class="form-label">Datum:</label>
+                {{ devicelist.datum }}
+              </div>
+              <div class="col">
+                <label class="mt-3" for="Stunde" class="form-label">Stunde:</label>
+                {{ devicelist.stunde }}
+              </div>
+              <div class="col">
+                <label class="mt-3" for="Gerät" class="form-label">Gerät:</label>
+                {{ devicelist.device }}
+              </div>
+              <div class="col">
+                <label class="mt-3" for="Krzl" class="form-label">Krzl:</label>
+                {{ devicelist.krzl }}
+              </div>
+
+              
+            </div>
+            <label class="mt-3" for="Beschreibung" class="form-label">Beschreibung:</label>
+            {{ devicelist.beschreibung }}
+            
+            <div class="col">
+              <label class="mt-3" for="Status" class="form-label">Status (Admin):</label>
+              {% if user.is_staff %}
+                {{ devicelist.status }}
+              {% else %}
+                <input type="text" name="status" class="form-control" value="{{ devicelist.instance.status }}" readonly>
+              {% endif %}
+            </div>
+            <div class="col">
+              <label class="mt-3" for="Behoben" class="form-label">Bearbeitet durch (Admin):</label>
+              {% if user.is_staff %}
+              {{ devicelist.behoben }}
+              {% else %}
+              <input type="text" class="form-control" value="{{ devicelist.instance.behoben }}" readonly>
+              {% endif %}
+            </div>
+            
+            {% if user.is_staff %}
+            <div class="col">
+              <label class="mt-3" for="email_to_second" class="form-label">Statusänderung außerdem an folgende E-Mail-Adresse senden:</label>
+              <input class="form-control" id="email_to_second" name="email_to_second">
+            {% endif %}
+            
+            
+            <button type="submit" name="save" value="save" class="btn btn-primary mt-5"><i class="bi bi-save"></i> Speichern</button>
+            <input type="hidden" name="devicelist_all" value="{{ devicelist_all }}" />
+            <input type="hidden" name="entry_id" value="{{ entry_id }}" />
+            {% if nodelete %}
+            {% else %}
+              <button type="submit" name="delete" value="delete" class="btn btn-danger mt-5"><i class="bi bi-trash3"></i> Löschen</button>
+            {% endif %}
+            <a href="javascript:history.back()" class="btn btn-secondary mt-5"><i class="bi bi-x-square"></i> Abbrechen</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

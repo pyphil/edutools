@@ -1,0 +1,23 @@
+{% extends 'library_base.html' %}
+{% block content %}
+<style>
+  td {
+    vertical-align: middle;
+  }
+</style>
+
+
+<div class="row">
+  <div class="col">
+    <h1>Import</h1>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <label for="book_import">Import (author|title|category|shelfmark|inventory_number|location)</label>
+  <textarea class="form-control" id="book_import" rows="10" name="books"></textarea>
+  <button type="submit" class="btn btn-primary">Import</button>
+</form>
+
+{% endblock content %}

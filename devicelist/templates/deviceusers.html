@@ -1,0 +1,37 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="card shadow bg-light">
+    <div class="card-body">
+      <h2 class="mb-3">Geräteliste</h2>
+      <h5 class="mb-3">Die letzten 10 Benutzer von Gerät <strong>{{ dev }}</strong> seit dem <strong>{{ seit_datum }}</strong>:</h5>
+      <div class="row mb-4">
+        <div class="col">
+          <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Datum</th>
+                  <th scope="col">Stunde</th>
+                  <th scope="col">Krzl.</th>
+                  <th scope="col">{{ dev }}</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for i in devlist %}
+                <tr>
+                  <td>{{ i.datum }}</td>
+                  <td>{{ i.stunde }}</td>
+                  <td>{{ i.krzl }}</td>
+                  <td>{{ i.dev }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

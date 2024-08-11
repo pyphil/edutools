@@ -1,0 +1,37 @@
+{% extends 'base_userlist.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="card shadow bg-light mb-4">
+    <div class="card-body">
+      <h2 class="mb-3">Liebe Schüler:innen,</h2>
+      <div class="row mb-4">
+        <div class="col">
+          bitte wählt hier <strong>den Tabletkoffer, zu dem Euer iPad gehört</strong>. Eure Lehrer:innen schalten Euch hier die Eingabe in die iPad-Nutzerliste frei.
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-auto mt-2">
+          Es wird Euch noch nichts Passendes angezeigt? Dann müsst Ihr eventuell hier
+        </div>
+        <div class="col">
+          <form action="">
+            <button type="submit" class="btn btn-success"><i class="bi bi-arrow-repeat"> </i>Neu laden</button>
+          </form>
+        </div>
+      </div>
+      <form action="{% url 'userlistEntry' %}" method="POST">
+      {% csrf_token %}
+      {% for list in lists %}
+        <div class="row mb-4">
+          <div class="col text-center">
+            <button type="submit" class="btn btn-primary col-4" name="selection" value="{{list.id}}">{{list.short_name}}: {{list.stunde}}. Std. {{list.krzl}} - {{list.lerngruppe}}</button>
+          </div>
+        </div>
+      {% endfor %}
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

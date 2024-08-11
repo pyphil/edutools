@@ -1,0 +1,43 @@
+
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<div class="container">
+    <h2 class="mb-3">Buchung von Räumen und Geräten</h2>
+
+    {% if info_frontpage %}
+        <div class="alert alert-info" role="alert">
+            {{ info_frontpage|safe }}
+        </div>
+    {% endif %}
+    
+    <div class="row">
+        {% for category in categories %}
+        {% if forloop.first %}
+            <div class="col">
+        {% endif %}
+                <div class="card mb-3 shadow" style="background-color: {{ category.color }}">
+                    <h5 class="card-header">{{ category.name }}</h5>
+                    <div class="card-body">
+                        {% for room in rooms %}
+                            {% if room.category.position == category.position %}
+                                <form action="{% url 'buchungstoolHome' room.short_name %}">
+                                    <div class="d-grid">
+                                        <!-- <button type="submit" class="btn btn-secondary mt-0 text-dark shadow" style="background-color: #ebebeb;"> -->
+                                        <button type="submit" id="custom-btn" class="btn btn-primary shadow mt-1 mb-1">
+                                                {{ room.description }} - {{ room.room }}</button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+        {% if category.column_break %}
+            </div>
+            <div class="col">
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

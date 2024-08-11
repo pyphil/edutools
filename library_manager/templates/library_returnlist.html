@@ -1,0 +1,41 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col">
+    <h1>Rückgabeliste</h1>
+  </div>
+</div>
+
+<table class="table table-striped">
+  <thead class="table-light">
+    <th>Vorname</th>
+    <th>Nachname</th>
+    <th>Klasse</th>
+    <th>Buch</th>
+    <th>Ausleihdatum</th>
+    <th>Rückgabedatum</th>
+    <th>Aktion</th>
+  </thead>
+  {% for item in borrowed_items %}
+    <tr>
+      <td>{{ item.first_name }}</td>
+      <td>{{ item.surname }}</td>
+      <td>{{ item.school_class }}</td>
+      <td><small>{{ item.book.author }}<br>{{ item.book.title }}</td>
+      <td>{{ item.borrowing_date }}</td>
+      {% if item.return_overdue %}
+        <td><small style="color: red;">{{ item.return_date }}<br>{{ item.return_overdue }} Tage überfällig</small></td>
+      {% else %}
+        <td>{{ item.return_date }}</td>
+      {% endif %}
+        <td class="text-nowrap">
+            <a href="{% url 'return_book' item.id %}" class="btn btn-info btn-sm me-4"><i class="bi bi-building-fill"></i><i class="bi bi-arrow-left-short"></i><i class="bi bi-book"></i></a>
+        </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<a href="javascript:history.back()" class="btn btn-secondary">Zurück</a>
+
+{% endblock content %}

@@ -1,0 +1,87 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container">
+  <h2 class="mb-4"><i>Häufige Fragen (FAQ)</i></h2>
+
+  <!-- Button to trigger new faq modal -->
+  <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    + FAQ hinzufügen
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">FAQ hinzufügen</h5>
+          <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+        </div>
+        <form method="post">
+          <div class="modal-body">
+              {% csrf_token %}
+              {{ new_faq.media }}
+              {{ new_faq.as_p }}
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" name="save" value="save">Speichern</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion" id="accordion">
+    <div class="card px-2 py-2" style="background-color: #f6f5f5;">
+      {% for form in forms %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading_{{ form.instance.id }}">
+            <button class="accordion-button {% if open != form.instance.id %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ form.instance.id }}" aria-expanded="false" aria-controls="collapse_{{ form.instance.id }}">
+              <!-- <strong>{{ form.question }}</strong> -->
+              <strong>{{ form.instance.question }}</strong>
+            </button>
+          </h2>
+          <div id="collapse_{{ form.instance.id }}" class="accordion-collapse collapse {% if open == form.instance.id %}show{% endif %}" aria-labelledby="heading_{{ form.instance.id }}" data-bs-parent="#accordion">
+            <div class="accordion-body">
+
+              {{ form.instance.answer|safe }}
+              <div class="text-end">
+                <!-- Button to trigger new faq modal -->
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop{{ form.instance.id }}">
+                  bearbeiten
+                </button>
+              </div>
+              <!-- Modal -->
+              <div class="modal fade" id="staticBackdrop{{ form.instance.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdrop{{ form.instance.id }}Label" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="staticBackdrop{{ form.instance.id }}Label">FAQ ändern</h5>
+                      <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                    </div>
+                    <form method="post">
+                      <div class="modal-body">
+                        {% csrf_token %}
+                        {{ form.media }}
+                        {{ form.as_p }}
+                      </div>
+                      <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" name="edit_save" value="{{ form.instance.id }}">Speichern</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+    
+{% endblock content %}

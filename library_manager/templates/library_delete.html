@@ -1,0 +1,25 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col">
+    <h1>Buch löschen</h1>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <p>Soll dieser Datensatz wirklich <b>gelöscht werden?</b></p>
+  <div class="alert alert-danger">
+    <small>
+        <p><b></em>Autor:in:</b> {{ obj.author }}</p>
+        <p><b></em>Titel:</b> {{ obj.title }}</p>
+        <p><b></em>Bereich/Signatur:</b> {{ obj.category_shelfmark }}</p>
+        <p><b></em>Inventarnummer:</b> {{ obj.inventory_number }}</p>
+    </small>
+  </div>
+  <button name="delete" value="True" class="btn btn-danger">Löschen</button>
+  <a href="javascript:history.back()" class="btn btn-secondary">Abbrechen</a >
+</form>
+
+{% endblock content %}

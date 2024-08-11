@@ -1,0 +1,81 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<h3>Kategorien der Frontseite</h3>
+<form method="post">
+  {% csrf_token %}
+  <table class="table">
+    <thead>
+      <th>Bezeichnung</th>
+      <th>Farbe</th>
+      <th>Spaltenumbruch folgt</th>
+      <th></th>
+      <th></th>
+    </thead>
+    {{ formset.management_form }}
+    {% for form in formset %}
+    <tr>
+      {% for field in form %}
+        {% if forloop.counter < 4 %}
+          <td>{{ field }}</td>
+        {% else %}
+          {{ field }}
+        {% endif %}
+      {% endfor %}
+      <td>
+        <span style="white-space: nowrap;">
+          {% if not forloop.first %}
+          <button class="btn btn-secondary btn-sm" name="up" value="{{ form.position.value }}"><i class="bi bi-arrow-up"></i></button>
+          {% endif %}
+          {% if not forloop.last %}
+          <button class="btn btn-secondary btn-sm" name="down" value="{{ form.position.value }}"><i class="bi bi-arrow-down"></i></button>
+          {% endif %}
+        </span>
+      </td>
+      <td>
+        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal_{{ form.id.value }}"><i class="bi bi-trash3-fill"></i></button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal_{{ form.id.value }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">Kategorie löschen</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Bist du sicher, dass du die Kategorie "{{ form.name.value }}" löschen möchtest?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button name="delete" value="{{ form.id.value }}" class="btn btn-danger">Löschen</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </td>
+    </tr>  
+    {% endfor %}
+    <tr>
+      <td><button class="btn btn-primary btn-sm" name="add" value="add">+  Hinzufügen</button></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    </tbody>
+  </table>
+  <button type="submit" name="save" value="save" class="btn btn-primary">Speichern</button>
+
+</form>
+
+<!-- <form method="post">
+  {% csrf_token %}
+  {{ formset }}
+  <button type="submit" class="btn btn-primary">Speichern</button>
+
+</form> -->
+
+
+{% endblock content %}

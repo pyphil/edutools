@@ -1,0 +1,50 @@
+{% extends 'edutools_base.html' %}  
+{% block content %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="row justify-content-center">
+    <div class="card shadow" style="width: 800px;">
+      <div class="card-body">
+        <h4 class="mb-4">Kontodaten ändern</h4>
+
+            {% if form.errors %} 
+              <div class="alert alert-danger">
+                {% for field in form %} 
+                  {% for error in field.errors %}
+                    <strong>{{ error|escape }}</strong><br>
+                  {% endfor %} 
+                {% endfor %} 
+              </div>
+            {% endif %}
+
+            {% if success %}
+              <div class="alert alert-success">
+                Der Benutzername wurde geändert.
+              </div>
+            {% endif %}
+
+            <!-- <label for="id_username">Benutzername:</label>
+            <input type="text" name="username" value="{{ form.username.value }}" maxlength="150" autofocus class="form-control" onchange="this.value=this.value.toLowerCase()" required id="id_username">
+
+            <button class="btn btn-primary">Speichern</button></p> -->
+            <label for="id_username">Benutzername:</label>
+            <div class="row">
+              <div class="col pe-2">
+                  <input type="text" name="username" value="{{ form.username.value }}" maxlength="150" autofocus class="form-control" onchange="this.value=this.value.toLowerCase()" required id="id_username">
+              </div>
+              <div class="col-auto ps-2">
+                  <button type="submit" class="btn btn-primary">Speichern</button>
+              </div>
+            </div>
+            <br>
+            <label for="id_username">Passwort:</label>
+            <br>
+            <a href="/accounts/password_reset/" class="btn btn-primary"><i class="bi bi-arrow-right-square">&nbsp;</i> Passwort ändern</a>
+
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock content %}

@@ -1,0 +1,141 @@
+{% extends 'library_base.html' %}
+{% block content %}
+<style>
+  td {
+    vertical-align: middle;
+  }
+</style>
+
+<div class="card shadow bg-light mb-4">
+  <div class="card-body mb-2">
+
+    {% if not locations %}
+      <div class="alert alert-danger">
+        Der Administrator muss zunächst eine Bibliothek hinzufügen und einen oder mehrere Bibliothekverwalter über die Gruppenzugehörigkeit zur Gruppe 'library_admin' bestimmen.
+      </div>
+    {% endif %}
+
+    <form class="mt-2">
+      <div class="hstack gap-3">
+          <label for="id_location" class="form-label mt-2">Bibliothek:</label>
+        <div class="col-auto">
+          <select name="location" class="form-select" id="id_location" onchange="this.form.submit()">
+          {% for location in locations %}
+            {% if current_location == location.id %}
+              <option value="{{ location.id }}" selected>{{ location }}</option>
+            {% else %}
+              <option value="{{ location.id }}">{{ location }}</option>
+            {% endif %}
+          {% endfor %}
+          </select>
+        </div>
+          <a class="btn btn-outline-dark {% if not library_admin %} disabled {% endif %}" href="{% url 'new' %}?location={{ current_location }}"><i class="bi bi-plus-square"></i> Buch hinzufügen</a>
+          <div class="vr"></div>
+          <a class="btn btn-outline-dark {% if not library_admin %} disabled {% endif %}" href="{% url 'manage_categories' %}?location={{ current_location }}"><i class="bi bi-tags"></i> Bereiche verwalten</a>
+          <div class="vr"></div>
+          <a class="btn btn-info {% if not library_admin %} disabled {% endif %}" href="{% url 'returnlist' %}?location={{ current_location }}"><i class="bi bi-card-checklist"></i> Rückgabeliste anzeigen</a>
+      </div>
+
+      <hr class="mt-4 mb-4">
+
+      <div class="row">
+        <div class="col">
+          <label for="id_filter_category" class="form-label">Filter Bereich/Signatur</label>
+          <select name="filter_category" class="form-select" id="id_filter_category" onchange="this.form.submit()">
+            <option value="0">---</option>
+            {% for category in category_items %}
+              {% if current_category == category.id %}
+                <option value="{{ category.id }}" selected>{{ category.category }} / {{ category.shelfmark }}</option>
+              {% else %}
+                <option value="{{ category.id }}">{{ category.category }} / {{ category.shelfmark }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label for="id_filter_status" class="form-label">Filter Status</label>
+          <select name="filter_status" class="form-select" id="id_filter_status" onchange="this.form.submit()">
+            <option value="0">---</option>
+            {% for status in status_items %}
+              {% if current_status == status.id %}
+                <option value="{{ status.id }}" selected>{{ status.name }}</option>
+              {% else %}
+                <option value="{{ status.id }}">{{ status.name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col pe-0">
+            <input type="search" name="filter_text" class="form-control" value="{{ current_text }}" placeholder="Suche nach Autor:in oder Titel oder Inventarnummer">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">Suchen</button>
+            <a href="{% url 'inventory' %}?filter_text=&filter_category=&filter_status=" class="btn btn-secondary" name="reset" value="reset" data-bs-toggle="tooltip" data-bs-title="Filter und Suche zurücksetzen">X</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow bg-light">
+  <div class="card-body">
+
+    <table class="table table-striped table-hover mt-1">
+      <thead class="table-light">
+        <th>Autor:in</th>
+        <th>Titel</th>
+        <th>Bereich</th>
+        <th>Signatur/Inventarnummer</th>
+        <th>Status</th>
+        <th>Aktionen</th>
+      </thead>
+      <tbody>
+        {% for item in library_items %}
+        {% if library_admin %}
+          <tr onclick="window.location.href='/library_manager/edit/{{ item.id }}?filter_category={{ current_category }}&filter_status={{ current_status  }}&filter_text={{ current_text }}'" style="cursor: pointer;">
+        {% endif %}
+          <td>{{ item.author }}</td>
+          <td>{{ item.title }}</td>
+          <td>{{ item.category_shelfmark.category }}</td>
+          <td>{{ item.category_shelfmark.shelfmark }}/{{ item.inventory_number }}</td>
+          {% if item.status.name == "verfügbar" %}
+            <td><span class="badge rounded-pill text-bg-success">{{ item.status }}</span></td>
+          {% elif item.status.name == "entliehen" %}
+            {% if item.borrowed.return_overdue %}
+              <td><span class="badge rounded-pill text-bg-danger">entliehen <br>{{ item.borrowed.return_overdue }} Tage überfällig</span></td>
+            {% else %}
+              <td><span class="badge rounded-pill text-bg-info">{{ item.status }} bis<br>{{ item.borrowed.return_date }}</span></td>
+            {% endif %}
+          {% elif item.status.name == "verschwunden" %}
+            <td><span class="badge rounded-pill text-bg-dark">{{ item.status }}</span></td>
+          {% endif %}
+          <td class="text-nowrap">
+              {% if item.status.name == 'entliehen' %}
+                <a href="{% url 'return_book' item.borrowed.id %}" class="btn btn-info btn-sm me-4 {% if not library_admin %} disabled {% endif %}"><i class="bi bi-building-fill"></i><i class="bi bi-arrow-left-short"></i><i class="bi bi-book"></i></a>
+              {% else %}
+                <a href="{% url 'borrow' item.id %}" class="btn btn-success btn-sm me-4 {% if item.status.name == 'verschwunden' %}disabled{% endif %} {% if not library_admin %} disabled {% endif %}"><i class="bi bi-book"></i><i class="bi bi-arrow-right-short"></i><i class="bi bi-person-fill"></i></a>
+              {% endif %}
+              <a href="{% url 'delete' item.id %}" class="btn btn-danger btn-sm {% if not library_admin %} disabled {% endif %}"><i class="bi bi-trash3-fill"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if item_count %}
+      <div class="text-center mb-4">
+        <a href="{% url 'inventory' %}?filter_text={{ current_text }}&filter_category={{ current_category }}&show_all=1">Alle {{ item_count }} Datensätze anzeigen</a>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+<script>
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+</script>
+
+{% endblock content %}

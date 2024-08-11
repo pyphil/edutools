@@ -1,0 +1,39 @@
+{% extends 'library_base.html' %}
+{% block content %}
+<style>
+  td {
+    vertical-align: middle;
+  }
+  .errorlist {
+    color: red;
+  }
+</style>
+
+<div class="card shadow bg-light mb-4">
+  <div class="card-body">
+
+    <div class="row">
+      <div class="col">
+          <h2>Buch hinzufügen</h2>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+          {{ form.as_p }}
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="lost" value="True" id="flexCheckDefault"
+            {% if form.instance.status.name == "verschwunden" %} checked {% endif %}>
+            <label class="form-check-label" for="flexCheckDefault">
+              verschwunden
+            </label>
+          </div>
+            <p><small><i>Die Inventarnummer wird beim Speichern automatisch generiert. Der neue Datensatz wird nach dem Speichern im Filter gezeigt. Sie kann aber auch hier gesetzt werden.</i></small></p>
+
+          <button name="save" class="btn btn-primary">Speichern</button>
+          <a href="javascript:history.back()" class="btn btn-secondary">Abbrechen</a>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

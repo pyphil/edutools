@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Schüler:innen-Datensatz</h2>
+<form method="post" >
+    {% csrf_token %}
+    <br>
+    <table>
+        {{ form.as_table }}
+    </table>
+    <br>
+    <button type="submit" name="" class="btn btn-primary">Speichern</button>
+</form>
+
+{% endblock content %}

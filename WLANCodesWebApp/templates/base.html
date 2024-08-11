@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WLAN-Codes</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <style>
+      body {
+        background-color: #ebebeb;
+      }
+    </style>
+    <meta name="format-detection" content="telephone=no">
+  </head>
+  
+  <body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+    <div class="container">
+      {% load static %}
+      <a class="navbar-brand btn btn-outline-secondary" href="/"><i class="bi bi-grid-3x3-gap-fill"> </i></a>
+      <img src="{% static 'images/GNM.png' %}" width="40" class="ms-3"> <a class="navbar-brand ps-3 mb-0 h1" href="/wlan-codes/">WLAN Codes</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+               <button class="btn nav-link active" style="color: #0d6efd;"><strong><i class="bi bi-person-circle"></i> Logout ({{ user.username }})</strong></button>
+              </form>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/accounts/change_user/' %}active{% endif %}" href="/accounts/change_user/"><i class="bi bi-gear-fill"></i> Konto verwalten</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/wlan-codes/"><i class="bi bi-router-fill"></i> Codeausgabe</a>
+            </li>
+          {% endif %}
+          {% if user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/wlan-codes/students/' %}active{% endif %}" href="/wlan-codes/students/">SII-Codes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/wlan-codes/codeimport/' %}active{% endif %}" href="/wlan-codes/codeimport/">Codeimport</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/wlan-codes/codedeletion/' %}active{% endif %}" href="/wlan-codes/codedeletion/">Löschliste</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/">Django-Admin</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    {% block content %}
+    {% endblock content %}
+  </div>
+  </body>
+</html>

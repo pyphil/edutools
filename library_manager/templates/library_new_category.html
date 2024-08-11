@@ -1,0 +1,22 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<style>
+  .errorlist {
+    color: red;
+  }
+</style>
+
+<div class="row">
+  <div class="col">
+    <h3>Bereich/Signatur erstellen</h3>
+  </div>
+</div>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" name="save" class="btn btn-primary">Speichern</button>
+  <a href="javascript:history.back()" class="btn btn-secondary">Zurück</a>
+</form>
+
+{% endblock content %}

@@ -1,0 +1,110 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<style>
+  .custom-width {
+    width: 152px !important;
+  }
+  .ck-editor__editable {
+        min-height: 100px !important;
+  }
+</style>
+
+<div class="container">
+  <h2>{{room_text}}</h2>
+  {% if user.is_staff %}
+  <hr />
+  <form method="post">
+    {% csrf_token %}
+    {{ alert_form.media }}
+    {{ alert_form.as_p }}
+    <button class="btn btn-secondary btn-sm" type="submit" value="alert_save" name="alert_save">Speichern</button>
+  </form>
+  <hr />
+  {% endif %}
+
+  {% if room_alert %}
+    <div class="alert alert-danger mt-3" role="alert">
+    {{ room_alert|safe }}
+    </div>
+  {% endif %}
+
+  <div class="card shadow mt-4 mb-4">
+    <div class="card-header">
+      <div class="row align-items-center">
+        <div class="col text-center">
+          <form action="{% url 'buchungstoolHome' room %}" class="mb-2 mt-2">
+            <button type="submit" class="btn btn-secondary text-dark" style="background-color: #ffffff;"><i class="bi bi-calendar2-minus">&ensp;</i>Vorherige Woche</button>
+            <input type="hidden" name="direction" value="back" />
+            <input type="hidden" name="currentdate_nav" value="{{ currentdate }}">
+          </form>
+        </div>
+        <div class="col-6 text-center">
+          <form action="{% url 'buchungstoolHome' room %}" class="mb-2 mt-2">
+            <label for="start">Springe zu:</label>
+            <input type="date" id="start" name="currentdate" class="btn btn-secondary text-dark custom-width" style="background-color: #ffffff;" value="{{ currentdate }}">
+            <input type="submit" value="OK" class="btn btn-secondary text-dark" style="background-color: #ffffff;">
+          </form>
+        </div>
+        <div class="col text-center">
+          <form action="{% url 'buchungstoolHome' room %}" class="mb-2 mt-2">
+            <button type="submit" class="btn btn-secondary text-dark" style="background-color: #ffffff;">Nächste Woche&ensp;<i class="bi bi-calendar2-plus"></i></button>
+            <input type="hidden" name="direction" value="forward" />
+            <input type="hidden" name="currentdate_nav" value="{{ currentdate }}">
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <table class="table text-center align-middle">
+        <thead>
+          <tr>
+            <th>Stunde</th>
+            {% for date in dates %}
+              <th>{{ date.weekday }}{{ date.date }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+        {% for i in range_stunden %}
+          <tr>
+            <th>{{ i }}.</th>
+            {% for text in btncontent %}
+              {% if text.std == i %}
+                <form action="{% url 'buchungstoolEntry' room text.id %}">
+                  {% if text.lerngruppe == "frei" %}
+                    <td>
+                      <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">{{ text.lerngruppe }}</button>
+                      </div>
+                    </td>
+                  {% else %}
+                    <td>
+                      <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">{% if text.series %}<i class="bi bi-link"></i> {% endif %}<strong>{{ text.krzl }}</strong><br><small>{{ text.lerngruppe }}</small>
+                        </div>
+                      </td>
+                  {% endif %}
+                  <input type="hidden" name="isodate" value="{{ text.date.isodate }}" />
+                  <input type="hidden" name="std" value="{{ text.std }}" />
+                </form>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <form class="mb-0">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" name="switch" id="extended_plan" {% if checked %} checked {% endif %} onchange="this.form.submit()">
+          <label class="form-check-label" for="flexSwitchCheckChecked"><small>Zeige 8. - 11. Std.</small></label>
+          <input type="hidden" name="checked" value="{{ checked }}" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

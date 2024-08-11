@@ -1,0 +1,33 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+{% load static %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col text-center mt-5">
+                <a href="/booking/"><img src="{% static 'images/schedule_cloud.png' %}" alt="Buchungstool" class="app-icon mb-2"></a>
+                <p>Buchungstool</p>
+            </div>
+            <div class="col text-center mt-5">
+                <a href="/wlan-codes/"><img src="{% static 'images/router-fill.png' %}" alt="WLAN-Codes" class="app-icon mb-2"></a>
+                <p>WLAN-Codes</p>
+            </div>
+            <div class="col text-center mt-5">
+                <a href="{% url 'dsb' %}"><img src="{% static 'images/DSB.png' %}" alt="DSB" class="app-icon mb-2"></a>
+                <p>Digitales Schwarzes Brett</p>
+            </div>
+            <div class="col text-center mt-5">
+                <a href="{% url 'mkr_home' %}"><img src="{% static 'images/MKR2.png' %}" alt="MKR" class="app-icon mb-2"></a>
+                <p>Medienkompetenzrahmen</p>
+            </div>
+            <div class="col text-center mt-5">
+                <a href="{% url 'generate_qr_code' %}"><img src="{% static 'images/qr-code.png' %}" alt="QR-CODE-Generator" class="app-icon mb-2"></a>
+                <p>QR-Code-Generator</p>
+            </div>
+            <div class="col text-center mt-5">
+                <a href="{% url 'inventory' %}"><img src="{% static 'images/library_manager.png' %}" alt="Bibliothek" class="app-icon mb-2"></a>
+                <p>Bibliothek</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

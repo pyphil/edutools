@@ -1,0 +1,31 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<div class="card shadow bg-light mb-4">
+  <div class="card-body">
+
+    <div class="row mb-4">
+      <div class="col">
+        <h1>Rückgabe
+        </h1>
+      </div>
+
+      <div class="alert alert-light mt-2">
+        <small>
+            <b></em>Autor:in:</b> {{ obj.book.author }}</br>
+            <b></em>Titel:</b> {{ obj.book.title }}</br>
+            <b></em>Signatur/Inventarnummer:</b> {{ obj.book.category_shelfmark.shelfmark }}/{{ obj.book.inventory_number }}
+        </small>
+      </div>
+      <h5 >verliehen an: <b>{{ obj.first_name }} {{ obj.surname }} ({{ obj.school_class }})</b></h5>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+        <button name="save" class="btn btn-primary" value="obj.id">Jetzt zurückgeben</button>
+        <a href="javascript:history.back()" class="btn btn-secondary">Abbrechen</a>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

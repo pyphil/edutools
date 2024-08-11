@@ -1,0 +1,50 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col">
+    <h3>Bereiche und Signaturen verwalten</h3>
+  </div>
+</div>
+
+<div class="hstack mt-3 mb-3 gap-3">
+  <a href="javascript:history.back()" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left-short"></i> Zurück</a>
+  <div class="vr"></div>
+  <a href="{% url 'new_category' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-square me-1"></i> Bereich/Signatur hinzufügen</a>
+</div>
+
+<p><small>Bereiche und ihre Signaturen können nur gelöscht werden, wenn ihnen keine Medien mehr zugeordnet sind.</small></p>
+<form method="post">
+  {% csrf_token %}
+    <table class="table table-bordered table-striped-columns table-sm" style="width: auto;">
+      <thead class="table-light table-bordered">
+        <th>Bereich</th>
+        <th>Signatur</th>
+        <th>zugeordnete Medien</th>
+        <th>Aktionen</th>
+      </thead>
+    {% for category in categories %}
+      <tr class="align-middle">
+        <td>{{ category.category }}</td>
+        <td>{{ category.shelfmark }}</td>
+        <td class="text-center">{{ catetgory.count }}<a href="{% url 'inventory' %}?filter_category={{ category.id }}">{{ category.items_in_category }}</a></td>
+        <td class="text-nowrap text-center">
+          <!-- <a href="" class="btn btn-secondary btn-sm me-3"><i class="bi bi-pencil-fill"></i></a> -->
+          {% if category.items_in_category > 0 %}
+            <a href="#" class="btn btn-danger btn-sm disabled"><i class="bi bi-trash3-fill"></i></a>
+          {% else %}
+            <button name="delete" value="{{ category.id }}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></button>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </table>
+
+    <div class="hstack mt-3 mb-3 gap-3">
+      <a href="{% url 'inventory' %}" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left-short"></i> Zurück</a>
+      <div class="vr"></div>
+      <a href="{% url 'new_category' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-square me-1"></i> Bereich/Signatur hinzufügen</a>
+    </div>
+</form>
+
+{% endblock content %}

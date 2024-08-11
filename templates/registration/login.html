@@ -1,0 +1,48 @@
+{% extends 'edutools_base.html' %}  
+{% block content %}
+{% if user.is_authenticated %}
+  <script>
+    window.location.href = "{% url 'edutools_home' %}";
+  </script>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="row justify-content-center">
+    <div class="card shadow" style="max-width: 400px;">
+      <div class="card-body">
+        <h2 class="mb-4">Login</h2>
+        {% if login_hint %}
+          <div class="alert alert-info">
+            {{ login_hint|safe }}
+          </div>
+        {% endif %}
+        <p>
+          <label for="id_username" class="form-label">Benutzername:</label>
+          <input type="text" onchange="this.value=this.value.toLowerCase()" class="form-control" name="username" autofocus autocomplete="username" id="id_username">
+        </p>
+        <p>
+          <label for="id_password" class="form-label">Passwort:</label>
+          <input type="password" class="form-control" name="password" autocomplete="current-password" id="id_password">
+        </p>
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary mt-3 mb-2">Anmelden</button>
+          <p class="mt-3">
+            <i><a href="{% url 'email_check' %}">Registrieren</a></i>
+          </p>
+          <p class="mt-3">
+            <i><a href="{% url 'password_reset' %}">Passwort oder Benutzernamen vergessen?</a></i>
+          </p>
+          {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+              Benutzername oder Passwort falsch.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock content %}

@@ -1,0 +1,46 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container">
+  <h2 class="mb-4"><i>Info</i></h2>
+  <h3 class="mb-3">Die digitale Nutzerliste</h3>
+  <p>Du bist es auch leid, die iPad-Nutzerliste in Papierform herumzuschleppen?
+  In die digitale Nutzerliste können sich die Schüler*innen selbständig über das iPad 
+    eintragen und du hast den Überblick.
+  </p>
+  <h5 class="mt-5">Wie funktioniert das für LuL?</h5>
+  <p>Du besuchst einfach deinen gebuchten Termin im Kalender erneut und findest dort die Möglichkeit die Nutzerliste für die Schüler*innen freizuschalten. 
+    Die Freischaltung ist immer für 20 Minuten aktiv. Außerdem kannst du hier sehen (ggf. "Neu laden" drücken), was die Schülerinnen eintragen und bei Bedarf auch korrigieren bzw. 
+  selbst eintragen:</p>
+  
+  <div class="text-center mb-4">
+    <img src="{% static 'images/nutzerliste.png' %}" class="rounded shadow img-fluid" width="1000" alt="Bild Nutzerliste">
+  </div>
+
+  <p>Nach Maßgabe der Datensparsamkeit sollten nur Vornamen und bei Bedarf der Anfangsbuchstabe des Nachnamens eingetragen werden.</p>
+
+  <h5 class="mt-5">Wie funktioniert das für SuS?</h5>
+  <p>Schüler*innen finden auf ihren iPads die App "Nutzerliste" und können sich hierüber eintragen.</p>
+  
+  <div class="text-center mb-4">
+    <img src="{% static 'images/appicon.png' %}" class="rounded shadow img-fluid" alt="App Icon">
+  </div>
+  
+  <p>Durch die Freischaltung wird der richtige Koffer und Unterricht angezeigt, den die SuS dann auswählen und sodann ihre iPad-Nummer (und ggf. Stiftnummer, wenn ausgeteilt) sowie die 
+    Namen aller Benutzer, die nun Verantwortung für dieses Gerät übernehmen, eintragen: 
+  </p>
+  
+  <div class="text-center mb-4">
+    <img src="{% static 'images/eintrag.png' %}" class="rounded shadow img-fluid" alt="Eintrag SuS">
+  </div>
+
+  <h5 class="mt-5">Was mache ich, wenn die SuS ihren Eintrag korrigieren wollen?</h5>
+  <p>Die SuS können einfach erneut eintragen und dadurch den alten Eintrag überschreiben.</p>
+
+  <h5 class="mt-5">Muss ich die Einträge prüfen?</h5>
+  <p>Es liegt in der Verantwortung der Lehrkraft die Plausibilität der Liste, wie auch bei der Papierliste, zu prüfen. Die Freischaltung kann auch vor Ablauf der 20 Minuten wieder ausgestellt werden, 
+    um Manipulationen vorzubeugen.</p>
+</div>
+
+{% endblock content %}

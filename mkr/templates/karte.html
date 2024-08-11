@@ -1,0 +1,31 @@
+{% extends 'base_mkr.html' %}  
+{% block content %}
+
+<div class="container mt-3 mb-5">
+  <div class="row justify-content-center">
+    <div class="col" style="max-width: 900px;">
+      <div class="card">
+        <div class="card-header">
+          <strong>Methodenkompetenzrahmen - Karte {% if edit %}bearbeiten{% else %}erstellen{% endif %}</strong><br>
+          {% if form.instance.created %}
+            <small>Erstellt durch {{form.instance.user}}, {{form.instance.created}}
+            {% if form.instance.last_user %}
+              <br>
+              Geändert durch {{form.instance.last_user}}, {{form.instance.changed}}</small>
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="btn btn-primary mt-3">Speichern</button>
+              <a href="{% url 'mkr_home' %}" class="btn btn-secondary mt-3">Abbrechen</a>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

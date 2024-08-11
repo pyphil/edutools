@@ -1,0 +1,69 @@
+{% extends 'library_base.html' %}
+{% block content %}
+<style>
+  td {
+    vertical-align: middle;
+  }
+  .errorlist {
+    color: red;
+  }
+</style>
+
+<div class="card shadow bg-light mb-4">
+  <div class="card-body">
+
+    <div class="row">
+      <div class="col">
+        {% if form.inventory_number.value %}
+          <h2>Buch ändern</h2>
+        {% else %}
+          <h1>Buch hinzufügen</h1>
+        {% endif %}
+      </div>
+    </div>
+    {% if form.inventory_number.value %}
+      {% if form.instance.borrowed %}
+        {% if form.instance.borrowed.return_overdue %}
+          <div class="alert alert-danger">
+            Das Buch ist seit <b>{{ form.instance.borrowed.return_overdue }} Tagen</b> überfällig. Es sollte bis zum <span class="badge text-bg-danger">{{ form.instance.borrowed.return_date }}</span> zurückgegeben werden durch <b>{{ form.instance.borrowed.first_name }} {{ form.instance.borrowed.surname }} ({{ form.instance.borrowed.school_class }})</b>.
+          </div>
+        {% else %}
+          <div class="alert alert-info">
+            Das Buch ist voraussichtlich bis zum <span class="badge text-bg-light">{{ form.instance.borrowed.return_date }}</span> verliehen an <b>{{ form.instance.borrowed.first_name }} {{ form.instance.borrowed.surname }} ({{ form.instance.borrowed.school_class }})</b>.
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+          {{ form.as_p }}
+          {% if form.inventory_number.value %}
+            {% if not form.instance.borrowed %}
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="lost" value="True" id="flexCheckDefault"
+                {% if form.instance.status.name == "verschwunden" %} checked {% endif %}>
+                <label class="form-check-label" for="flexCheckDefault">
+                  verschwunden
+                </label>
+              </div>
+            {% else %}
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" disabled>
+                <label class="form-check-label" for="flexCheckDefault">
+                  verschwunden (Das Buch kann nur als 'verschwunden' markiert werden, wenn es nicht mehr ausgeliehen ist.)
+                </label>
+              </div>
+            {% endif %}
+          {% endif %}
+          {% if not form.inventory_number.value %}
+            <p><small><i>Die Inventarnummer wird beim Speichern automatisch generiert. Der neue Datensatz wird nach dem Speichern im Filter gezeigt.</i></small></p>
+          {% endif %}
+
+          <button name="save" class="btn btn-primary">Speichern</button>
+          <a href="javascript:history.back()" class="btn btn-secondary">Abbrechen</a>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

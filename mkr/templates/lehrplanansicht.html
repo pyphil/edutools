@@ -1,0 +1,144 @@
+{% extends 'base_mkr.html' %}  
+{% block content %}
+
+<style> 
+  td, th {
+    border: 2px solid #dddddd;
+    text-align: left;
+    padding: 5px;
+  }
+  p {
+    margin-bottom: 5px;
+  }
+</style>
+
+<h2>Lehrplanansicht</h2>
+
+<div class="alert alert-info">
+  Hier können alle Karten, gefiltert nach Fach, in einer Druckansicht für den internen Lehrplan kopiert werden:<br>
+  1. Fach auswählen.<br>
+  2. In den Text klicken, um automatisch alles zu markieren.<br>
+  3. Text kopieren und im Word-Dokument einfügen.
+</div>
+
+<form>
+  <div class="row align-items-center mb-3">
+    <div class="col-auto">
+      <label for="fach_filter_select">Filter nach Fach:</label>
+      <select name="fach_filter" id="fach_filter_select" class="form-select form-select-sm" style="width: 250px" onchange="this.form.submit()">
+        <option value=0 selected>Alle Fächer</option>
+        {% for fach in faecher %}
+          {% if fach.fach == selected_fach %}
+            <option value="{{ fach }}" selected>{{ fach }}</option>
+          {% else %}
+            <option value="{{ fach }}">{{ fach }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</form>
+
+  <div class="card mb-3 shadow-lg px-5 py-5 user-select-all">
+    
+    {% for obj in mkr_objects %}
+    <table>
+      <tr>
+      {% if obj.kategorie|slice:"1" == "1" %}
+        <td style="border-left: 8px solid rgb(167, 219, 189); padding-left: 10px;">
+      {% elif obj.kategorie|slice:"1" == "2" %}
+        <td style="border-left: 8px solid rgb(137, 224, 246); padding-left: 10px;">
+      {% elif obj.kategorie|slice:"1" == "3" %}
+        <td style="border-left: 8px solid rgb(117, 146, 196); padding-left: 10px;">
+      {% elif obj.kategorie|slice:"1" == "4" %}
+        <td style="border-left: 8px solid rgb(255, 163, 224); padding-left: 10px;">
+      {% elif obj.kategorie|slice:"1" == "5" %}
+        <td style="border-left: 8px solid rgb(255, 135, 135); padding-left: 10px;">
+      {% elif obj.kategorie|slice:"1" == "6" %}
+        <td style="border-left: 8px solid rgb(252, 209, 120); padding-left: 10px;">
+      {% endif %}
+
+      <h3>Kategorie: {{ obj.get_kategorie_display }}</h3>
+      <h4><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</h4>
+      <small>
+        <p><b>Jahrgangsstufe:</b> {{ obj.get_jgst_display }}</p>
+        <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlize }}</p>
+        <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlize }}</p>
+        <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlize }}</p>
+        <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlize }}</p>
+        {% if user.is_authenticated %}
+          <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlize }}</p>
+        {% endif %}
+        <td style="width: 20vw;">
+          <table>
+            <thead>
+              <tr>
+                <th><small>Das Vorhaben...</small></th>
+                <th> </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr style="background-color: #e6e6e6;">
+                <th><small><small>ist für alle</small></small></th>
+                <td class="text-center">
+                  {% if obj.alle_teil == '0' %}
+                    <small>x</small>
+                  {% endif %}
+                  </td>
+              </tr>
+              <tr style="background-color: #e6e6e6;">
+                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                <td class="text-center">
+                  {% if obj.alle_teil == '1' %}
+                  <small>x</small>
+                  {% endif %}
+                </td>
+              </tr>
+
+              <tr style="background-color: #cfcfcf;">
+                <th><small><small>ist Pflicht</small></small></th>
+                <td class="text-center">
+                  {% if obj.pflicht_empf == '0' %}
+                  <small>x</small>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr style="background-color: #cfcfcf;">
+                <th><small><small>ist Empfehlung</small></small></th>
+                <td class="text-center">
+                  {% if obj.pflicht_empf == '1' %}
+                  <small>x</small>
+                  {% endif %}
+                </td>
+              </tr>
+
+              <tr style="background-color: #e6e6e6;">
+                <th><small><small>wird durchgeführt</small></small></th>
+                <td class="text-center">
+                  {% if obj.durchf_planung == '0' %}
+                  <small>x</small>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr style="background-color: #e6e6e6;">
+                <th><small><small>wird geplant/erprobt</small></small></th>
+                <td class="text-center">
+                  {% if obj.durchf_planung == '1' %}
+                  <small>x</small>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </small>
+    </td>
+    </tr>
+    </table>
+    <br>
+    {% endfor %}
+  </div>
+
+
+{% endblock content %}

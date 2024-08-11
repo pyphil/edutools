@@ -1,0 +1,31 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<div class="container">
+  {% if series_id %}
+    <h2>Serie löschen ab {{ buttondate }}, {{ std }}. Stunde</h2>
+  {% else %}
+    <h2>Eintrag löschen für {{ buttondate }}, {{ std }}. Stunde</h2>
+  {% endif %}
+  <form action="{% url 'buchungstoolEntry' room id %}" method="POST">
+    {% csrf_token %}
+    <div class="mt-3 mb-3">
+      {% if series_id %}
+        <p>Buchungen für Lerngruppe <strong>{{ lerngruppe }}</strong> wirklich löschen? Der ausgewählte und die nachfolgenden Serientermine werden gelöscht:</p>
+        <p>{{ series }}</p>
+        <p>Du solltest diese Einträge <strong>nur</strong> löschen, wenn du <strong>{{ krzl }}</strong> bist!</p>
+        <input type="hidden" name="id" value="{{ id }}">
+        <button type="submit" class="btn btn-danger" name="deleteconfirmed_future" value="deleteconfirmed_future">Einträge löschen</button>
+        <button type="submit" class="btn btn-secondary">Abbrechen</button>
+      {% else %}
+        <p>Buchung für Lerngruppe <strong>{{ lerngruppe }}</strong> wirklich löschen?</p>
+        <p>Du solltest diesen Eintrag <strong>nur</strong> löschen, wenn du <strong>{{ krzl }}</strong> bist!</p>
+        <input type="hidden" name="id" value="{{ id }}">
+        <button type="submit" class="btn btn-danger" name="deleteconfirmed" value="deleteconfirmed">Eintrag löschen</button>
+        <button type="submit" class="btn btn-secondary">Abbrechen</button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{% endblock content %}

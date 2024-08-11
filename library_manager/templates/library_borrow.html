@@ -1,0 +1,79 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<div class="card shadow bg-light mb-4">
+  <div class="card-body">
+
+    <div class="row">
+      <div class="col">
+        <h2>Ausleihe</h2>
+      </div>
+    <h5>Folgendes Buch</h5>
+
+    <div class="alert alert-light">
+      <small>
+          <b></em>Autor:in:</b> {{ book.author }}</br>
+          <b></em>Titel:</b> {{ book.title }}</br>
+          <b></em>Signatur/Inventarnummer:</b> {{ book.category_shelfmark.shelfmark }}/{{ book.inventory_number }}
+      </small>
+    </div>
+
+    <h5>wird verliehen an:</h5>
+
+    <form method="post">
+      {% csrf_token %}
+        {{ form.as_p }}
+        <div class="row mb-4">
+          <label for="id_return">Rückgabe in:</label>
+          <div class="col" id="id_return">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="days" id="inlineRadio1" value="7" onclick="calculateDate()">
+              <label class="form-check-label" for="inlineRadio1">1 Woche</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="days" id="inlineRadio2" value="14" onclick="calculateDate()">
+              <label class="form-check-label" for="inlineRadio2">2 Wochen</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="days" id="inlineRadio3" value="21" onclick="calculateDate()" checked>
+              <label class="form-check-label" for="inlineRadio3">3 Wochen</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="days" id="inlineRadio4" value="30" onclick="calculateDate()">
+              <label class="form-check-label" for="inlineRadio4">4 Wochen</label>
+            </div>
+            <span class="badge rounded-pill text-bg-primary"><i class="bi bi-arrow-right-short"> </i><span id="futureDate"></span></span>
+          </div>
+        </div>
+        <button name="save" class="btn btn-primary">Speichern</button>
+        <a href="javascript:history.back()" class="btn btn-secondary">Abbrechen</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  calculateDate()
+  function calculateDate() {
+    // Get the selected radio button value
+    const selectedOption = document.querySelector('input[name="days"]:checked').value;
+    
+    // Get the current date
+    const currentDate = new Date();
+    
+    // Calculate the future date
+    const futureDate = new Date(currentDate);
+    futureDate.setDate(currentDate.getDate() + parseInt(selectedOption));
+
+    // Format the future date (e.g., yyyy-mm-dd)
+    const year = futureDate.getFullYear();
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(futureDate.getDate()).padStart(2, '0');
+
+    const formattedFutureDate = `${day}.${month}.${year}`;
+
+    // Display the future date
+    document.getElementById('futureDate').textContent = formattedFutureDate;
+}
+</script>
+
+{% endblock content %}

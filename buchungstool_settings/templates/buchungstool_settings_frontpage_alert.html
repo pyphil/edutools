@@ -1,0 +1,12 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<h3>Hinweis auf der Frotseite konfigurieren</h3>
+<form method="post">
+  {% csrf_token %}
+  {{ form.media }}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Speichern</button>
+</form>
+
+{% endblock content %}

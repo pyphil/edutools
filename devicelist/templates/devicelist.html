@@ -1,0 +1,65 @@
+{% extends 'buchungstool_base.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="card shadow bg-light">
+    <div class="card-body">
+      <h2 class="mb-3">Support Tickets {{ room }}</h2>
+
+      <form action="{% url 'deviceEntryNew' room date std entry_id %}">
+        <button type="submit" class="btn btn-primary"><strong>+</strong> neuer Eintrag</button>
+      </form>
+
+      {% for device in devices %}
+        {% if device in iPads_with_entry %}
+          <h5 class="mt-4"><strong><u>{{ device }}</u></strong></h5>
+          <div class="row mb-4">
+            <div class="col">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Datum</th>
+                    <th scope="col">Stunde</th>
+                    <th scope="col">Beschreibung</th>
+                    <th scope="col">Krzl.</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Aktion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for devicelist_entry in devicelist %}
+                  {% if devicelist_entry.device == device %}
+                    <form action="{% url 'deviceEntry' devicelist_entry.id room date std entry_id %}">
+                      <tr>
+                        <td>{{ devicelist_entry.id }}</td>
+                        <td>{{ devicelist_entry.datum }}</td>
+                        <td>{{ devicelist_entry.stunde }}</td>
+                        <td>{{ devicelist_entry.beschreibung }}</td>
+                        <td>{{ devicelist_entry.krzl }}</td>
+                        <td class="{{ devicelist_entry.status.color }}">{{ devicelist_entry.status }}</td>
+                        <td>
+                          <div class="text-end">
+                            <span style="white-space: nowrap;">
+                              <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill">&ensp;</i>Ändern</button>
+                              {% if devicelist_entry.device.dbname %}
+                                <a href="{% url 'deviceusers' room date devicelist_entry.device.dbname %}" class="btn btn-secondary btn-sm"><i class="bi bi-people-fill">&ensp;</i>letzte Benutzer</a>
+                              {% endif %}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    </form>
+                  {% endif %}
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

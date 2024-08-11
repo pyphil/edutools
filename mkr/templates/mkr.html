@@ -1,0 +1,3147 @@
+{% extends 'base_mkr.html' %}  
+{% block content %}
+
+{% if cookiebanner == True %}
+  <!-- Modal as cookie banner -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-info-circle-fill"> </i> Datenschutzinformation</h5>
+
+        </div>
+        <div class="modal-body">
+          Diese Seite nutzt ausschließlich Session-Cookies, die zum Betrieb der Seite notwendig sind.
+        </div>
+        <div class="modal-footer">
+          <form>
+            {% csrf_token %}
+            <button type="submit" name="cookiebutton" value="ok" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // make modal appear on page load
+    var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {})
+    myModal.toggle()
+  </script>
+{% endif %}
+
+<form>
+  <div class="row align-items-center mb-3">
+    <div class="col-auto">
+      <select name="fach_filter" class="form-select form-select-sm" style="width: 250px" onchange="this.form.submit()">
+        <option value=0 selected>Alle Fächer</option>
+        {% for fach in faecher %}
+          {% if fach.fach == selected_fach %}
+            <option value="{{ fach }}" selected>{{ fach }}</option>
+          {% else %}
+            <option value="{{ fach }}">{{ fach }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+        <select name="jgst_filter" class="form-select form-select-sm" style="width: 150px" onchange="this.form.submit()">
+          <option value=0 selected>Alle Jgst.</option>
+          {% for jg in jgst_choices %}
+            {% if jg.0 == selected_jgst %}
+              <option value="{{ jg.0 }}" selected>{{ jg.1 }}</option>
+            {% else %}
+              <option value="{{ jg.0 }}">{{ jg.1 }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto mt-1">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="category_switch" name="switch" 
+          {% if switch == "off" %} checked {% endif %} onchange="this.form.submit()">
+          <label class="form-check-label" for="category_switch">Alle Kategorien öffnen/schließen</label>
+        </div>
+    </div>
+  </div>
+</form>
+
+<div class="col">
+  <div class="card mb-3 shadow-lg">
+    <h5 class="card-header" style="background-color: #00964158;"><ol class="mb-0"><li>BEDIENEN UND ANWENDEN</li></ol></h5>
+    <div class="card-body px-2">
+      <div class="accordion" id="accordion_1">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse1_1" aria-expanded="false" aria-controls="collapse1_1"
+              style="background-color: #00964119; color: #009640">
+              <b>1.1 Medienausstattung
+              (Hardware)
+              </b>
+            </button>
+          </h2>
+          <div id="collapse1_1" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "11" and selected_fach or obj.kategorie == "11" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="headingOne" data-bs-parent="#accordion_1">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Medienausstattung (Hardware) kennen, auswählen und reflektiert anwenden; mit dieser
+                  verantwortungsvoll umgehen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "11" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "14" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse1_2" aria-expanded="false" aria-controls="collapse1_2"
+              style="background-color: #00964119; color: #009640">
+              <b>1.2 Digitale Werkzeuge</b>
+            </button>
+          </h2>
+          <div id="collapse1_2" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "12" and selected_fach or obj.kategorie == "12" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="headingTwo"
+            data-bs-parent="#accordion_1">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Verschiedene digitale Werkzeuge und deren Funktionsumfang
+                  kennen, auswählen sowie diese
+                  kreativ, reflektiert und zielgerichtet einsetzen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "12" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading1_3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse1_3" aria-expanded="false" aria-controls="collapse1_3"
+              style="background-color: #00964119; color: #009640">
+              <b>1.3 Datenorganisation</b>
+            </button>
+          </h2>
+          <div id="collapse1_3" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "13" and selected_fach or obj.kategorie == "13" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading1_3"
+            data-bs-parent="#accordion_1">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Informationen und Daten sicher speichern, wiederfinden und von
+                  verschiedenen Orten abrufen; Informationen und Daten zusammenfassen, organisieren und
+                  strukturiert aufbewahren
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "13" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading1_4">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse1_4" aria-expanded="false" aria-controls="collapse1_4"
+              style="background-color: #00964119; color: #009640">
+              <b>1.4 Datenschutz und Informationssicherheit</b>
+            </button>
+          </h2>
+          <div id="collapse1_4" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "14" and selected_fach or obj.kategorie == "14" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading1_4"
+            data-bs-parent="#accordion_1">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Verantwortungsvoll mit persönlichen und fremden Daten
+                  umgehen; Datenschutz, Privatsphäre und Informationssicherheit
+                  beachten
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "14" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="card mb-3 shadow-lg">
+    <h5 class="card-header" style="background-color: #009fe352;"><ol class="mb-0" start="2"><li>INFORMIEREN UND RECHERCHIEREN</li></ol></h5>
+    <div class="card-body px-2">
+      <div class="accordion" id="accordion_2">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading1_1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse2_1" aria-expanded="false" aria-controls="collapse2_1"
+              style="background-color: #009fe316; color: #009fe3">
+              <b>2.1 Informationsrecherche</b>
+            </button>
+          </h2>
+          <div id="collapse2_1" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "21" and selected_fach or obj.kategorie == "21" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading2_1"
+            data-bs-parent="#accordion_2">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Informationsrecherchen zielgerichtet durchführen und dabei
+                  Suchstrategien anwenden
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "21" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading2_2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse2_2" aria-expanded="false" aria-controls="collapse2_2"
+              style="background-color: #009fe316; color: #009fe3">
+              <b>2.2 Informationsauswertung</b>
+            </button>
+          </h2>
+          <div id="collapse2_2" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "22" and selected_fach or obj.kategorie == "22" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading2_2"
+            data-bs-parent="#accordion_2">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Themenrelevante Informationen und Daten aus Medienangeboten filtern, strukturieren, umwandeln
+                  und aufbereiten
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "22" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading2_3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse2_3" aria-expanded="false" aria-controls="collapse2_3"
+              style="background-color: #009fe316; color: #009fe3">
+              <b>2.3 Informationsbewertung</b>
+            </button>
+          </h2>
+          <div id="collapse2_3" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "23" and selected_fach or obj.kategorie == "23" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading2_3"
+            data-bs-parent="#accordion_2">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Informationen, Daten und ihre Quellen sowie dahinterliegende
+                  Strategien und Absichten erkennen und kritisch bewerten
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "23" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading2_4">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse2_4" aria-expanded="false" aria-controls="collapse2_4"
+              style="background-color: #009fe316; color: #009fe3">
+              <b>2.4 Informationskritik</b>
+            </button>
+          </h2>
+          <div id="collapse2_4" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "24" and selected_fach or obj.kategorie == "24" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading2_4"
+            data-bs-parent="#accordion_2">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Unangemessene und gefährdende Medieninhalte erkennen und hinsichtlich rechtlicher Grundlagen
+                  sowie gesellschaftlicher Normen und Werte einschätzen; Jugend und Verbraucherschutz kennen
+                  und Hilfs- und Unterstützungsstrukturen nutzen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "24" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="card mb-3 shadow-lg">
+    <h5 class="card-header" style="background-color: #19499d99;"><ol class="mb-0" start="3"><li>KOMMUNIZIEREN UND KOOPERIEREN</h5></li></ol><div class="card-body px-2">
+      <div class="accordion" id="accordion_3">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading3_1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse3_1" aria-expanded="false" aria-controls="collapse3_1"
+              style="background-color: #19499d29; color: #19499de6">
+              <b>3.1 Kommunikations- und Kooperationsprozesse</b>
+            </button>
+          </h2>
+          <div id="collapse3_1" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "31" and selected_fach or obj.kategorie == "31" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading3_1"
+            data-bs-parent="#accordion_3">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Kommunikations- und Kooperationsprozesse mit digitalen Werkzeugen zielgerichtet
+                  gestalten sowie mediale Produkte und Informationen teilen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "31" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading3_2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse3_2" aria-expanded="false" aria-controls="collapse3_2"
+              style="background-color: #19499d29; color: #19499de6">
+              <b>3.2 Kommunikations- und Kooperationsregeln</b>
+            </button>
+          </h2>
+          <div id="collapse3_2" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "32" and selected_fach or obj.kategorie == "32" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading3_2"
+            data-bs-parent="#accordion_3">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Regeln für digitale Kommunikation und Kooperation kennen,
+                  formulieren und einhalten
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "32" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading3_3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse3_3" aria-expanded="false" aria-controls="collapse3_3"
+              style="background-color: #19499d29; color: #19499de6">
+              <b>3.3 Kommunikation und Kooperation in der Gesellschaft</b>
+            </button>
+          </h2>
+          <div id="collapse3_3" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "33" and selected_fach or obj.kategorie == "33" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading3_3"
+            data-bs-parent="#accordion_3">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Kommunikations- und Kooperationsprozesse im Sinne einer
+                  aktiven Teilhabe an der Gesellschaft gestalten und reflektieren;
+                  ethische Grundsätze sowie kulturell-gesellschaftliche Normen beachten
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "33" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading3_4">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse3_4" aria-expanded="false" aria-controls="collapse3_4"
+              style="background-color: #19499d29; color: #19499de6">
+              <b>3.4 Cybergewalt und -kriminalität</b>
+            </button>
+          </h2>
+          <div id="collapse3_4" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "34" and selected_fach or obj.kategorie == "34" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading3_4"
+            data-bs-parent="#accordion_3">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Persönliche, gesellschaftliche und wirtschaftliche Risiken und
+                  Auswirkungen von Cybergewalt und -kriminalität erkennen sowie
+                  Ansprechpartner und Reaktionsmöglichkeiten kennen und nutzen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "34" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="col">
+  <div class="card mb-3 shadow-lg">
+    <h5 class="card-header" style="background-color: #ff00a95c;"><ol class="mb-0" start="4"><li>PRODUZIEREN UND PRÄSENTIEREN</li></ol></h5>
+    <div class="card-body px-2">
+      <div class="accordion" id="accordion_4">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading4_1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse4_1" aria-expanded="false" aria-controls="collapse4_1"
+              style="background-color: #ff00b317; color: #ff00b3">
+              <b>4.1 Medienproduktion und Präsentation</b>
+            </button>
+          </h2>
+          <div id="collapse4_1" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "41" and selected_fach or obj.kategorie == "41" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading4_1"
+            data-bs-parent="#accordion_4">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Medienprodukte adressatengerecht planen, gestalten und
+                  präsentieren; Möglichkeiten des Veröffentlichens und Teilens
+                  kennen und nutzen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "41" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading4_2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse4_2" aria-expanded="false" aria-controls="collapse4_2"
+              style="background-color: #ff00b317; color: #ff00b3">
+              <b>4.2 Gestaltungsmittel</b>
+            </button>
+          </h2>
+          <div id="collapse4_2" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "42" and selected_fach or obj.kategorie == "42" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading4_2"
+            data-bs-parent="#accordion_4">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Gestaltungsmittel von Medienprodukten kennen, reflektiert anwenden sowie hinsichtlich
+                  ihrer Qualität, Wirkung und Aussageabsicht beurteilen
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "42" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading4_3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse4_3" aria-expanded="false" aria-controls="collapse4_3"
+              style="background-color: #ff00b317; color: #ff00b3">
+              <b>4.3 Quellendokumentation</b>
+            </button>
+          </h2>
+          <div id="collapse4_3" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "43" and selected_fach or obj.kategorie == "43" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading4_3"
+            data-bs-parent="#accordion_4">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Standards der Quellenangaben beim Produzieren und Präsentieren von eigenen und fremden
+                  Inhalten kennen und anwenden
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "43" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading4_4">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapse4_4" aria-expanded="false" aria-controls="collapse4_4"
+              style="background-color: #ff00b317; color: #ff00b3">
+              <b>4.4 Rechtliche Grundlagen</b>
+            </button>
+          </h2>
+          <div id="collapse4_4" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "44" and selected_fach or obj.kategorie == "44" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading4_4"
+            data-bs-parent="#accordion_4">
+            <div class="accordion-body px-2">
+              <div class="alert alert-secondary shadow">
+                <small>
+                  Rechtliche Grundlagen des
+                  Persönlichkeits- (u.a. des Bildrechts), Urheber- und Nutzungsrechts (u.a.
+                  Lizenzen) überprüfen, bewerten und beachten
+                </small>
+              </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "44" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <div class="col">
+    <div class="card mb-3 shadow-lg">
+      <h5 class="card-header" style="background-color: #ff000078;"><ol class="mb-0" start="5"><li>ANALYSIEREN UND REFLEKTIEREN</li></ol></h5>
+      <div class="card-body px-2">
+        <div class="accordion" id="accordion_5">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading5_1">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse5_1" aria-expanded="false" aria-controls="collapse5_1"
+                style="background-color: #ff000026; color: #ff0000">
+                <b>5.1 Medienanalyse</b>
+              </button>
+            </h2>
+            <div id="collapse5_1" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "51" and selected_fach or obj.kategorie == "51" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading5_1" data-bs-parent="#accordion_5">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Die Vielfalt der Medien, ihre Entwicklung und Bedeutungen kennen, analysieren
+                    und reflektieren
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "51" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading5_2">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse5_2" aria-expanded="false" aria-controls="collapse5_2"
+                style="background-color: #ff000026; color: #ff0000">
+                <b>5.2 Meinungsbildung</b>
+              </button>
+            </h2>
+            <div id="collapse5_2" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "52" and selected_fach or obj.kategorie == "52" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading5_2"
+              data-bs-parent="#accordion_5">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Die interessengeleitete Setzung und Verbreitung von Themen in
+                    Medien erkennen sowie in Bezug auf die Meinungsbildung beurteilen
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "52" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading5_3">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse5_3" aria-expanded="false" aria-controls="collapse5_3"
+                style="background-color: #ff000026; color: #ff0000">
+                <b>5.3 Identitätsbildung</b>
+              </button>
+            </h2>
+            <div id="collapse5_3" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "53" and selected_fach or obj.kategorie == "53" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}"
+              aria-labelledby="heading5_3" data-bs-parent="#accordion_5">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Chancen und Herausforderungen von Medien für die Realitätswahrnehmung erkennen und analysieren sowie für die
+                    eigene Identitätsbildung nutzen
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "53" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading5_4">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse5_4" aria-expanded="false" aria-controls="collapse5_4"
+                style="background-color: #ff000026; color: #ff0000">
+                <b>5.4 Selbstregulierte Mediennutzung</b>
+              </button>
+            </h2>
+            <div id="collapse5_4" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "54" and selected_fach or obj.kategorie == "54" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}"
+              aria-labelledby="heading5_4" data-bs-parent="#accordion_5">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Medien und ihre Wirkungen beschreiben, kritisch reflektieren
+                    und deren Nutzung selbstverantwortlich regulieren; andere bei
+                    ihrer Mediennutzung unterstützen
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "54" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card mb-3 shadow-lg">
+      <h5 class="card-header" style="background-color: #fab72ca3;"><ol class="mb-0" start="6"><li>PROBLEMLÖSEN UND MODELLIEREN</li></ol></h5>
+      <div class="card-body px-2">
+        <div class="accordion" id="accordion_6">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading6_1">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse6_1" aria-expanded="false" aria-controls="collapse6_1"
+                style="background-color: #ffc2041a; color: #fab72c">
+                <b>6.1 Prinzipien der digitalen Welt</b>
+              </button>
+            </h2>
+            <div id="collapse6_1" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "61" and selected_fach or obj.kategorie == "61" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}"
+              aria-labelledby="heading6_1" data-bs-parent="#accordion_6">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Grundlegende Prinzipien und Funktionsweisen der digitalen Welt identifizieren, kennen, verstehen und bewusst nutzen
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "61" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading6_2">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse6_2" aria-expanded="false" aria-controls="collapse6_2"
+                style="background-color: #ffc2041a; color: #fab72c">
+                <b>6.2 Algorithmen erkennen</b>
+              </button>
+            </h2>
+            <div id="collapse6_2" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "62" and selected_fach or obj.kategorie == "62" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}" aria-labelledby="heading6_2"
+              data-bs-parent="#accordion_6">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Algorithmische Muster und Strukturen in verschiedenen Kontexten erkennen, nachvollziehen und reflektieren
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "62" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading6_3">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse6_3" aria-expanded="false" aria-controls="collapse6_3"
+                style="background-color: #ffc2041a; color: #fab72c">
+                <b>6.3 Modellieren und Programmieren</b>
+              </button>
+            </h2>
+            <div id="collapse6_3" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "63" and selected_fach or obj.kategorie == "63" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}"
+              aria-labelledby="heading6_3" data-bs-parent="#accordion_6">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Probleme formalisiert beschreiben, Problemlösestrategien entwickeln und dazu eine strukturierte, algorithmische Sequenz planen;
+                    diese auch durch Programmieren umsetzen und die gefundene Lösungsstrategie beurteilen
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "63" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading6_4">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse6_4" aria-expanded="false" aria-controls="collapse6_4"
+                style="background-color: #ffc2041a; color: #fab72c">
+                <b>6.4 Bedeutung von Algorithmen</b>
+              </button>
+            </h2>
+            <div id="collapse6_4" class="accordion-collapse collapse {% for obj in mkr_objects %}{% if obj.kategorie == "64" and selected_fach or obj.kategorie == "64" and selected_jgst or switch == "on" %}show {% endif %}{% endfor %}"
+              aria-labelledby="heading6_4" data-bs-parent="#accordion_6">
+              <div class="accordion-body px-2">
+                <div class="alert alert-secondary shadow">
+                  <small>
+                    Einflüsse von Algorithmen und Auswirkung der Automatisierung von Prozessen in der digitalen Welt beschreiben und reflektieren
+                  </small>
+                </div>
+
+              {% for obj in mkr_objects %}
+                {% if obj.kategorie == "64" %}
+                  <div class="card mb-2 shadow" style="background-color: #8d96e836">
+                    <h6 class="card-header" >{{ obj.fach }} • {{ obj.get_jgst_display }} &nbsp; 
+                      {% if user.is_authenticated %}
+                        <a href="{% url 'karte_bearbeiten' obj.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
+                      {% endif %}
+                    </h6>
+                    <div class="card-body px-2">
+                      <small>
+                        <p><b>Unterrichtsvorhaben:</b> {{ obj.vorhaben }}</p>
+                        <small>
+                          <p><b>Detaillierte Informationen befinden sich hier:</b> {{ obj.info|urlizetrunc:40 }}</p>
+                          <p><b>Medienkompetenz:</b> {{ obj.medienkompetenz|urlizetrunc:40 }}</p>
+                          <p><b>Benötigtes Vorwissen der Schüler:innen:</b> {{ obj.vorwissen_sus|urlizetrunc:40 }}</p>
+                          <p><b>Benötigte Technik/Software:</b> {{ obj.technik|urlizetrunc:40 }}</p>
+                          {% if user.is_authenticated %}
+                            <p><b>Vorausgesetzte Medienkenntnisse der Lehrer:innen:</b> {{ obj.medienkenntnisse_lul|urlizetrunc:40 }}</p>
+                          {% endif %}
+
+                          <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                              <tr>
+                                <th scope="col"><small>Das Vorhaben...</small></th>
+                                <th> </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              <tr class="table-primary">
+                                <th><small><small>ist für alle</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                  </td>
+                              </tr>
+                              <tr class="table-primary">
+                                <th><small><small>ist für eine Teilgruppe</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.alle_teil == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-success">
+                                <th><small><small>ist Pflicht</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-success">
+                                <th><small><small>ist Empfehlung</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.pflicht_empf == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                              <tr class="table-warning">
+                                <th><small><small>wird durchgeführt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '0' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              <tr class="table-warning">
+                                <th><small><small>wird geplant/erprobt</small></small></th>
+                                <td class="text-center">
+                                  {% if obj.durchf_planung == '1' %}
+                                    <i class="bi bi-check-lg">
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          {% if user.is_authenticated %}
+                            {% if obj.download %}
+                              <p class="mt-3 mb-0"><b>Anhang:</b> <a href="{% url 'download' obj.download|cut:'downloads/' %}">{{ obj.download|cut:'downloads/' }}</a></p>
+                            {% endif %}
+                          <hr>
+                          <small>
+                            Erstellt: {{ obj.user }}, {{ obj.created }}<br>
+                            {% if obj.last_user %}
+                              Geändert: {{ obj.last_user }}, {{ obj.changed }}
+                            {% endif  %}
+                          </small>
+                          {% endif %}
+                        </small>
+                      </small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
