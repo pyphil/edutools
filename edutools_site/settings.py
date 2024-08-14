@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'mkr',
     'qrcode_generator',
     'library_manager',
+    'appointment',
     'django_ckeditor_5',
 ]
 

@@ -18,6 +18,7 @@ urlpatterns = [
     path('mkr/', include('mkr.urls')),
     path('qrcode_generator/', include('qrcode_generator.urls')),
     path('library_manager/', include('library_manager.urls')),
+    path('appointment/', include('appointment.urls')),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
     path('logo/<filename>', views.get_logo, name='get_logo'),
 ]
