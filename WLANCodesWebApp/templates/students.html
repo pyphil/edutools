@@ -80,12 +80,12 @@ tbody td {
   <table class="table table-hover table-bordered border-secondary table-sm mt-3">
     <thead>
       <th></th>
-      <th><a href="/students/">Name</a></th>
+      <th><a href="{% url 'students' %}">Name</a></th>
       <th>Vorname</th>
       <th>Stufe</th>
       <th>E-Mail</th>
-      <th><a href="/students/?sort=date">Ausgabedatum</a></th>
-      <th><a href="/students/?sort=code">Code</a></th>
+      <th><a href="{% url 'students' %}?sort=date">Ausgabedatum</a></th>
+      <th><a href="{% url 'students' %}?sort=code">Code</a></th>
       <th>Aktionen</th>
     </thead>
     <tbody>
