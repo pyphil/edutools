@@ -1,0 +1,15 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+
+  <div class="container mt-5">
+    <h5>Termine buchen</h5>
+    <form method="post">
+      {{ form.instance.date }}
+      {{ form.instance.time }}
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-primary">Speichern</button>
+    </form>
+  </div>
+{% endblock content %}

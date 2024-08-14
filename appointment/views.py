@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Appointment
+from .forms import AppointmentForm, AppointmentCreateForm
 
 
 def appointment(request):
@@ -19,3 +20,27 @@ def appointment(request):
         'appointment_items': appointment_items,
         }
     )
+
+
+def create_appointment(request):
+    if request.method == 'POST':
+        f = AppointmentCreateForm(request.POST)
+        if f.is_valid():
+            f.save()
+        return redirect('appointment')
+    f = AppointmentCreateForm()
+    return render(request, 'create_appointment.html', {'form': f, })
+
+
+def book_appointment(request, id):
+    appointment = Appointment.objects.get(id=id)
+    if request.method == 'POST':
+        f = AppointmentForm(request.POST, instance=appointment)
+        if f.is_valid():
+            instance = f.save(commit=False)
+            instance.date = instance.date
+            instance.time = instance.time
+            instance.save()
+        return redirect('appointment')
+    f = AppointmentForm(instance=appointment)
+    return render(request, 'book_appointment.html', {'form': f})

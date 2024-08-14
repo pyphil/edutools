@@ -1,7 +1,6 @@
 {% extends 'edutools_base.html' %}
 {% block content %}
 
-{% load static %}
   <div class="container mt-5">
     <h5>Termin</h5>
     {% for date in appointment_items %}
@@ -15,7 +14,7 @@
         <div id="collapse_{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#appointment_{{ forloop.counter }}">
           <div class="accordion-body">
               {% for item in date.1 %}
-              <a href="#" class="btn btn-primary mb-2" type="button" style="width: 100px;">{{ item.time }}</a>
+              <a href="{% url 'book_appointment' item.id %}" class="btn btn-primary mb-2" type="button" style="width: 100px;">{{ item.time }}</a>
               {% endfor %}
           </div>
         </div>

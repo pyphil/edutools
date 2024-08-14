@@ -17,3 +17,16 @@ class AppointmentForm(forms.ModelForm):
 
         # Enforce the field to be required conditionally if needed
         self.fields['student_name'].required = True
+
+
+class AppointmentCreateForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = [
+            'date',
+            'time',
+        ]
+        widgets = {
+            'date': forms.SelectDateWidget(),
+            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+        }
