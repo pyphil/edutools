@@ -9,6 +9,11 @@
       {{ form.instance.time }}
       {% csrf_token %}
       {{ form.as_p }}
+      {% if alert %}
+        <div class="alert alert-danger">
+          Die E-Mail-Adressen stimmen nicht überein.
+        </div>
+      {% endif %}
       <button class="btn btn-primary">Speichern</button>
     </form>
   </div>

@@ -6,14 +6,17 @@ from .forms import AppointmentForm, AppointmentCreateForm
 def appointment(request):
     appointments = Appointment.objects.all()
 
+    # Generate a list of dates for date categories in the frontend
     dates = []
     for i in appointments:
         if i.date not in dates:
             dates.append(i.date)
 
+    # create a list of appointments hours for the dates
     appointment_items = []
     for date in dates:
-        items = Appointment.objects.filter(date=date)
+        # only append appointment if name is empty
+        items = Appointment.objects.filter(date=date, student_name="")
         appointment_items.append((date, items))
     print(appointment_items)
     return render(request, 'appointment.html', {
@@ -40,7 +43,9 @@ def book_appointment(request, id):
             instance = f.save(commit=False)
             instance.date = instance.date
             instance.time = instance.time
-            instance.save()
-        return redirect('appointment')
+            if instance.email == instance.email_2:
+                instance.save()
+                return redirect('appointment')
+        return render(request, 'book_appointment.html', {'form': f, 'alert': True})
     f = AppointmentForm(instance=appointment)
     return render(request, 'book_appointment.html', {'form': f})

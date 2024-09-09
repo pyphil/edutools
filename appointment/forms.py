@@ -7,9 +7,21 @@ class AppointmentForm(forms.ModelForm):
         model = Appointment
         fields = [
             'student_name',
+            'parents_name',
+            'email',
+            'email_2',
         ]
+        labels = {
+            'student_name': 'Name des Kindes',
+            'parents_name': 'Name(n) der Erziehungsberechtigten',
+            'email': 'E-Mail-Adresse',
+            'email_2': 'Wiederholung E-Mail-Adresse',
+        }
         widgets = {
             'student_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'parents_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'email_2': forms.EmailInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
