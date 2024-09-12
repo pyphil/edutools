@@ -1,6 +1,24 @@
 from django.shortcuts import render, redirect
 from .models import Appointment
 from .forms import AppointmentForm, AppointmentCreateForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+# from django.contrib.admin.views.decorators import staff_member_required
+
+
+def is_appointment_admin(user):
+    return user.groups.filter(name='appointment_admin').exists()
+
+
+@login_required
+@user_passes_test(is_appointment_admin)
+def create_appointment(request):
+    if request.method == 'POST':
+        f = AppointmentCreateForm(request.POST)
+        if f.is_valid():
+            f.save()
+        return redirect('appointment')
+    f = AppointmentCreateForm()
+    return render(request, 'create_appointment.html', {'form': f, })
 
 
 def appointment(request):
@@ -23,16 +41,6 @@ def appointment(request):
         'appointment_items': appointment_items,
         }
     )
-
-
-def create_appointment(request):
-    if request.method == 'POST':
-        f = AppointmentCreateForm(request.POST)
-        if f.is_valid():
-            f.save()
-        return redirect('appointment')
-    f = AppointmentCreateForm()
-    return render(request, 'create_appointment.html', {'form': f, })
 
 
 def book_appointment(request, id):
