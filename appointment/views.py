@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Appointment
-from .forms import AppointmentForm, AppointmentCreateForm
+from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 # from django.contrib.admin.views.decorators import staff_member_required
 
@@ -13,12 +13,19 @@ def is_appointment_admin(user):
 @user_passes_test(is_appointment_admin)
 def create_appointment(request):
     if request.method == 'POST':
-        f = AppointmentCreateForm(request.POST)
-        if f.is_valid():
-            f.save()
+        start_time = request.POST.get('start_time')
+        Appointment.objects.create(date=request.POST.get('date'), time=start_time)
+        for i in range(int(request.POST.get('number')) - 1):
+            hh, mm = map(int, start_time.split(':'))
+            hours_added, new_mm = divmod(mm + int(request.POST.get('interval')), 60)
+            new_hh = (hh + hours_added) % 24
+            new_time = f"{new_hh:02d}:{new_mm:02d}"
+            start_time = new_time
+            Appointment.objects.create(date=request.POST.get('date'), time=new_time)
+
         return redirect('appointment')
-    f = AppointmentCreateForm()
-    return render(request, 'create_appointment.html', {'form': f, })
+    # f = AppointmentCreateForm()
+    return render(request, 'create_appointment.html', {})
 
 
 def appointment(request):

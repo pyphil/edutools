@@ -15,7 +15,7 @@ class AppointmentForm(forms.ModelForm):
         labels = {
             'student_name': 'Name des Kindes',
             'primary_school': 'Grundschule',
-            'parents_name': 'Name(n) der Erziehungsberechtigten',
+            'parents_name': 'Name(n) der/des Erziehungsberechtigten',
             'email': 'E-Mail-Adresse',
             'email_2': 'Wiederholung E-Mail-Adresse',
         }
@@ -36,16 +36,3 @@ class AppointmentForm(forms.ModelForm):
         self.fields['primary_school'].required = True
         self.fields['email'].required = True
         self.fields['email_2'].required = True
-
-
-class AppointmentCreateForm(forms.ModelForm):
-    class Meta:
-        model = Appointment
-        fields = [
-            'date',
-            'time',
-        ]
-        widgets = {
-            'date': forms.SelectDateWidget(),
-            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-        }
