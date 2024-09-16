@@ -43,7 +43,6 @@ def appointment(request):
         # only append appointment if name is empty
         items = Appointment.objects.filter(date=date, student_name="")
         appointment_items.append((date, items))
-    print(appointment_items)
     return render(request, 'appointment.html', {
         'appointment_items': appointment_items,
         }
@@ -54,13 +53,65 @@ def book_appointment(request, id):
     appointment = Appointment.objects.get(id=id)
     if request.method == 'POST':
         f = AppointmentForm(request.POST, instance=appointment)
+        if appointment.student_name == "":
+            if f.is_valid():
+                instance = f.save(commit=False)
+                instance.date = instance.date
+                instance.time = instance.time
+                if instance.email == instance.email_2:
+                    instance.save()
+                    return redirect('appointment')
+            return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
+        else:
+            return render(request, 'book_appointment.html', {'form': f, 'alert': "booked"})
+    if appointment.student_name == "":
+        f = AppointmentForm(instance=appointment)
+        return render(request, 'book_appointment.html', {'form': f})
+    else:
+        return redirect('appointment')
+
+
+@login_required
+@user_passes_test(is_appointment_admin)
+def edit_appointment(request, id):
+    appointment = Appointment.objects.get(id=id)
+    if request.method == 'POST':
+        f = AppointmentForm(request.POST, instance=appointment)
+
         if f.is_valid():
             instance = f.save(commit=False)
             instance.date = instance.date
             instance.time = instance.time
             if instance.email == instance.email_2:
                 instance.save()
-                return redirect('appointment')
-        return render(request, 'book_appointment.html', {'form': f, 'alert': True})
+                return redirect('appointment_admin')
+        return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
+
     f = AppointmentForm(instance=appointment)
     return render(request, 'book_appointment.html', {'form': f})
+
+
+@login_required
+@user_passes_test(is_appointment_admin)
+def delete_appointment(request, id):
+    appointment = Appointment.objects.get(id=id)
+    if request.method == 'POST':
+        if request.POST.get('empty'):
+            appointment.student_name = ""
+            appointment.primary_school = ""
+            appointment.parents_name = ""
+            appointment.email = ""
+            appointment.email_2 = ""
+            appointment.save()
+        if request.POST.get('delete'):
+            appointment.delete()
+        return redirect('appointment_admin')
+    return render(request, 'delete_appointment.html', {'appointment': appointment})
+
+
+@login_required
+@user_passes_test(is_appointment_admin)
+def appointment_admin(request):
+    # appointments = Appointment.objects.all()
+    appointments = Appointment.objects.filter(date="2024-09-14")
+    return render(request, 'appointment_admin.html', {'appointments': appointments})

@@ -1,0 +1,34 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+
+  <div class="container mt-5 pb-5">
+    <div class="card">
+      <div class="card-header">
+        <h3>Termin löschen</h3>
+        <h5><b>Datum:</b> {{ appointment.date }}</h5>
+        <h5><b>Zeit:</b> {{ appointment.time }}</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="alert alert-danger">
+            TERMINDETAILS:<br>
+            {% if appointment.student_name %}
+            <b>Kind:</b> {{ appointment.student_name }}<br>
+            <b>Grundschule:</b> {{ appointment.primary_school }}<br>
+            <b>Erz.:</b> {{ appointment.parents_name }}<br>
+            <b>E-Mail:</b> {{ appointment.email }}
+            {% else %}
+            - Termin nicht gebucht -
+            {% endif %}
+          </div>
+          {% if appointment.student_name %}
+          <button class="btn btn-primary" name="empty" value="empty">Termin leeren und erneut zur Buchung freigeben</button>
+          {% endif %}
+          <button class="btn btn-danger" name="delete" value="delete">Termin komplett aus dem Raster löschen</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

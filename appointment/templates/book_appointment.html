@@ -2,19 +2,33 @@
 {% block content %}
 
 
-  <div class="container mt-5">
-    <h5>Termine buchen</h5>
-    <form method="post">
-      {{ form.instance.date }}
-      {{ form.instance.time }}
-      {% csrf_token %}
-      {{ form.as_p }}
-      {% if alert %}
-        <div class="alert alert-danger">
-          Die E-Mail-Adressen stimmen nicht überein.
-        </div>
-      {% endif %}
-      <button class="btn btn-primary">Speichern</button>
-    </form>
+  <div class="container mt-5 pb-5">
+    <div class="card">
+      <div class="card-header">
+        <h3>Termin buchen</h3>
+        <h5><b>Datum:</b> {{ form.instance.date }}</h5>
+        <h5><b>Zeit:</b> {{ form.instance.time }}</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          {% if alert == "email" %}
+            <div class="alert alert-danger">
+              Die E-Mail-Adressen stimmen nicht überein.
+            </div>
+          {% endif %}
+          {% if alert == "booked" %}
+            <div class="alert alert-danger">
+              <b>
+                Der Termin wurde in der Zwischenzeit leider schon gebucht. Bitte kehren Sie zur Buchungsseite zurück und wählen Sie einen neuen Termin.<br><br>
+                <a href="{% url 'appointment' %}">Zurück zur Buchungsseite</a>
+              </b>
+            </div>
+          {% endif %}
+          <button class="btn btn-primary">Termin verbindlich buchen</button>
+        </form>
+      </div>
+    </div>
   </div>
 {% endblock content %}
