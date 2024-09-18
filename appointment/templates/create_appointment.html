@@ -20,38 +20,42 @@
 </div>
 
   <div class="container mt-5">
-    <h4>Termine anlegen</h4>
-    <form method="post">
-      {% csrf_token %}
-      <div class="row mb-3">
-        <label for="date" class="col-sm-3 col-form-label">Datum:</label>
-        <div class="col-sm-auto">
-          <input type="date" class="form-control" id="date" name="date">
-        </div>
-      </div>  
-    
-      <div class="row mb-3">
-        <label for="start_time" class="col-sm-3 col-form-label">Startzeit:</label>
-        <div class="col-sm-auto">
-          <input type="time" class="form-control" id="start_time" name="start_time">
-        </div>
+    <div class="card">
+      <div class="card-body">
+        <h4>Termine anlegen</h4>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mb-3">
+            <label for="date" class="col-sm-3 col-form-label">Datum:</label>
+            <div class="col-sm-auto">
+              <input type="date" class="form-control" id="date" name="date">
+            </div>
+          </div>  
+        
+          <div class="row mb-3">
+            <label for="start_time" class="col-sm-3 col-form-label">Startzeit:</label>
+            <div class="col-sm-auto">
+              <input type="time" class="form-control" id="start_time" name="start_time">
+            </div>
+          </div>
+        
+          <div class="row mb-3">
+            <label for="interval" class="col-sm-3 col-form-label">Länge eines Termins in Minuten:</label>
+            <div class="col-sm-1">
+              <input type="number" class="form-control" id="interval" name="interval">
+            </div>
+          </div>
+        
+          <div class="row mb-3">
+            <label for="number" class="col-sm-3 col-form-label">Anzahl der zu generierenden Termine:</label>
+            <div class="col-sm-1">
+              <input type="number" class="form-control" id="number" name="number">
+            </div>
+          </div>
+          
+          <button class="btn btn-primary">Termine anlegen</button>
+        </form>
       </div>
-    
-      <div class="row mb-3">
-        <label for="interval" class="col-sm-3 col-form-label">Länge eines Termins in Minuten:</label>
-        <div class="col-sm-1">
-          <input type="number" class="form-control" id="interval" name="interval">
-        </div>
-      </div>
-    
-      <div class="row mb-3">
-        <label for="number" class="col-sm-3 col-form-label">Anzahl der zu generierenden Termine:</label>
-        <div class="col-sm-1">
-          <input type="number" class="form-control" id="number" name="number">
-        </div>
-      </div>
-      
-      <button class="btn btn-primary">Termine anlegen</button>
-    </form>
+    </div>
   </div>
 {% endblock content %}
