@@ -1,6 +1,24 @@
 {% extends 'edutools_base.html' %}
 {% block content %}
 
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <ul class="nav justify-content-center nav-underline">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'appointment' %}">Terminbuchung</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'create_appointment' %}">Terminerstellung</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'appointment_admin' %}">Terminverwaltung</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
   <div class="container mt-5">
     <h5>Termin</h5>
     {% for date in appointment_items %}

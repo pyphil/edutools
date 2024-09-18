@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Appointment
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required, user_passes_test
+from datetime import datetime
 # from django.contrib.admin.views.decorators import staff_member_required
 
 
@@ -112,6 +113,18 @@ def delete_appointment(request, id):
 @login_required
 @user_passes_test(is_appointment_admin)
 def appointment_admin(request):
-    # appointments = Appointment.objects.all()
-    appointments = Appointment.objects.all()
-    return render(request, 'appointment_admin.html', {'appointments': appointments})
+    items = Appointment.objects.all()
+    dates = []
+    for item in items:
+        if item.date not in dates:
+            dates.append(item.date)
+    if request.GET.get('select'):
+        current_date = datetime.fromisoformat(request.GET.get('select')).date()
+    else:
+        if dates:
+            current_date = dates[0]
+        else:
+            current_date = None
+    appointments = Appointment.objects.filter(date=current_date)
+
+    return render(request, 'appointment_admin.html', {'appointments': appointments, 'dates': dates, 'current_date': current_date})
