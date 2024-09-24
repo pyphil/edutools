@@ -46,6 +46,7 @@ def appointment(request):
         appointment_items.append((date, items))
     return render(request, 'appointment.html', {
         'appointment_items': appointment_items,
+        'is_admin': is_appointment_admin(request.user),
         }
     )
 
