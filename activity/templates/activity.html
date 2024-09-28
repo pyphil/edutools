@@ -22,14 +22,47 @@
 {% endif %}
 
   <div class="container mt-5">
-    <h4>Terminbuchung</h4>
+    <h4>Terminbuchung und Angebot für den Tag der offenen Tür</h4>
     <div class="card">
-        <div class="card-body">
-            <form>
-                {{ form.as_p }}
-                <button type="submit">Submit</button>
-            </form>
-        </div>
+      <div class="card-body">
+        {% if alert %}
+          <div class="alert alert-danger">Das Angebot {{ alert }} ist ausgebucht.</div>
+        {% endif %}
+        <h5>Wählen Sie zunächst einen Block für Ihren Besuch aus:</h5>
+        <form>
+          <select class="form-select form-select-lg" style="background-color:  rgb(229, 237, 251);" name="block" onchange="this.form.submit()">
+          {% for block in blocks %}
+            <option value="{{ block.id }}"
+              {% if block.id == current_block_id %} selected {% endif %}
+              >{{ block }}
+            </option>
+          {% endfor %}
+          </select>
+        </form>
+        <form method="post">
+          {% csrf_token %}
+          <h5 class="mt-4">Wählen Sie dann eine Angebotskombination für ihr Kind aus:</h5>
+          {% for activity in activities %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio" id="{{ activity }}" name="select_activity" value="{{ activity }}" required
+              {% if "ausgebucht" in activity %}
+              disabled
+              {% endif %}
+              >
+              <label class="form-check-label" for="{{ activity }}" >
+                {{ activity }}
+              </label>
+            </div>
+            {% endfor %}
+            <p class="mt-4"><small><i>Während ihr Kind die zwei von unseren Lehrkräften betreuten Angebote nacheinander besucht, können Sie die Informationsveranstaltung der Schulleitung wahrnehmen.</i></small></p>
+            <label for="student_name">Name des Kindes:</label>
+            <input class="form-control" id="student_name" name="student_name" required>
+            <label for="parents_name">Name der/des Erziehungsberechtigten:</label>
+            <input class="form-control" id="parents_name" name="parents_name">
+            <button type="submit" class="btn btn-primary mt-3">Buchen</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 {% endblock content %}
