@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
     <link rel="apple-touch-icon" href="{% static 'images/edutools_gear.png' %}">
@@ -13,8 +13,10 @@
     <title>eduTools</title>
     <style>
         body {
-            background: linear-gradient(to right, #ff9966, #ff5e62);
-            margin-bottom: 60px; /* To ensure content does not hide behind the fixed navbar */
+            /* background: linear-gradient(to right, #ff9966, #ff5e62); */
+            margin-bottom: 150px; /* To ensure content does not hide behind the fixed navbar */
+            background: rgb(142,198,238);
+            background: linear-gradient(90deg, rgba(142,198,238,1) 10%, rgba(94,173,214,1) 50%, rgba(162,221,222,1) 92%);
         }
         .app-icon {
             width: 65px;
@@ -34,25 +36,33 @@
     </style>
 </head>
 <body>
-    <nav class="navbar bg-light mb-5 shadow">
-        <div>
-            <img src="{% static 'images/edutools_gear.png' %}" width="40" class="ms-5" style="border-radius: 10%;"> 
-            <a class="navbar-brand ms-2 h1 align-middle" href="{% url 'edutools_home' %}">eduTools</a>
+    <nav class="navbar navbar-expand-sm bg-light mb-5 py-0 shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'edutools_home' %}" style="font-size: 22px; font-weight: 500;">
+                <img src="{% static 'images/edutools_gear.png' %}" width="40" height="40" class="d-inline-block ms-1 align-text-middle" style="border-radius: 10%;"> 
+                eduTools
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="ms-auto mb-2 mb-sm-0">
+                    {% if institution_logo %}
+                    <a href="{% url 'edutools_home' %}"><img src="/{{ institution_logo }}" width="40" class="ms-1 align-middle"></a>
+                    {% endif %}
+                    <a class="navbar-brand ms-2 h1 align-middle" href="{% url 'edutools_home' %}">{{ institution_name }}</a>
+                </div>
+
+                <form method="post" action="{% url 'logout' %}" class="d-flex ms-auto">
+                    {% csrf_token %}
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-outline-danger me-1" type="submit">Logout ({{ user.username }})</button>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-success me-1 mb-2 mb-sm-0" type="submit">Login</a>
+                    {% endif %}    
+                </form>
+            </div>
         </div>
-        <div>    
-            {% if institution_logo %}
-                <a href="{% url 'edutools_home' %}"><img src="/{{ institution_logo }}" width="40" class="ms-1"></a>
-            {% endif %}
-            <a class="navbar-brand ms-2 h1 align-middle" href="{% url 'edutools_home' %}">{{ institution_name }}</a>
-        </div>
-        {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="btn btn-outline-danger me-5" type="submit">Logout ({{ user.username }})</button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}" class="btn btn-outline-success me-5" type="submit">Login</a>
-        {% endif %}    
     </nav>
 
 {% block content %}
