@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Activity, ActivityBlock, BookedActivity
 
 
-def activity(request):    
+def activity(request):
     blocks = ActivityBlock.objects.all()
     current_block_id = int(request.GET.get('block', blocks.first().id))
     alert = None
@@ -13,13 +13,14 @@ def activity(request):
         parents_name = request.POST.get('parents_name').strip()
         count = BookedActivity.objects.filter(block=selected_block, activity=selected_activity).count()
         if count <= 5:
-            BookedActivity.objects.create(
+            booking = BookedActivity.objects.create(
                 block=selected_block,
                 activity=selected_activity,
                 student_name=student_name,
                 parents_name=parents_name
-            ).full_clean()
-            return redirect('activity')
+            )
+            request.session['last_booking_id'] = booking.id
+            return redirect('success')
         else:
             alert = selected_activity
 
@@ -37,5 +38,15 @@ def activity(request):
         'blocks': blocks,
         'current_block_id': current_block_id,
         'alert': alert
+        }
+    )
+
+
+def success(request):
+    id = request.session.get('last_booking_id')
+    obj = BookedActivity.objects.get(id=id)
+    return render(request, 'success.html', {
+        'activity_block': obj.block,
+        'activity': obj.activity,
         }
     )

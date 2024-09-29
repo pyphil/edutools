@@ -1,0 +1,22 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+  <div class="container mt-5">
+    <h4>Terminbuchung und Angebot für den Tag der offenen Tür</h4>
+        <div class="alert alert-info">
+          Vielen Dank für Ihre Buchung zum Tag der offenen Tür am 23.11.2024.<br><br>
+          <u>Sie haben gebucht:</u><br><br>
+          
+          <ul>
+            <li>
+              <b>{{ activity_block }}</b><br>
+            </li>
+            <li>
+              Gebuchte Angebote für Ihr Kind:<br>
+              <b>{{ activity }}</b>
+            </li>
+          </ul>
+
+    </div>
+  </div>
+{% endblock content %}
