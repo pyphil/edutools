@@ -84,7 +84,11 @@ TEMPLATES = [
                 # get logout url for base.html via context processor
                 'buchungstool.context_processors.get_logout_url',
                 # get login hint for login.html
-                'edutools_home.context_processors.get_login_hint'
+                'edutools_home.context_processors.get_login_hint',
+                # get legal notice link for edutools_base
+                'edutools_home.context_processors.get_legal_notice',
+                # get privacy policy link for edutools_base
+                'edutools_home.context_processors.get_privacy_policy',
             ],
         },
     },
