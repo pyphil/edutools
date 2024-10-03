@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Activity, ActivityBlock, BookedActivity
+from django.contrib.auth.decorators import login_required
 
 
 def activity(request):
@@ -48,5 +49,27 @@ def success(request):
     return render(request, 'success.html', {
         'activity_block': obj.block,
         'activity': obj.activity,
+        }
+    )
+
+
+@login_required
+def activity_lists(request):
+    blocks = ActivityBlock.objects.all()
+    current_block_id = int(request.GET.get('block', blocks.first().id))
+    activities = Activity.objects.all()
+    if request.GET.get('select_activity') and not request.GET.get('select_activity') == "all":
+        current_activity = Activity.objects.get(id=request.GET.get('select_activity'))
+        bookings = BookedActivity.objects.filter(block=current_block_id, activity=current_activity)
+    else:
+        current_activity = "all"
+        bookings = BookedActivity.objects.filter(block=current_block_id)
+
+    return render(request, 'activity_lists.html', {
+        'blocks': blocks,
+        'current_block_id': current_block_id,
+        'activities': activities,
+        'bookings': bookings,
+        'current_activity': current_activity,
         }
     )

@@ -1,0 +1,47 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+  <div class="container mt-5">
+    <div class="text-end"><a href="{% url 'activity' %}" class="btn btn-primary">zurück</a></div>
+    <h4>Listen für den Tag der offenen Tür</h4>
+      <form>
+          Block
+          <select class="form-select form-select-lg" style="background-color:  rgb(229, 237, 251);" name="block" onchange="this.form.submit()">
+          {% for block in blocks %}
+            <option value="{{ block.id }}"
+              {% if block.id == current_block_id %} selected {% endif %}
+              >{{ block }}
+            </option>
+          {% endfor %}
+          </select>
+        Angebot
+        <select class="form-select form-select-lg" style="background-color:  rgb(229, 237, 251);" name="select_activity" onchange="this.form.submit()">
+          <option value="all">Alle Anmeldungen im aktuellen Block</option>
+        {% for activity in activities %}
+          <option value="{{ activity.id }}"
+            {% if activity.id == current_activity.id %} selected {% endif %}
+            >{{ activity }}
+          </option>
+        {% endfor %}
+        </select>
+      </form>
+      <table class="table mt-4">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Kind:</th>
+            <th scope="col">Erziehungsberechtigte:</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ booking.student_name }}</td>
+            <td>{{ booking.parents_name }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+{% endblock content %}

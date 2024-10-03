@@ -22,6 +22,9 @@
 {% endif %}
 
   <div class="container mt-5">
+    {% if user.is_authenticated %}
+    <div class="text-end"><a href="{% url 'activity_lists' %}" class="btn btn-primary"><i class="bi bi-arrow-right"></i> interne Listen</a></div>
+    {% endif %}
     <h4>Terminbuchung und Angebot für den Tag der offenen Tür am 23.11.2024</h4>
     <div class="card">
       <div class="card-body">
@@ -30,7 +33,7 @@
         {% endif %}
         <h5>Wählen Sie zunächst einen Block für Ihren Besuch aus:</h5>
         <form>
-          <select class="form-select form-select-lg" style="background-color:  rgb(229, 237, 251);" name="block" onchange="this.form.submit()">
+          <select class="form-select form-select-lg" style="background-color:  rgb(229, 237, 251); max-width: 600px;" name="block" onchange="this.form.submit()">
           {% for block in blocks %}
             <option value="{{ block.id }}"
               {% if block.id == current_block_id %} selected {% endif %}
