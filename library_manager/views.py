@@ -8,7 +8,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 
 def is_library_admin(user):
-    return user.groups.filter(name='library_admin').exists()
+    return user.is_staff or user.groups.filter(name='library_admin').exists()
 
 
 def is_library_assistant(user):

@@ -9,7 +9,7 @@ from threading import Thread
 
 
 def is_teacher(user):
-    return user.groups.filter(name='teachers').exists()
+    return user.is_staff or user.groups.filter(name='teachers').exists()
 
 
 @login_required

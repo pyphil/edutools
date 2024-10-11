@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 def is_appointment_admin(user):
-    return user.groups.filter(name='appointment_admin').exists()
+    return user.is_staff or user.groups.filter(name='appointment_admin').exists()
 
 
 @login_required

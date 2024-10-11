@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 
 def is_teacher(user):
-    return user.groups.filter(name='teachers').exists()
+    return user.is_staff or user.groups.filter(name='teachers').exists()
 
 
 def home(request):
