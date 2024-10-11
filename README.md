@@ -52,7 +52,9 @@ source .venv/bin/activate   (on Linux and MacOS)
 ```
 
 ### Get the source code
+```
 git clone https://github.com/pyphil/edutools.git
+```
 
 ### Install requirements in virtual environment
 ```
