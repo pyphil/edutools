@@ -39,3 +39,40 @@
 *eduTools* enthält eine Selbstregistrierung für Lehrkräfte basierend auf deren Dienst-E-Mail-Adressen.
 
 
+## Setup Development Server
+
+### Create and activate a Virtual Environment (optional)
+```
+python3 -m venv .venv       (on Windows: python -m venv .venv)
+
+source .venv/bin/activate   (on Linux and MacOS)
+
+.venv/Scripts/activate      (on Windows)
+
+```
+
+### Get the source code
+git clone https://github.com/pyphil/edutools.git
+
+### Install requirements in virtual environment
+```
+pip install -r requirements.txt
+```
+
+### Migrate database
+```
+python manage.py migrate
+```
+
+### Create superuser for eduTools and Django's /admin/
+```
+python manage.py createsuperuser
+```
+
+### Run local development server
+```
+python manage.py runserver
+```
+
+## Using local_settings.py
+local_settings.py in /edutools_site/ is used in settings.py if present in order to hide your secret key and email settings. Use the template in local_settings_template.py.
