@@ -53,7 +53,6 @@
                 {% endif %}
               {% else %}
                 <a class="btn btn-secondary shadow" href="/accounts/login/?next={{ request.get_full_path|urlencode }}"><i class="bi bi-person-circle"></i> Login</a>
-                <a class="btn btn-secondary shadow ms-3" href="/accounts/register/"><i class="bi bi-caret-right-fill"></i> Registrieren</a>
                 {% endif %}
               {% if request.path != "/lehrplanansicht/" %}
                 <a class="btn btn-primary ms-3 shadow" href="{% url 'lehrplanansicht' %}"><i class="bi bi-files"></i> Lehrplanansicht</a>
