@@ -12,3 +12,7 @@ class Appointment(models.Model):
 
     class Meta:
         ordering = ['time']
+
+
+class AppointmentMail(models.Model):
+    mail_text = models.TextField(blank=True, null=True)

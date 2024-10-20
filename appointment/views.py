@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
-from .models import Appointment
+from .models import Appointment, AppointmentMail
+from WLANCodesWebApp.models import Config
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
+from threading import Thread
+from django.core.mail import send_mail
 # from django.contrib.admin.views.decorators import staff_member_required
 
 
@@ -62,6 +65,9 @@ def book_appointment(request, id):
                 instance.time = instance.time
                 if instance.email == instance.email_2:
                     instance.save()
+                    thread = mail_thread(instance)
+                    thread.start()
+                    # mail(instance)
                     return redirect('appointment')
             return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
         else:
@@ -129,3 +135,45 @@ def appointment_admin(request):
     appointments = Appointment.objects.filter(date=current_date)
 
     return render(request, 'appointment_admin.html', {'appointments': appointments, 'dates': dates, 'current_date': current_date})
+
+
+class mail_thread(Thread):
+    def __init__(self, instance):
+        super(mail_thread, self).__init__()
+        self.email = instance.email
+        conf_noreply = Config.objects.get(name="noreply-mail")
+        self.noreply = conf_noreply.setting
+        try:
+            obj = AppointmentMail.objects.all().first()
+            self.mail_text = obj.mail_text
+            self.mail_text = self.mail_text.replace('#KIND#', instance.student_name)
+            self.mail_text = self.mail_text.replace('#DATUM#', instance.date.strftime('%d.%m.%Y'))
+            self.mail_text = self.mail_text.replace('#UHRZEIT#', instance.time.strftime('%H:%M'))
+        except AppointmentMail.DoesNotExist:
+            self.mail_text = None
+            print("no mail_text yet")
+
+    # run method is automatically executed on thread.start()
+    def run(self):
+        # send mail
+        if self.mail_text:
+            send_mail(
+                'Buchung Anmeldetermin',
+                self.mail_text,
+                self.noreply,
+                [self.email],
+                fail_silently=True,
+            )
+
+
+# def mail(instance):
+#     conf_noreply = Config.objects.get(name="noreply-mail")
+#     noreply = conf_noreply.setting
+#     mail_text = f"Sie haben gebucht: {instance.date}, {instance.time}"
+#     send_mail(
+#         'Buchung Anmeldetermin',
+#         mail_text,
+#         noreply,
+#         [instance.email],
+#         fail_silently=True,
+#     )
