@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Appointment
+from .models import Appointment, AppointmentMail
 from WLANCodesWebApp.models import Config
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -141,29 +141,29 @@ class mail_thread(Thread):
     def __init__(self, instance):
         super(mail_thread, self).__init__()
         self.email = instance.email
-        # conf_mail = Config.objects.get(name="accounts_mail_text")
         conf_noreply = Config.objects.get(name="noreply-mail")
         self.noreply = conf_noreply.setting
-        self.mail_text = f"""Sehr geehrte {instance.parents_name},
-Sie haben für ihr Kind {instance.student_name} einen Termin für das Anmeldeverfahren gebucht.
-
-Datum: {instance.date}
-Uhrzeit: {instance.time}
-
-"""
+        try:
+            obj = AppointmentMail.objects.all().first()
+            self.mail_text = obj.mail_text
+            self.mail_text = self.mail_text.replace('#KIND#', instance.student_name)
+            self.mail_text = self.mail_text.replace('#DATUM#', instance.date.strftime('%d.%m.%Y'))
+            self.mail_text = self.mail_text.replace('#UHRZEIT#', instance.time.strftime('%H:%M'))
+        except AppointmentMail.DoesNotExist:
+            self.mail_text = None
+            print("no mail_text yet")
 
     # run method is automatically executed on thread.start()
     def run(self):
         # send mail
-        # mail_text = self.mail_text.replace('#LINK#', self.link)
-
-        send_mail(
-            'Buchung Anmeldetermin',
-            self.mail_text,
-            self.noreply,
-            [self.email],
-            fail_silently=True,
-        )
+        if self.mail_text:
+            send_mail(
+                'Buchung Anmeldetermin',
+                self.mail_text,
+                self.noreply,
+                [self.email],
+                fail_silently=True,
+            )
 
 
 # def mail(instance):
