@@ -128,7 +128,7 @@ class mail_thread(Thread):
         mail_text = self.mail_text.replace('#LINK#', self.link)
 
         send_mail(
-            'Registrierung WLAN-CodesWebApp',
+            'Registrierung eduTools',
             mail_text,
             self.noreply,
             [self.email],
