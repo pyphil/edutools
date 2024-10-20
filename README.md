@@ -77,4 +77,4 @@ python manage.py runserver
 ```
 
 ## Using local_settings.py
-local_settings.py in /edutools_site/ is used in settings.py if present in order to hide your secret key and email settings. Use the template in local_settings_template.py.
+The ```file local_settings.py``` in /edutools_site/ is used in settings.py if present in order to hide your secret key and email settings. Use the template ```local_settings_template.py``` to create your settings file.
