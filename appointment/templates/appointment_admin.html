@@ -76,15 +76,22 @@
                 <tr>
               {% endifchanged %}
               <td>
-                <div class="hstack" style="font-size: larger;">
-                  <b>{{ appointment.time }}</b><br>
-                  <div class="ms-auto"><a href="{% url 'edit_appointment' appointment.id %}"><i class="bi bi-pencil-square me-1"></i></a> <a href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a></div>
+
                 </div>
                 {% if appointment.student_name %}
+                  <div class="hstack" style="font-size: larger;">
+                    <b>{{ appointment.time }}</b><br>
+                    <div class="ms-auto"><a href="{% url 'edit_appointment' appointment.id %}"><i class="bi bi-pencil-square me-1"></i></a> <a href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a></div>
+                  </div>
                   <b>Kind:</b> {{ appointment.student_name }}<br>
                   <b>Grundschule:</b> {{ appointment.primary_school }}<br>
                   <b>Erz.:</b> {{ appointment.parents_name }}<br>
                   <b>E-Mail:</b> {{ appointment.email }}
+                {% else %}
+                  <div class="hstack" style="font-size: larger;">
+                    <b>{{ appointment.time }}</b><br>
+                    <div class="ms-auto"><a href="{% url 'book_appointment' appointment.id %}"><i class="bi bi-pencil-square me-1"></i></a> <a href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a></div>
+                  </div>
                 {% endif %}
               </td>
             {% endfor %}

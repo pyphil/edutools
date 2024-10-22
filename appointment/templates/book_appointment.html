@@ -26,7 +26,12 @@
               </b>
             </div>
           {% endif %}
-          <button class="btn btn-primary">Termin verbindlich buchen</button>
+          {% if edit %}
+            <button class="btn btn-primary">Änderung speichern</button>
+            <a href="javascript:history.back()" class="btn btn-secondary">Zurück</a>
+          {% else %}
+            <button class="btn btn-primary">Termin verbindlich buchen</button>
+          {% endif %}
         </form>
       </div>
     </div>
