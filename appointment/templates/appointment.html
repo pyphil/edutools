@@ -22,13 +22,16 @@
 {% endif %}
 
   <div class="container mt-5">
-    <h4>Terminbuchung</h4>
+    <h4>Terminbuchung zum Anmeldeverfahren</h4>
+    <div class="alert alert-light">
+      Wählen Sie zunächst ein Datum für Ihren Termin aus. Je nach Verfügbarkeit stehen bis zu vier parallele Termine für eine Uhrzeit zur Verfügung. Durch die Auswahl einer Uhrzeit gelangen Sie zum Buchungsformular für Ihren Termin.
+    </div>
     {% for date in appointment_items %}
     <div class="accordion" id="appointment_{{ forloop.counter }}">
       <div class="accordion-item">
         <h2 class="accordion-header">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse_{{ forloop.counter }}">
-            {{ date.0 }}
+            {{ date.0|date:"D, d. M. Y" }}
           </button>
         </h2>
         <div id="collapse_{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#appointment_{{ forloop.counter }}">

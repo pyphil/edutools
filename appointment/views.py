@@ -96,7 +96,7 @@ def edit_appointment(request, id):
         return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
 
     f = AppointmentForm(instance=appointment)
-    return render(request, 'book_appointment.html', {'form': f})
+    return render(request, 'book_appointment.html', {'form': f, 'edit': True})
 
 
 @login_required
