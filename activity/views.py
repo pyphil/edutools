@@ -12,7 +12,7 @@ def activity(request):
     alert = None
     if request.method == 'POST':
         selected_block = ActivityBlock.objects.get(id=current_block_id)
-        selected_activity = Activity.objects.get(name=request.POST.get('select_activity'))
+        selected_activity = Activity.objects.get(id=request.POST.get('select_activity'))
         student_name = request.POST.get('student_name').strip()
         parents_name = request.POST.get('parents_name').strip()
         count = BookedActivity.objects.filter(block=selected_block, activity=selected_activity).count()
@@ -35,7 +35,7 @@ def activity(request):
         if count > 5:
             activity_list.append((activity.name + ' & ausgebucht').split("&"))
         else:
-            activity_list.append(activity.name.split("&"))
+            activity_list.append((activity.name + '&' + str(activity.id)).split("&"))
 
     return render(request, 'activity.html', {
         'activities': activity_list,
