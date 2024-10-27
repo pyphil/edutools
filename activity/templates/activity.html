@@ -46,6 +46,7 @@
           {% csrf_token %}
           <h5 class="mt-4">Wählen Sie dann eine Angebotskombination für ihr Kind aus:</h5>
           <small><i class="text-secondary">Ausgegraute Kombinationen sind im gewählten Block bereits ausgebucht.</i></small>
+          <div class="table-responsive">
           <table class="table">
               <thead>
                   <tr>
@@ -95,6 +96,7 @@
                   {% endfor %}
               </tbody>
           </table>
+        </div>
           
             <p class="mt-4"><small><i>Während ihr Kind die zwei von unseren Lehrkräften betreuten Angebote nacheinander besucht, können Sie die Informationsveranstaltung der Schulleitung wahrnehmen.</i></small></p>
             <label for="student_name">Name des Kindes:</label>
