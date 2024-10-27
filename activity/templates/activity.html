@@ -45,7 +45,7 @@
         <form method="post">
           {% csrf_token %}
           <h5 class="mt-4">Wählen Sie dann eine Angebotskombination für ihr Kind aus:</h5>
-
+          <small><i class="text-secondary">Ausgegraute Kombinationen sind im gewählten Block bereits ausgebucht.</i></small>
           <table class="table">
               <thead>
                   <tr>
@@ -65,7 +65,7 @@
                                       type="radio" 
                                       id="activity_{{ forloop.counter }}" 
                                       name="select_activity" 
-                                      value="{{ activity.2 }}" 
+                                      value="{{ activity.2 }}"
                                       required
                                       {% if "ausgebucht" in activity.2 %} disabled {% endif %}
                                   >
