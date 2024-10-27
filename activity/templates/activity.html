@@ -45,18 +45,57 @@
         <form method="post">
           {% csrf_token %}
           <h5 class="mt-4">Wählen Sie dann eine Angebotskombination für ihr Kind aus:</h5>
-          {% for activity in activities %}
-            <div class="form-check">
-              <input class="form-check-input" type="radio" id="{{ activity }}" name="select_activity" value="{{ activity }}" required
-              {% if "ausgebucht" in activity %}
-              disabled
-              {% endif %}
-              >
-              <label class="form-check-label" for="{{ activity }}" >
-                {{ activity }}
-              </label>
-            </div>
-            {% endfor %}
+
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>Auswahl</th>
+                      <th>Aktivität 1</th>
+                      <th>Aktivität 2</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for activity in activities %}
+                      <tr>
+                          <!-- Radio button column -->
+                          <td>
+                              <div class="form-check">
+                                  <input 
+                                      class="form-check-input" 
+                                      type="radio" 
+                                      id="activity_{{ forloop.counter }}" 
+                                      name="select_activity" 
+                                      value="{{ activity }}" 
+                                      required
+                                      {% if "ausgebucht" in activity.2 %} disabled {% endif %}
+                                  >
+                              </div>
+                          </td>
+          
+                          <!-- Activity.0 column -->
+                          <td>
+                            <label 
+                            class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" 
+                            for="activity_{{ forloop.counter }}"
+                            >
+                            {{ activity.0 }}
+                            </label>
+                          </td>
+          
+                          <!-- Activity.1 column -->
+                          <td>
+                            <label 
+                            class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" 
+                            for="activity_{{ forloop.counter }}"
+                            >
+                            {{ activity.1 }}
+                            </label>
+                        </td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          
             <p class="mt-4"><small><i>Während ihr Kind die zwei von unseren Lehrkräften betreuten Angebote nacheinander besucht, können Sie die Informationsveranstaltung der Schulleitung wahrnehmen.</i></small></p>
             <label for="student_name">Name des Kindes:</label>
             <input class="form-control" id="student_name" name="student_name" required>

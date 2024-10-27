@@ -33,9 +33,9 @@ def activity(request):
     for activity in activities:
         count = BookedActivity.objects.filter(block=current_block_id, activity=activity).count()
         if count > 5:
-            activity_list.append(activity.name + ' - ausgebucht')
+            activity_list.append((activity.name + ' & ausgebucht').split("&"))
         else:
-            activity_list.append(activity.name)
+            activity_list.append(activity.name.split("&"))
 
     return render(request, 'activity.html', {
         'activities': activity_list,
