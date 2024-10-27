@@ -5,7 +5,10 @@ from django.contrib.auth.decorators import login_required
 
 def activity(request):
     blocks = ActivityBlock.objects.all()
-    current_block_id = int(request.GET.get('block', blocks.first().id))
+    if blocks:
+        current_block_id = int(request.GET.get('block', blocks.first().id))
+    else:
+        current_block_id = None
     alert = None
     if request.method == 'POST':
         selected_block = ActivityBlock.objects.get(id=current_block_id)
@@ -56,7 +59,10 @@ def success(request):
 @login_required
 def activity_lists(request):
     blocks = ActivityBlock.objects.all()
-    current_block_id = int(request.GET.get('block', blocks.first().id))
+    if blocks:
+        current_block_id = int(request.GET.get('block', blocks.first().id))
+    else:
+        current_block_id = None
     activities = Activity.objects.all()
     if request.GET.get('select_activity') and not request.GET.get('select_activity') == "all":
         current_activity = Activity.objects.get(id=request.GET.get('select_activity'))
