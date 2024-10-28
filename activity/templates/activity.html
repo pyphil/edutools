@@ -1,6 +1,16 @@
 {% extends 'edutools_base.html' %}
 {% block content %}
-
+<style>
+  .scroll-hint {
+    font-size: small;
+    display: none;
+  }
+  @media (max-width: 576px) {
+    .scroll-hint {
+      display: block;
+    }
+  }
+</style>
 {% if is_admin %}
 <div class="container">
   <div class="card">
@@ -47,6 +57,9 @@
           <h5 class="mt-4">Wählen Sie dann eine Angebotskombination für ihr Kind aus:</h5>
           <small><i class="text-secondary">Ausgegraute Kombinationen sind im gewählten Block bereits ausgebucht.</i></small>
           <div class="table-responsive">
+            <div class="scroll-hint text-end text-success">
+            Nach rechts scollen >>>
+          </div>
           <table class="table">
               <thead>
                   <tr>
