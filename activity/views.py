@@ -32,7 +32,7 @@ def activity(request):
     activity_list = []
     for activity in activities:
         count = BookedActivity.objects.filter(block=current_block_id, activity=activity).count()
-        if count > 5:
+        if count >= 5:
             activity_list.append((activity.name + ' & ausgebucht').split("&"))
         else:
             activity_list.append((activity.name + '&' + str(activity.id)).split("&"))
