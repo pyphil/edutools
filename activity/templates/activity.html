@@ -38,8 +38,11 @@
     <h4>Terminbuchung und Angebot für den Tag der offenen Tür am 23.11.2024</h4>
     <div class="card">
       <div class="card-body">
-        {% if alert %}
-          <div class="alert alert-danger">Das Angebot {{ alert }} ist ausgebucht.</div>
+        {% if alert_full %}
+          <div class="alert alert-danger">Das Angebot {{ alert_full }} ist ausgebucht.</div>
+        {% endif %}
+        {% if alert_exists %}
+          <div class="alert alert-success">Diese Buchung existiert bereits.</div>
         {% endif %}
         <h5>Wählen Sie zunächst einen Block für Ihren Besuch aus:</h5>
         <form>
