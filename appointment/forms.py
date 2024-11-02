@@ -11,6 +11,7 @@ class AppointmentForm(forms.ModelForm):
             'parents_name',
             'email',
             'email_2',
+            'phone',
         ]
         labels = {
             'student_name': 'Name des Kindes',
@@ -18,6 +19,7 @@ class AppointmentForm(forms.ModelForm):
             'parents_name': 'Name(n) der/des Erziehungsberechtigten',
             'email': 'E-Mail-Adresse',
             'email_2': 'Wiederholung E-Mail-Adresse',
+            'phone': 'Telefon (optional, für Rückfragen)'
         }
         widgets = {
             'student_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -25,6 +27,7 @@ class AppointmentForm(forms.ModelForm):
             'primary_school': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'email_2': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
