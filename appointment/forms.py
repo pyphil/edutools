@@ -27,7 +27,7 @@ class AppointmentForm(forms.ModelForm):
             'primary_school': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'email_2': forms.EmailInput(attrs={'class': 'form-control'}),
-            'phone': forms.NumberInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
