@@ -68,7 +68,8 @@ def book_appointment(request, id):
                     thread = mail_thread(instance)
                     thread.start()
                     # mail(instance)
-                    return redirect('appointment')
+                    request.session['appointment_success_id'] = instance.id
+                    return redirect('success_appointment')
             return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
         else:
             return render(request, 'book_appointment.html', {'form': f, 'alert': "booked"})
@@ -77,6 +78,21 @@ def book_appointment(request, id):
         return render(request, 'book_appointment.html', {'form': f})
     else:
         return redirect('appointment')
+
+
+def success_appointment(request):
+    id = request.session.get('appointment_success_id')
+    del request.session['appointment_success_id']
+    obj = Appointment.objects.get(id=id)
+    try:
+        mailtextobj = AppointmentMail.objects.all().first()
+        text = mailtextobj.mail_text
+        text = text.replace('#KIND#', obj.student_name)
+        text = text.replace('#DATUM#', obj.date.strftime('%d.%m.%Y'))
+        text = text.replace('#UHRZEIT#', obj.time.strftime('%H:%M') + " Uhr")
+    except AppointmentMail.DoesNotExist:
+        text = None
+    return render(request, 'success_appointment.html', {'text': text})
 
 
 @login_required
@@ -148,7 +164,7 @@ class mail_thread(Thread):
             self.mail_text = obj.mail_text
             self.mail_text = self.mail_text.replace('#KIND#', instance.student_name)
             self.mail_text = self.mail_text.replace('#DATUM#', instance.date.strftime('%d.%m.%Y'))
-            self.mail_text = self.mail_text.replace('#UHRZEIT#', instance.time.strftime('%H:%M'))
+            self.mail_text = self.mail_text.replace('#UHRZEIT#', instance.time.strftime('%H:%M') + " Uhr")
         except AppointmentMail.DoesNotExist:
             self.mail_text = None
             print("no mail_text yet")

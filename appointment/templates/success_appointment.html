@@ -1,0 +1,18 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+
+  <div class="container mt-5 pb-5">
+    <div class="card">
+      <div class="card-header">
+        <h3>Buchung erfolgreich</h3>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-success">
+          Folgene Informationen erhalten Sie ebenfalls per E-Mail:<br><br>
+          {{ text|linebreaksbr|urlize }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
