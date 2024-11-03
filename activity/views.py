@@ -22,7 +22,7 @@ def activity(request):
             student_name=student_name,
             parents_name=parents_name
         ).exists()
-  
+
         count = BookedActivity.objects.filter(block=selected_block, activity=selected_activity).count()
         if count <= 5 and not exists:
             alert_exists = False
