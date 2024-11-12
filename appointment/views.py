@@ -93,7 +93,11 @@ def success_appointment(request):
         text = text.replace('#UHRZEIT#', obj.time.strftime('%H:%M') + " Uhr")
     except AppointmentMail.DoesNotExist:
         text = None
-    return render(request, 'success_appointment.html', {'text': text})
+    return render(request, 'success_appointment.html', {
+        'text': text,
+        'is_admin': is_appointment_admin(request.user),
+        }
+    )
 
 
 @login_required
