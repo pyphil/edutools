@@ -37,7 +37,7 @@
         <div id="collapse_{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#appointment_{{ forloop.counter }}">
           <div class="accordion-body">
             {% if not date.1 %}
-            - Es sind aktuell keine Termine verfügbar -
+            - Für diesen Tag sind keine Termine mehr verfügbar -
             {% endif %}
               {% for item in date.1 %}
               <a href="{% url 'book_appointment' item.id %}" class="btn btn-primary mb-2" type="button" style="width: 100px;">{{ item.time }}</a>

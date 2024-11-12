@@ -14,7 +14,7 @@ class AppointmentForm(forms.ModelForm):
             'phone',
         ]
         labels = {
-            'student_name': 'Name des Kindes',
+            'student_name': 'Vorname und Nachname des Kindes',
             'primary_school': 'Grundschule',
             'parents_name': 'Name(n) der/des Erziehungsberechtigten',
             'email': 'E-Mail-Adresse',
