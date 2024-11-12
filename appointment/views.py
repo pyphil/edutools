@@ -40,6 +40,7 @@ def appointment(request):
     for i in appointments:
         if i.date not in dates:
             dates.append(i.date)
+    dates.sort()
 
     # create a list of appointments hours for the dates
     appointment_items = []
@@ -108,7 +109,7 @@ def edit_appointment(request, id):
             instance.time = instance.time
             if instance.email == instance.email_2:
                 instance.save()
-                return redirect('appointment_admin')
+                return redirect('/appointment/appointment_admin?select=' + str(instance.date))
         return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
 
     f = AppointmentForm(instance=appointment)
@@ -129,7 +130,7 @@ def delete_appointment(request, id):
             appointment.save()
         if request.POST.get('delete'):
             appointment.delete()
-        return redirect('appointment_admin')
+        return redirect('/appointment/appointment_admin?select=' + str(appointment.date))
     return render(request, 'delete_appointment.html', {'appointment': appointment})
 
 
@@ -141,6 +142,8 @@ def appointment_admin(request):
     for item in items:
         if item.date not in dates:
             dates.append(item.date)
+    if dates:
+        dates.sort()
     if request.GET.get('select'):
         current_date = datetime.fromisoformat(request.GET.get('select')).date()
     else:
