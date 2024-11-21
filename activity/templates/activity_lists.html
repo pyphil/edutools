@@ -1,7 +1,30 @@
 {% extends 'edutools_base.html' %}
 {% block content %}
+<style>
+  .print-only {
+  display: none !important;
+  }
 
-  <div class="container mt-5">
+  @media print {
+    body {
+      background-image: none;
+    }
+    body > * {
+      display: none !important;
+    }
+    .printable,
+    .print-only {
+      display: block !important;
+    }
+    /* Hide all buttons when printing */
+    a,
+    .ms-auto {
+      display: none !important;
+    }   
+  }
+
+</style>
+  <div class="container mt-5 printable">
     <div class="text-end"><a href="{% url 'activity' %}" class="btn btn-primary">zurück</a></div>
     <h4>Listen für den Tag der offenen Tür</h4>
       <form>
@@ -30,7 +53,10 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Kind:</th>
-            <th scope="col">Erziehungsberechtigte:</th>
+            {% if current_activity == "all" %}
+              <th scope="col">Erziehungsberechtigte:</th>
+              <th scope="col">Angebote:</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -38,7 +64,10 @@
           <tr>
             <th scope="row">{{ forloop.counter }}</th>
             <td>{{ booking.student_name }}</td>
-            <td>{{ booking.parents_name }}</td>
+            {% if current_activity == "all" %}
+              <td>{{ booking.parents_name }}</td>
+              <td>{{ booking.activity }}</td>
+            {% endif %}
           </tr>
           {% endfor %}
         </tbody>

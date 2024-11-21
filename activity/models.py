@@ -26,3 +26,4 @@ class BookedActivity(models.Model):
 
     class Meta:
         verbose_name_plural = 'Booked Activities'
+        ordering = ['student_name']
