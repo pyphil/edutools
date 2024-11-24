@@ -113,6 +113,8 @@ def edit_appointment(request, id):
             instance.time = instance.time
             if instance.email == instance.email_2:
                 instance.save()
+                thread = mail_thread(instance)
+                thread.start()
                 return redirect('/appointment/appointment_admin?select=' + str(instance.date))
         return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
 
