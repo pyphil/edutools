@@ -142,6 +142,7 @@ def delete_appointment(request, id):
 @user_passes_test(is_appointment_admin)
 def appointment_admin(request):
     items = Appointment.objects.all()
+    all_bookings_count = items.count() - items.filter(student_name="").count()
     dates = []
     for item in items:
         if item.date not in dates:
@@ -157,7 +158,13 @@ def appointment_admin(request):
             current_date = None
     appointments = Appointment.objects.filter(date=current_date)
 
-    return render(request, 'appointment_admin.html', {'appointments': appointments, 'dates': dates, 'current_date': current_date})
+    return render(request, 'appointment_admin.html', {
+        'appointments': appointments, 
+        'dates': dates, 
+        'current_date': current_date,
+        'all_bookings_count': all_bookings_count,
+        }
+    )
 
 
 class mail_thread(Thread):

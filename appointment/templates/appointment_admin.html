@@ -45,7 +45,7 @@
 <div class="container mt-3">
   <div class="card">
     <div class="card-body">
-      <div class="hstack">
+      <div class="hstack gap-3">
         <form>
           <select name="select" class="form-select" style="width: 500px;" onchange="this.form.submit()">
             {% if not dates %}
@@ -56,6 +56,10 @@
             {% endfor %}
           </select>
         </form>
+        <div class="vr"></div>
+        <div>
+          Gesamtzahl aller Buchungen: <b>{{ all_bookings_count }}</b>
+        </div>
         <button class="btn btn-primary ms-auto" onclick="window.print()">Terminliste drucken</button>
 
 
