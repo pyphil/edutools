@@ -7,34 +7,36 @@ from django.contrib.auth.decorators import login_required
 def activity(request):
     blocks = ActivityBlock.objects.all()
     if blocks:
-        current_block_id = int(request.GET.get('block', blocks.first().id))
+        current_block_id = int(request.GET.get("block", blocks.first().id))
     else:
         current_block_id = None
     alert_full = None
     alert_exists = None
-    if request.method == 'POST':
+    if request.method == "POST":
         selected_block = ActivityBlock.objects.get(id=current_block_id)
-        selected_activity = Activity.objects.get(id=request.POST.get('select_activity'))
-        student_name = request.POST.get('student_name').strip()
-        parents_name = request.POST.get('parents_name').strip()
+        selected_activity = Activity.objects.get(id=request.POST.get("select_activity"))
+        student_name = request.POST.get("student_name").strip()
+        parents_name = request.POST.get("parents_name").strip()
         exists = BookedActivity.objects.filter(
-            block=selected_block, 
-            activity=selected_activity, 
+            block=selected_block,
+            activity=selected_activity,
             student_name=student_name,
-            parents_name=parents_name
+            parents_name=parents_name,
         ).exists()
 
-        count = BookedActivity.objects.filter(block=selected_block, activity=selected_activity).count()
+        count = BookedActivity.objects.filter(
+            block=selected_block, activity=selected_activity
+        ).count()
         if count <= 5 and not exists:
             alert_exists = False
             booking = BookedActivity.objects.create(
                 block=selected_block,
                 activity=selected_activity,
                 student_name=student_name,
-                parents_name=parents_name
+                parents_name=parents_name,
             )
-            request.session['last_booking_id'] = booking.id
-            return redirect('success')
+            request.session["last_booking_id"] = booking.id
+            return redirect("success")
         elif exists:
             alert_exists = True
         else:
@@ -43,29 +45,37 @@ def activity(request):
     activities = Activity.objects.all()
     activity_list = []
     for activity in activities:
-        count = BookedActivity.objects.filter(block=current_block_id, activity=activity).count()
+        count = BookedActivity.objects.filter(
+            block=current_block_id, activity=activity
+        ).count()
         if count >= 5:
-            activity_list.append((activity.name + ' & ausgebucht').split("&"))
+            activity_list.append((activity.name + " & ausgebucht").split("&"))
         else:
-            activity_list.append((activity.name + '&' + str(activity.id)).split("&"))
+            activity_list.append((activity.name + "&" + str(activity.id)).split("&"))
 
-    return render(request, 'activity.html', {
-        'activities': activity_list,
-        'blocks': blocks,
-        'current_block_id': current_block_id,
-        'alert_full': alert_full,
-        'alert_exists': alert_exists,
-        }
+    return render(
+        request,
+        "activity.html",
+        {
+            "activities": activity_list,
+            "blocks": blocks,
+            "current_block_id": current_block_id,
+            "alert_full": alert_full,
+            "alert_exists": alert_exists,
+        },
     )
 
 
 def success(request):
-    id = request.session.get('last_booking_id')
+    id = request.session.get("last_booking_id")
     obj = BookedActivity.objects.get(id=id)
-    return render(request, 'success.html', {
-        'activity_block': obj.block,
-        'activity': obj.activity,
-        }
+    return render(
+        request,
+        "success.html",
+        {
+            "activity_block": obj.block,
+            "activity": obj.activity,
+        },
     )
 
 
@@ -73,22 +83,30 @@ def success(request):
 def activity_lists(request):
     blocks = ActivityBlock.objects.all()
     if blocks:
-        current_block_id = int(request.GET.get('block', blocks.first().id))
+        current_block_id = int(request.GET.get("block", blocks.first().id))
     else:
         current_block_id = None
     activities = Activity.objects.all()
-    if request.GET.get('select_activity') and not request.GET.get('select_activity') == "all":
-        current_activity = Activity.objects.get(id=request.GET.get('select_activity'))
-        bookings = BookedActivity.objects.filter(block=current_block_id, activity=current_activity)
+    if (
+        request.GET.get("select_activity")
+        and not request.GET.get("select_activity") == "all"
+    ):
+        current_activity = Activity.objects.get(id=request.GET.get("select_activity"))
+        bookings = BookedActivity.objects.filter(
+            block=current_block_id, activity=current_activity
+        )
     else:
         current_activity = "all"
         bookings = BookedActivity.objects.filter(block=current_block_id)
 
-    return render(request, 'activity_lists.html', {
-        'blocks': blocks,
-        'current_block_id': current_block_id,
-        'activities': activities,
-        'bookings': bookings,
-        'current_activity': current_activity,
-        }
+    return render(
+        request,
+        "activity_lists.html",
+        {
+            "blocks": blocks,
+            "current_block_id": current_block_id,
+            "activities": activities,
+            "bookings": bookings,
+            "current_activity": current_activity,
+        },
     )
