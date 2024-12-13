@@ -3,6 +3,7 @@ from .models import Activity, ActivityBlock, BookedActivity
 from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def activity(request):
     blocks = ActivityBlock.objects.all()
     if blocks:
