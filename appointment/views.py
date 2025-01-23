@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Appointment, AppointmentMail
 from WLANCodesWebApp.models import Config
-from .forms import AppointmentForm
+from .forms import AppointmentForm, MailText
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 from threading import Thread
@@ -169,6 +169,24 @@ def appointment_admin(request):
     )
 
 
+@login_required
+@user_passes_test(is_appointment_admin)
+def appointment_email(request):
+    mail_settings = AppointmentMail.objects.first()
+    if request.method == "POST":
+        f = MailText(request.POST, instance=mail_settings)
+        if f.is_valid():
+            f.save()
+        if request.POST.get("send_reminder"):
+            appointment_objects = Appointment.objects.all()
+            thread = mail_thread_reminder(appointment_objects)
+            thread.start()
+        return redirect("appointment_email")
+
+    f = MailText(instance=mail_settings)
+    return render(request, "appointment_email.html", {'form': f})
+
+
 class mail_thread(Thread):
     def __init__(self, instance):
         super(mail_thread, self).__init__()
@@ -194,6 +212,32 @@ class mail_thread(Thread):
                 self.mail_text,
                 self.noreply,
                 [self.email],
+                fail_silently=True,
+            )
+
+
+class mail_thread_reminder(Thread):
+    def __init__(self, appointment_objects):
+        super(mail_thread_reminder, self).__init__()
+        self.appointment_objects = appointment_objects
+        conf_noreply = Config.objects.get(name="noreply-mail")
+        self.noreply = conf_noreply.setting
+        self.mail_text = AppointmentMail.objects.first().mail_text_reminder
+
+    # run method is automatically executed on thread.start()
+    def run(self):
+        # send mail
+        for appointment_obj in self.appointment_objects:
+            mail_text = self.mail_text
+            mail_text = mail_text.replace('#KIND#', appointment_obj.student_name)
+            mail_text = mail_text.replace('#DATUM#', appointment_obj.date.strftime('%d.%m.%Y'))
+            mail_text = mail_text.replace('#UHRZEIT#', appointment_obj.time.strftime('%H:%M') + " Uhr")
+
+            send_mail(
+                'Buchung Anmeldetermin',
+                mail_text,
+                self.noreply,
+                [appointment_obj.email],
                 fail_silently=True,
             )
 

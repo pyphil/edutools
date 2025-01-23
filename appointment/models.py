@@ -17,3 +17,4 @@ class Appointment(models.Model):
 
 class AppointmentMail(models.Model):
     mail_text = models.TextField(blank=True, null=True)
+    mail_text_reminder = models.TextField(blank=True, null=True)

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Appointment
+from .models import Appointment, AppointmentMail
 
 
 class AppointmentForm(forms.ModelForm):
@@ -39,3 +39,21 @@ class AppointmentForm(forms.ModelForm):
         self.fields['primary_school'].required = True
         self.fields['email'].required = True
         self.fields['email_2'].required = True
+
+
+class MailText(forms.ModelForm):
+    class Meta:
+        model = AppointmentMail
+        fields = [
+            'mail_text',
+            'mail_text_reminder',
+
+        ]
+        labels = {
+            'mail_text': 'E-Mail Text Buchung',
+            'mail_text_reminder': 'E-Mail Text Erinnerung',
+        }
+        widgets = {
+            'mail_text': forms.Textarea(attrs={'class': 'form-control'}),
+            'mail_text_reminder': forms.Textarea(attrs={'class': 'form-control'}),
+        }

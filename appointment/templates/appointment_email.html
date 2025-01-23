@@ -1,0 +1,69 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+<style>
+  .print-only {
+  display: none !important;
+  }
+
+  @media print {
+    body {
+      background-image: none;
+    }
+    body > * {
+      display: none !important;
+    }
+    .printable,
+    .print-only {
+      display: block !important;
+    }
+    /* Hide all buttons when printing */
+    button,
+    .ms-auto {
+      display: none !important;
+    }   
+  }
+</style>
+
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <ul class="nav justify-content-center nav-underline">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'appointment' %}">Terminbuchung</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'create_appointment' %}">Terminerstellung</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'appointment_admin' %}">Terminverwaltung</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'appointment_email' %}">E-Mail</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-3">
+  <form method="post">
+    <div class="card">
+      <div class="card-body">
+        <div class="alert alert-info">
+          Folgende Platzhalter können verwendet werden: #DATUM# #UHRZEIT# #KIND#
+        </div>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Speichern</button>
+      </div>
+    </div>
+    <br>
+    <div class="card">
+      <div class="card-body">
+        <button class="btn btn-danger" name="send_reminder" value="send_reminder">Erinnerungs-E-Mail an alle hinterlegten E-Mail-Adressen senden</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock content %}
