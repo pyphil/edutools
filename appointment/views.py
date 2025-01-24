@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 from threading import Thread
 from django.core.mail import send_mail
+from django.contrib import messages
 # from django.contrib.admin.views.decorators import staff_member_required
 
 
@@ -177,10 +178,12 @@ def appointment_email(request):
         f = MailText(request.POST, instance=mail_settings)
         if f.is_valid():
             f.save()
+            messages.success(request, 'Einstellungen gespeichert')
         if request.POST.get("send_reminder"):
             appointment_objects = Appointment.objects.all()
             thread = mail_thread_reminder(appointment_objects)
             thread.start()
+            messages.success(request, 'Erinnerungsmails werden im Hintergrund versendet')
         return redirect("appointment_email")
 
     f = MailText(instance=mail_settings)
@@ -234,7 +237,7 @@ class mail_thread_reminder(Thread):
             mail_text = mail_text.replace('#UHRZEIT#', appointment_obj.time.strftime('%H:%M') + " Uhr")
 
             send_mail(
-                'Buchung Anmeldetermin',
+                'Erinnerung Anmeldetermin',
                 mail_text,
                 self.noreply,
                 [appointment_obj.email],
