@@ -7,30 +7,31 @@ from datetime import datetime
 from threading import Thread
 from django.core.mail import send_mail
 from django.contrib import messages
+
 # from django.contrib.admin.views.decorators import staff_member_required
 
 
 def is_appointment_admin(user):
-    return user.is_staff or user.groups.filter(name='appointment_admin').exists()
+    return user.is_staff or user.groups.filter(name="appointment_admin").exists()
 
 
 @login_required
 @user_passes_test(is_appointment_admin)
 def create_appointment(request):
-    if request.method == 'POST':
-        start_time = request.POST.get('start_time')
-        Appointment.objects.create(date=request.POST.get('date'), time=start_time)
-        for i in range(int(request.POST.get('number')) - 1):
-            hh, mm = map(int, start_time.split(':'))
-            hours_added, new_mm = divmod(mm + int(request.POST.get('interval')), 60)
+    if request.method == "POST":
+        start_time = request.POST.get("start_time")
+        Appointment.objects.create(date=request.POST.get("date"), time=start_time)
+        for i in range(int(request.POST.get("number")) - 1):
+            hh, mm = map(int, start_time.split(":"))
+            hours_added, new_mm = divmod(mm + int(request.POST.get("interval")), 60)
             new_hh = (hh + hours_added) % 24
             new_time = f"{new_hh:02d}:{new_mm:02d}"
             start_time = new_time
-            Appointment.objects.create(date=request.POST.get('date'), time=new_time)
+            Appointment.objects.create(date=request.POST.get("date"), time=new_time)
 
-        return redirect('appointment')
+        return redirect("appointment")
     # f = AppointmentCreateForm()
-    return render(request, 'create_appointment.html', {})
+    return render(request, "create_appointment.html", {})
 
 
 def appointment(request):
@@ -49,16 +50,19 @@ def appointment(request):
         # only append appointment if name is empty
         items = Appointment.objects.filter(date=date, student_name="")
         appointment_items.append((date, items))
-    return render(request, 'appointment.html', {
-        'appointment_items': appointment_items,
-        'is_admin': is_appointment_admin(request.user),
-        }
+    return render(
+        request,
+        "appointment.html",
+        {
+            "appointment_items": appointment_items,
+            "is_admin": is_appointment_admin(request.user),
+        },
     )
 
 
 def book_appointment(request, id):
     appointment = Appointment.objects.get(id=id)
-    if request.method == 'POST':
+    if request.method == "POST":
         f = AppointmentForm(request.POST, instance=appointment)
         if appointment.student_name == "":
             if f.is_valid():
@@ -70,34 +74,41 @@ def book_appointment(request, id):
                     thread = mail_thread(instance)
                     thread.start()
                     # mail(instance)
-                    request.session['appointment_success_id'] = instance.id
-                    return redirect('success_appointment')
-            return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
+                    request.session["appointment_success_id"] = instance.id
+                    return redirect("success_appointment")
+            return render(
+                request, "book_appointment.html", {"form": f, "alert": "email"}
+            )
         else:
-            return render(request, 'book_appointment.html', {'form': f, 'alert': "booked"})
+            return render(
+                request, "book_appointment.html", {"form": f, "alert": "booked"}
+            )
     if appointment.student_name == "":
         f = AppointmentForm(instance=appointment)
-        return render(request, 'book_appointment.html', {'form': f})
+        return render(request, "book_appointment.html", {"form": f})
     else:
-        return redirect('appointment')
+        return redirect("appointment")
 
 
 def success_appointment(request):
-    id = request.session.get('appointment_success_id')
-    del request.session['appointment_success_id']
+    id = request.session.get("appointment_success_id")
+    del request.session["appointment_success_id"]
     obj = Appointment.objects.get(id=id)
     try:
         mailtextobj = AppointmentMail.objects.all().first()
         text = mailtextobj.mail_text
-        text = text.replace('#KIND#', obj.student_name)
-        text = text.replace('#DATUM#', obj.date.strftime('%d.%m.%Y'))
-        text = text.replace('#UHRZEIT#', obj.time.strftime('%H:%M') + " Uhr")
+        text = text.replace("#KIND#", obj.student_name)
+        text = text.replace("#DATUM#", obj.date.strftime("%d.%m.%Y"))
+        text = text.replace("#UHRZEIT#", obj.time.strftime("%H:%M") + " Uhr")
     except AppointmentMail.DoesNotExist:
         text = None
-    return render(request, 'success_appointment.html', {
-        'text': text,
-        'is_admin': is_appointment_admin(request.user),
-        }
+    return render(
+        request,
+        "success_appointment.html",
+        {
+            "text": text,
+            "is_admin": is_appointment_admin(request.user),
+        },
     )
 
 
@@ -105,7 +116,7 @@ def success_appointment(request):
 @user_passes_test(is_appointment_admin)
 def edit_appointment(request, id):
     appointment = Appointment.objects.get(id=id)
-    if request.method == 'POST':
+    if request.method == "POST":
         f = AppointmentForm(request.POST, instance=appointment)
 
         if f.is_valid():
@@ -116,29 +127,33 @@ def edit_appointment(request, id):
                 instance.save()
                 thread = mail_thread(instance)
                 thread.start()
-                return redirect('/appointment/appointment_admin?select=' + str(instance.date))
-        return render(request, 'book_appointment.html', {'form': f, 'alert': "email"})
+                return redirect(
+                    "/appointment/appointment_admin?select=" + str(instance.date)
+                )
+        return render(request, "book_appointment.html", {"form": f, "alert": "email"})
 
     f = AppointmentForm(instance=appointment)
-    return render(request, 'book_appointment.html', {'form': f, 'edit': True})
+    return render(request, "book_appointment.html", {"form": f, "edit": True})
 
 
 @login_required
 @user_passes_test(is_appointment_admin)
 def delete_appointment(request, id):
     appointment = Appointment.objects.get(id=id)
-    if request.method == 'POST':
-        if request.POST.get('empty'):
+    if request.method == "POST":
+        if request.POST.get("empty"):
             appointment.student_name = ""
             appointment.primary_school = ""
             appointment.parents_name = ""
             appointment.email = ""
             appointment.email_2 = ""
             appointment.save()
-        if request.POST.get('delete'):
+        if request.POST.get("delete"):
             appointment.delete()
-        return redirect('/appointment/appointment_admin?select=' + str(appointment.date))
-    return render(request, 'delete_appointment.html', {'appointment': appointment})
+        return redirect(
+            "/appointment/appointment_admin?select=" + str(appointment.date)
+        )
+    return render(request, "delete_appointment.html", {"appointment": appointment})
 
 
 @login_required
@@ -152,8 +167,8 @@ def appointment_admin(request):
             dates.append(item.date)
     if dates:
         dates.sort()
-    if request.GET.get('select'):
-        current_date = datetime.fromisoformat(request.GET.get('select')).date()
+    if request.GET.get("select"):
+        current_date = datetime.fromisoformat(request.GET.get("select")).date()
     else:
         if dates:
             current_date = dates[0]
@@ -161,12 +176,15 @@ def appointment_admin(request):
             current_date = None
     appointments = Appointment.objects.filter(date=current_date)
 
-    return render(request, 'appointment_admin.html', {
-        'appointments': appointments, 
-        'dates': dates, 
-        'current_date': current_date,
-        'all_bookings_count': all_bookings_count,
-        }
+    return render(
+        request,
+        "appointment_admin.html",
+        {
+            "appointments": appointments,
+            "dates": dates,
+            "current_date": current_date,
+            "all_bookings_count": all_bookings_count,
+        },
     )
 
 
@@ -178,16 +196,18 @@ def appointment_email(request):
         f = MailText(request.POST, instance=mail_settings)
         if f.is_valid():
             f.save()
-            messages.success(request, 'Einstellungen gespeichert')
+            messages.success(request, "Einstellungen gespeichert")
         if request.POST.get("send_reminder"):
             appointment_objects = Appointment.objects.all()
             thread = mail_thread_reminder(appointment_objects)
             thread.start()
-            messages.success(request, 'Erinnerungsmails werden im Hintergrund versendet')
+            messages.success(
+                request, "Erinnerungsmails werden im Hintergrund versendet"
+            )
         return redirect("appointment_email")
 
     f = MailText(instance=mail_settings)
-    return render(request, "appointment_email.html", {'form': f})
+    return render(request, "appointment_email.html", {"form": f})
 
 
 class mail_thread(Thread):
@@ -199,9 +219,13 @@ class mail_thread(Thread):
         try:
             obj = AppointmentMail.objects.all().first()
             self.mail_text = obj.mail_text
-            self.mail_text = self.mail_text.replace('#KIND#', instance.student_name)
-            self.mail_text = self.mail_text.replace('#DATUM#', instance.date.strftime('%d.%m.%Y'))
-            self.mail_text = self.mail_text.replace('#UHRZEIT#', instance.time.strftime('%H:%M') + " Uhr")
+            self.mail_text = self.mail_text.replace("#KIND#", instance.student_name)
+            self.mail_text = self.mail_text.replace(
+                "#DATUM#", instance.date.strftime("%d.%m.%Y")
+            )
+            self.mail_text = self.mail_text.replace(
+                "#UHRZEIT#", instance.time.strftime("%H:%M") + " Uhr"
+            )
         except AppointmentMail.DoesNotExist:
             self.mail_text = None
             print("no mail_text yet")
@@ -211,7 +235,7 @@ class mail_thread(Thread):
         # send mail
         if self.mail_text:
             send_mail(
-                'Buchung Anmeldetermin',
+                "Buchung Anmeldetermin",
                 self.mail_text,
                 self.noreply,
                 [self.email],
@@ -232,12 +256,16 @@ class mail_thread_reminder(Thread):
         # send mail
         for appointment_obj in self.appointment_objects:
             mail_text = self.mail_text
-            mail_text = mail_text.replace('#KIND#', appointment_obj.student_name)
-            mail_text = mail_text.replace('#DATUM#', appointment_obj.date.strftime('%d.%m.%Y'))
-            mail_text = mail_text.replace('#UHRZEIT#', appointment_obj.time.strftime('%H:%M') + " Uhr")
+            mail_text = mail_text.replace("#KIND#", appointment_obj.student_name)
+            mail_text = mail_text.replace(
+                "#DATUM#", appointment_obj.date.strftime("%d.%m.%Y")
+            )
+            mail_text = mail_text.replace(
+                "#UHRZEIT#", appointment_obj.time.strftime("%H:%M") + " Uhr"
+            )
 
             send_mail(
-                'Erinnerung Anmeldetermin',
+                "Erinnerung Anmeldetermin",
                 mail_text,
                 self.noreply,
                 [appointment_obj.email],
