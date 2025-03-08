@@ -11,15 +11,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
 
-def make_teachers():
-    users = User.objects.all()
-    group, created = Group.objects.get_or_create(name='teachers')
-    for user in users:
-        user.groups.add(group)
-
-
 def email_check(request):
-    # make_teachers()
+
     email_error = False
     if request.method == 'POST':
         entered_email = request.POST.get('mail').casefold()
