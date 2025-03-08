@@ -56,7 +56,7 @@
                 <form method="post" action="{% url 'logout' %}" class="d-flex ms-auto">
                     {% csrf_token %}
                     {% if user.is_authenticated %}
-                        <button class="btn btn-outline-danger me-1" type="submit">Logout ({{ user.username }})</button>
+                        <button class="btn btn-outline-danger me-1" type="submit">Logout ({{ user.username }}{% if user.userprofile.abbr %} [{{ user.userprofile.abbr }}]{% endif %})</button>
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-outline-success me-1 mb-2 mb-sm-0" type="submit">Login</a>
                     {% endif %}    
