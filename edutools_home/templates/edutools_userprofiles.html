@@ -1,0 +1,39 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Krzl</th>
+                        <th>E-Mail</th>
+                        <th>Aktiv</th>
+                        <th>Konto erstellt mit Username</th>
+                        <th>Admin</th>
+                        <th>Gruppen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for userprofile in userprofiles %}
+                    <tr onclick="window.location.href='{% url 'userprofile_details' userprofile.id %}'" style="cursor: pointer;">
+                        <td>{{ userprofile.abbr }}</td>
+                        <td>{{ userprofile.email }}</td>
+                        <td>{% if userprofile.user.is_active %} &check; {% endif %}</td>
+                        <td>{{ userprofile.user.username }}</td>
+                        <td>{% if userprofile.user.is_staff %} &check; {% endif %}</td>
+                        <td>
+                            {% for group in userprofile.user.groups.all %}
+                            {{ group.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,45 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="email">E-Mail</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ userprofile.email }}">
+                </div>
+                <div class="mb-3">
+                    <label for="abbr">Krzl</label>
+                    <input type="text" class="form-control" id="abbr" name="abbr" value="{{ userprofile.abbr }}">
+                </div>
+                {% if userprofile.user %}
+                    <div class="mb-3">
+                        <label for="username">Konto erstellt mit Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ userprofile.user.username }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if userprofile.user.is_active %}checked{% endif %}>
+                        <label for="is_active">Ist aktiv</label>
+                    </div>
+                    <div class="mb-3">
+                        <input type="checkbox" class="form-check-input" id="is_staff" name="is_staff" {% if userprofile.user.is_staff %}checked{% endif %}>
+                        <label for="is_staff">Ist Admin (Staff user)</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="groups">Gruppen (Strg bzw. Command gedrückt halten zum Auswählen)</label>
+                        <select class="form-select" id="groups" name="groups" multiple>
+                            {% for group in groups %}
+                            <option value="{{ group.id }}" {% if group in userprofile.user.groups.all %}selected{% endif %}>{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Speichern</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
