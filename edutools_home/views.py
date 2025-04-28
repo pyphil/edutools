@@ -40,7 +40,33 @@ def userprofile_details(request, id):
                 user.is_staff = False
             if request.POST.get("is_active"):
                 user.is_active = True
-            else:    
+            else:
+                user.is_active = False
+            user.save()
+        userprofile.save()
+        return redirect("userprofiles")
+    return render(request, "edutools_userprofile_details.html", {"userprofile": userprofile, "groups": groups})
+
+
+@login_required
+@staff_member_required
+def userprofile_add(request):
+    userprofile = UserProfile()
+    groups = Group.objects.all()
+    if request.method == "POST":
+        userprofile.abbr = request.POST.get("abbr")
+        userprofile.email = request.POST.get("email")
+        if request.POST.get("user"):
+            user = User.objects.get(id=request.POST.get("user"))
+            userprofile.user = user
+            user.groups.set(request.POST.getlist("groups"))
+            if request.POST.get("is_staff"):
+                user.is_staff = True
+            else:
+                user.is_staff = False
+            if request.POST.get("is_active"):
+                user.is_active = True
+            else:
                 user.is_active = False
             user.save()
         userprofile.save()
