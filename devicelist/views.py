@@ -7,6 +7,7 @@ from .models import DevicelistEntry, Device, Status
 from .forms import DevicelistEntryForm, DevicelistEntryFormLoggedIn
 from django.core.mail import send_mail
 from threading import Thread
+from django.db.models import Q
 
 
 def is_teacher(user):
@@ -52,7 +53,6 @@ def devicelist_all(request):
             idfilter = int(request.GET.get('textfilter'))
         except ValueError:
             idfilter = None
-        from django.db.models import Q
 
         textfilter = request.GET.get('textfilter')
         obj = obj.filter(
@@ -64,12 +64,12 @@ def devicelist_all(request):
         )
     if request.GET.get('sortdate'):
         sortdate = request.GET.get('sortdate')
-        if sortdate == "desc":
-            obj = obj.order_by('-datum', '-stunde')
-        else:
+        if sortdate == "asc":
             obj = obj.order_by('datum', 'stunde')
+        else:
+            obj = obj.order_by('-datum', '-stunde')
     else:
-        obj = obj.order_by('datum', 'stunde')
+        obj = obj.order_by('-datum', '-stunde')
 
     status = Status.objects.all()
     options = []

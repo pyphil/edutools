@@ -65,10 +65,10 @@
                 <th scope="col">ID</th>
                 <th scope="col">Raum/Standort</th>
                 <th scope="col">Gerät</th>
-                {% if sortdate == "desc" %}
-                  <th scope="col">Datum <a href="{% url 'devicelist_all' %}?{{ request.GET.urlencode }}&sortdate=asc"><i class="bi bi-arrow-up-short"></i></th>
+                {% if sortdate == "asc" %}
+                  <th class="text-nowrap" scope="col">Datum <a href="{% url 'devicelist_all' %}?{{ request.GET.urlencode }}&sortdate=desc"><i class="bi bi-arrow-down-short"></i></th>
                 {% else %}
-                  <th scope="col">Datum <a href="{% url 'devicelist_all' %}?{{ request.GET.urlencode }}&sortdate=desc"><i class="bi bi-arrow-down-short"></i></th>
+                    <th class="text-nowrap" scope="col">Datum <a href="{% url 'devicelist_all' %}?{{ request.GET.urlencode }}&sortdate=asc"> <i class="bi bi-arrow-up-short"></i></th>
                 {% endif %}
                 <th scope="col">Stunde</th>
                 <th scope="col">Beschreibung</th>
