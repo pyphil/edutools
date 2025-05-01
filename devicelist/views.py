@@ -52,7 +52,24 @@ def devicelist_all(request):
             idfilter = int(request.GET.get('textfilter'))
         except ValueError:
             idfilter = None
-        obj = obj.filter(beschreibung__icontains=request.GET.get('textfilter')) | obj.filter(id=idfilter) | obj.filter(room__room__icontains=request.GET.get('textfilter'))
+        from django.db.models import Q
+
+        textfilter = request.GET.get('textfilter')
+        obj = obj.filter(
+            Q(beschreibung__icontains=textfilter) |
+            Q(id=idfilter) |
+            Q(room__short_name__icontains=textfilter) |
+            Q(krzl__icontains=textfilter) |
+            Q(room__room__icontains=textfilter)
+        )
+    if request.GET.get('sortdate'):
+        sortdate = request.GET.get('sortdate')
+        if sortdate == "desc":
+            obj = obj.order_by('-datum', '-stunde')
+        else:
+            obj = obj.order_by('datum', 'stunde')
+    else:
+        obj = obj.order_by('datum', 'stunde')
 
     status = Status.objects.all()
     options = []
@@ -71,6 +88,11 @@ def devicelist_all(request):
     else:
         textfilter = ""
 
+    if request.GET.get('sortdate'):
+        sortdate = request.GET.get('sortdate')
+    else:
+        sortdate = ""
+
     context = {
         'devicelist': obj,
         'options': options,
@@ -78,6 +100,7 @@ def devicelist_all(request):
         'filter_status': filter_status,
         'filter_room': filter_room,
         'textfilter': textfilter,
+        'sortdate': sortdate,
     }
     return render(request, 'devicelist_all.html', context)
 
@@ -132,11 +155,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                 thread.start()
 
                 if request.POST.get('devicelist_all') == "True":
-                    return redirect(reverse('devicelist_all') +
-                                    '?filter_status=' + request.GET.get('filter_status') +
-                                    '&filter_room=' + request.GET.get('filter_room') +
-                                    '&textfilter=' + request.GET.get('textfilter')
-                                    )
+                    return redirect(reverse('devicelist_all') + "?" + request.GET.urlencode())
                 else:
                     return redirect('devicelist', room=room, date=date, std=std, entry_id=entry_id)
 
