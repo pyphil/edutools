@@ -16,8 +16,10 @@
 - The booking tool includes a **Support Ticket System** for all devices to make work easier for school administrators.
 - **WLAN Codes:** Issue/display of Wi-Fi codes for students, which also includes management of permanent Wi-Fi codes for the admins.
 - **MKR:** An application that enables the NRW media competence framework to be developed collaboratively and presented in a padlet-like structure. There is also a subject-specific export option for the internal curricula.
-- **Library Manager:** A simple school library management system including a lending function.
+- **Library Manager:** A simple school library management system including a function to borrow books from the library.
 - **QR Code Generator** with management of the generated codes
+- **Appointment:** Enables parents to book an appointment, e.g. for the school's registration procedure, while school staff can manage the appointments and print lists in the backend.
+- **Activity:** Enables parents to book different kind of activities, e.g. to organize the Open Day.
 - Possibility to link a digital notice board/representation plan view (integration of the djDSB app into the collection is planned for the future)
 
 *eduTools* includes self-registration for teachers based on their school email addresses.
@@ -34,6 +36,8 @@
 - **MKR:** Eine Anwendung, die es ermöglich den NRW Medienkompetenzrahmen kollaborativ zu erarbeiten und in einer Padlet-artigen Struktur darzustellen. Zudem gibt es eine fachspezifische Exportmöglichkeit für die internen Lehrpläne.
 - **Library Manager:** Eine einfache Schulbibliotheksverwaltung inklusive Ausleihfunktion.
 - **QR-Code Generator** mit Verwaltung der generierten Codes
+- **Termin:** Ermöglicht es den Eltern, einen Termin zu buchen, z. B. für das Anmeldeverfahren der Schule, während das Schulpersonal die Termine verwalten und Listen im Backend drucken kann.
+- **Aktivität:** Ermöglicht es den Eltern, verschiedene Arten von Aktivitäten zu buchen, z.B. für den Tag der offenen Tür.
 - Möglichkeit ein Digitales Schwarzes Brett/Vertretungsplanansicht zu verlinken (Einbindung der App djDSB in die Sammlung ist für die Zukunft geplant)
 
 *eduTools* enthält eine Selbstregistrierung für Lehrkräfte basierend auf deren Dienst-E-Mail-Adressen.
