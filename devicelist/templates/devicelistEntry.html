@@ -29,7 +29,11 @@
               </div>
               <div class="col">
                 <label class="mt-3" for="Krzl" class="form-label">Krzl:</label>
-                {{ devicelist.krzl }}
+                {% if devicelist.krzl.value %}
+                  {{ devicelist.krzl }}
+                {% else %}
+                  <input type="text" name="krzl" value="{{ user.userprofile.abbr }}" class="form-control" maxlength="10" required id="id_krzl">
+                {% endif %}
               </div>
 
               
@@ -42,22 +46,27 @@
               {% if user.is_staff %}
                 {{ devicelist.status }}
               {% else %}
-                <input type="text" name="status" class="form-control" value="{{ devicelist.instance.status }}" readonly>
+                <input type="text" name="status" class="form-control" value="{{ devicelist.instance.status }}" readonly disabled>
               {% endif %}
             </div>
             <div class="col">
               <label class="mt-3" for="Behoben" class="form-label">Bearbeitet durch (Admin):</label>
               {% if user.is_staff %}
-              {{ devicelist.behoben }}
+                {% if devicelist.behoben.value %}
+                  {{ devicelist.behoben }}
+                {% else %}
+                  <input type="text" name="behoben" class="form-control" value="{{ user.username }}" maxlength="10" required id="id_behoben">
+                {% endif %}
               {% else %}
-              <input type="text" class="form-control" value="{{ devicelist.instance.behoben }}" readonly>
+                <input type="text" class="form-control" value="{{ devicelist.instance.behoben }}" readonly disabled>
               {% endif %}
             </div>
             
             {% if user.is_staff %}
-            <div class="col">
-              <label class="mt-3" for="email_to_second" class="form-label">Statusänderung außerdem an folgende E-Mail-Adresse senden:</label>
-              <input class="form-control" id="email_to_second" name="email_to_second">
+              <div class="col">
+                <label class="mt-3" for="email_to_second" class="form-label">Statusänderung außerdem an folgende E-Mail-Adresse senden:</label>
+                <input class="form-control" id="email_to_second" name="email_to_second" value="{{ email }}">
+              </div>
             {% endif %}
             
             

@@ -25,7 +25,11 @@
       {% csrf_token %}
       <div class="mb-3">
         <label class="mt-3" for="saveKrzl" class="form-label">Kürzel:</label>
-        <input type="text" class="form-control mt-2" name="krzl" value="{{ krzl }}" />
+        {% if krzl %}
+          <input type="text" class="form-control mt-2" name="krzl" value="{{ krzl }}" />
+        {% else %}
+          <input type="text" class="form-control mt-2" name="krzl" value="{{ user.userprofile.abbr }}" />
+        {% endif %}
         <label class="mt-3" for="saveLerngruppe" class="form-label">Buchen für Lerngruppe/Veranstaltung:</label>
         <input type="text" class="form-control mt-2" name="lerngruppe" value="{{ buttontext }}" />
         <input type="hidden" name="date" value="{{ isodate }}" />

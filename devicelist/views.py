@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from buchungstool.models import Booking, Room
 from buchungstool_settings.models import Setting
 from .models import DevicelistEntry, Device, Status
+from accounts.models import UserProfile
 from .forms import DevicelistEntryForm, DevicelistEntryFormLoggedIn
 from django.core.mail import send_mail
 from threading import Thread
@@ -90,8 +91,15 @@ def devicelistEntry(request, id, room, date, std, entry_id):
         # Update -> load instance
         if request.user.is_staff:
             f = DevicelistEntryFormLoggedIn(instance=obj)
+            krzl = f.instance.krzl
+            userprofile = UserProfile.objects.filter(abbr=krzl).first()
+            if userprofile:
+                email = userprofile.email
+            else:
+                email = ""
         else:
             f = DevicelistEntryForm(instance=obj)
+            email = ""
     if request.method == "POST":
         if request.POST.get('save'):
             if request.user.is_staff:
@@ -180,6 +188,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
         'date': date,
         'std': std,
         'support_id': id,
+        'email': email,
         'devicelist_all': request.GET.get('devicelist_all'),
     }
 
