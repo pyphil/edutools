@@ -32,8 +32,8 @@ def userprofile_details(request, id):
     userprofile = UserProfile.objects.get(id=id)
     groups = Group.objects.all()
     if request.method == "POST":
-        userprofile.abbr = request.POST.get("abbr")
-        userprofile.email = request.POST.get("email")
+        userprofile.abbr = request.POST.get("abbr").upper()
+        userprofile.email = request.POST.get("email").casefold()
         if userprofile.user:
             userprofile.user.groups.set(request.POST.getlist("groups"))
             user = userprofile.user
@@ -61,8 +61,8 @@ def userprofile_add(request):
     userprofile = UserProfile()
     groups = Group.objects.all()
     if request.method == "POST":
-        userprofile.abbr = request.POST.get("abbr")
-        userprofile.email = request.POST.get("email")
+        userprofile.abbr = request.POST.get("abbr").upper()
+        userprofile.email = request.POST.get("email").casefold()
         if request.POST.get("user"):
             user = User.objects.get(id=request.POST.get("user"))
             userprofile.user = user
