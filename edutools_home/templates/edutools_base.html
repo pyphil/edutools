@@ -52,15 +52,33 @@
                     {% endif %}
                     <a class="navbar-brand ms-2 h1 align-middle" href="{% url 'edutools_home' %}">{{ institution_name }}</a>
                 </div>
-
-                <form method="post" action="{% url 'logout' %}" class="d-flex ms-auto">
-                    {% csrf_token %}
-                    {% if user.is_authenticated %}
-                        <button class="btn btn-outline-danger me-1" type="submit">Logout ({{ user.username }}{% if user.userprofile.abbr %} [{{ user.userprofile.abbr }}]{% endif %})</button>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-success me-1 mb-2 mb-sm-0" type="submit">Login</a>
-                    {% endif %}    
-                </form>
+                {% if user.is_authenticated %}
+                    <div class="dropdown d-flex ms-auto">
+                        <button class="btn btn-outline-dark dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-2" style="font-size: 1.2rem;"></i>
+                            <span class="align-middle">{% if user.userprofile.abbr %}{{ user.userprofile.abbr }}{% else %}{{ user.username }}{% endif %}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item text-end" href="/accounts/change_user/">Kontoeinstellungen</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if user.is_staff %}
+                                <li><h6 class="dropdown-header text-end">Administration</h6></li>
+                                <li><a class="dropdown-item text-end" href="/userprofiles/">Benutzerprofile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                            {% endif %}
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-end btn btn-link">
+                                <b>Logout</b>
+                                </button>
+                            </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-success d-flex ms-auto" type="submit">Login</a>
+                {% endif %}   
             </div>
         </div>
     </nav>
