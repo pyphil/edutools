@@ -4,7 +4,7 @@ from WLANCodesWebApp.models import Config
 from .forms import AppointmentForm, MailText
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
-from threading import Thread
+# from threading import Thread
 from django.core.mail import send_mail
 from django.contrib import messages
 
@@ -62,6 +62,7 @@ def appointment(request):
 
 def book_appointment(request, id):
     appointment = Appointment.objects.get(id=id)
+
     if request.method == "POST":
         f = AppointmentForm(request.POST, instance=appointment)
         if appointment.student_name == "":
@@ -69,25 +70,74 @@ def book_appointment(request, id):
                 instance = f.save(commit=False)
                 instance.date = instance.date
                 instance.time = instance.time
+
                 if instance.email == instance.email_2:
                     instance.save()
-                    thread = mail_thread(instance)
-                    thread.start()
-                    # mail(instance)
+
+                    # --- Send confirmation email synchronously ---
+                    try:
+                        mail_template = AppointmentMail.objects.first().mail_text
+                        if mail_template:
+                            mail_text = (
+                                mail_template
+                                .replace("#KIND#", instance.student_name)
+                                .replace("#DATUM#", instance.date.strftime("%d.%m.%Y"))
+                                .replace("#UHRZEIT#", instance.time.strftime("%H:%M") + " Uhr")
+                            )
+                            noreply = Config.objects.get(name="noreply-mail").setting
+                            send_mail(
+                                "Buchung Anmeldetermin",
+                                mail_text,
+                                noreply,
+                                [instance.email],
+                                fail_silently=True,
+                            )
+                    except AppointmentMail.DoesNotExist:
+                        # optional: log or handle missing template
+                        pass
+
                     request.session["appointment_success_id"] = instance.id
                     return redirect("success_appointment")
-            return render(
-                request, "book_appointment.html", {"form": f, "alert": "email"}
-            )
+            return render(request, "book_appointment.html", {"form": f, "alert": "email"})
         else:
-            return render(
-                request, "book_appointment.html", {"form": f, "alert": "booked"}
-            )
+            return render(request, "book_appointment.html", {"form": f, "alert": "booked"})
+
     if appointment.student_name == "":
         f = AppointmentForm(instance=appointment)
         return render(request, "book_appointment.html", {"form": f})
     else:
         return redirect("appointment")
+
+
+
+# def book_appointment(request, id):
+#     appointment = Appointment.objects.get(id=id)
+#     if request.method == "POST":
+#         f = AppointmentForm(request.POST, instance=appointment)
+#         if appointment.student_name == "":
+#             if f.is_valid():
+#                 instance = f.save(commit=False)
+#                 instance.date = instance.date
+#                 instance.time = instance.time
+#                 if instance.email == instance.email_2:
+#                     instance.save()
+#                     thread = mail_thread(instance)
+#                     thread.start()
+#                     # mail(instance)
+#                     request.session["appointment_success_id"] = instance.id
+#                     return redirect("success_appointment")
+#             return render(
+#                 request, "book_appointment.html", {"form": f, "alert": "email"}
+#             )
+#         else:
+#             return render(
+#                 request, "book_appointment.html", {"form": f, "alert": "booked"}
+#             )
+#     if appointment.student_name == "":
+#         f = AppointmentForm(instance=appointment)
+#         return render(request, "book_appointment.html", {"form": f})
+#     else:
+#         return redirect("appointment")
 
 
 def success_appointment(request):
@@ -192,85 +242,127 @@ def appointment_admin(request):
 @user_passes_test(is_appointment_admin)
 def appointment_email(request):
     mail_settings = AppointmentMail.objects.first()
+
     if request.method == "POST":
         f = MailText(request.POST, instance=mail_settings)
         if f.is_valid():
             f.save()
             messages.success(request, "Einstellungen gespeichert")
+
         if request.POST.get("send_reminder"):
             appointment_objects = Appointment.objects.all()
-            thread = mail_thread_reminder(appointment_objects)
-            thread.start()
-            messages.success(
-                request, "Erinnerungsmails werden im Hintergrund versendet"
-            )
-        return redirect("appointment_email")
+            noreply = Config.objects.get(name="noreply-mail").setting
+            mail_template = mail_settings.mail_text_reminder
 
-    f = MailText(instance=mail_settings)
+            # send all reminder emails synchronously
+            for appointment in appointment_objects:
+                mail_text = (
+                    mail_template
+                    .replace("#KIND#", appointment.student_name)
+                    .replace("#DATUM#", appointment.date.strftime("%d.%m.%Y"))
+                    .replace("#UHRZEIT#", appointment.time.strftime("%H:%M") + " Uhr")
+                )
+
+                send_mail(
+                    "Erinnerung Anmeldetermin",
+                    mail_text,
+                    noreply,
+                    [appointment.email],
+                    fail_silently=True,
+                )
+
+            messages.success(request, "Erinnerungsmails wurden versendet")
+            return redirect("appointment_email")
+
+    else:
+        f = MailText(instance=mail_settings)
+
     return render(request, "appointment_email.html", {"form": f})
 
 
-class mail_thread(Thread):
-    def __init__(self, instance):
-        super(mail_thread, self).__init__()
-        self.email = instance.email
-        conf_noreply = Config.objects.get(name="noreply-mail")
-        self.noreply = conf_noreply.setting
-        try:
-            obj = AppointmentMail.objects.all().first()
-            self.mail_text = obj.mail_text
-            self.mail_text = self.mail_text.replace("#KIND#", instance.student_name)
-            self.mail_text = self.mail_text.replace(
-                "#DATUM#", instance.date.strftime("%d.%m.%Y")
-            )
-            self.mail_text = self.mail_text.replace(
-                "#UHRZEIT#", instance.time.strftime("%H:%M") + " Uhr"
-            )
-        except AppointmentMail.DoesNotExist:
-            self.mail_text = None
-            print("no mail_text yet")
+# @login_required
+# @user_passes_test(is_appointment_admin)
+# def appointment_email(request):
+#     mail_settings = AppointmentMail.objects.first()
+#     if request.method == "POST":
+#         f = MailText(request.POST, instance=mail_settings)
+#         if f.is_valid():
+#             f.save()
+#             messages.success(request, "Einstellungen gespeichert")
+#         if request.POST.get("send_reminder"):
+#             appointment_objects = Appointment.objects.all()
+#             thread = mail_thread_reminder(appointment_objects)
+#             thread.start()
+#             messages.success(
+#                 request, "Erinnerungsmails werden im Hintergrund versendet"
+#             )
+#         return redirect("appointment_email")
 
-    # run method is automatically executed on thread.start()
-    def run(self):
-        # send mail
-        if self.mail_text:
-            send_mail(
-                "Buchung Anmeldetermin",
-                self.mail_text,
-                self.noreply,
-                [self.email],
-                fail_silently=True,
-            )
+#     f = MailText(instance=mail_settings)
+#     return render(request, "appointment_email.html", {"form": f})
 
 
-class mail_thread_reminder(Thread):
-    def __init__(self, appointment_objects):
-        super(mail_thread_reminder, self).__init__()
-        self.appointment_objects = appointment_objects
-        conf_noreply = Config.objects.get(name="noreply-mail")
-        self.noreply = conf_noreply.setting
-        self.mail_text = AppointmentMail.objects.first().mail_text_reminder
+# class mail_thread(Thread):
+#     def __init__(self, instance):
+#         super(mail_thread, self).__init__()
+#         self.email = instance.email
+#         conf_noreply = Config.objects.get(name="noreply-mail")
+#         self.noreply = conf_noreply.setting
+#         try:
+#             obj = AppointmentMail.objects.all().first()
+#             self.mail_text = obj.mail_text
+#             self.mail_text = self.mail_text.replace("#KIND#", instance.student_name)
+#             self.mail_text = self.mail_text.replace(
+#                 "#DATUM#", instance.date.strftime("%d.%m.%Y")
+#             )
+#             self.mail_text = self.mail_text.replace(
+#                 "#UHRZEIT#", instance.time.strftime("%H:%M") + " Uhr"
+#             )
+#         except AppointmentMail.DoesNotExist:
+#             self.mail_text = None
+#             print("no mail_text yet")
 
-    # run method is automatically executed on thread.start()
-    def run(self):
-        # send mail
-        for appointment_obj in self.appointment_objects:
-            mail_text = self.mail_text
-            mail_text = mail_text.replace("#KIND#", appointment_obj.student_name)
-            mail_text = mail_text.replace(
-                "#DATUM#", appointment_obj.date.strftime("%d.%m.%Y")
-            )
-            mail_text = mail_text.replace(
-                "#UHRZEIT#", appointment_obj.time.strftime("%H:%M") + " Uhr"
-            )
+#     # run method is automatically executed on thread.start()
+#     def run(self):
+#         # send mail
+#         if self.mail_text:
+#             send_mail(
+#                 "Buchung Anmeldetermin",
+#                 self.mail_text,
+#                 self.noreply,
+#                 [self.email],
+#                 fail_silently=True,
+#             )
 
-            send_mail(
-                "Erinnerung Anmeldetermin",
-                mail_text,
-                self.noreply,
-                [appointment_obj.email],
-                fail_silently=True,
-            )
+
+# class mail_thread_reminder(Thread):
+#     def __init__(self, appointment_objects):
+#         super(mail_thread_reminder, self).__init__()
+#         self.appointment_objects = appointment_objects
+#         conf_noreply = Config.objects.get(name="noreply-mail")
+#         self.noreply = conf_noreply.setting
+#         self.mail_text = AppointmentMail.objects.first().mail_text_reminder
+
+#     # run method is automatically executed on thread.start()
+#     def run(self):
+#         # send mail
+#         for appointment_obj in self.appointment_objects:
+#             mail_text = self.mail_text
+#             mail_text = mail_text.replace("#KIND#", appointment_obj.student_name)
+#             mail_text = mail_text.replace(
+#                 "#DATUM#", appointment_obj.date.strftime("%d.%m.%Y")
+#             )
+#             mail_text = mail_text.replace(
+#                 "#UHRZEIT#", appointment_obj.time.strftime("%H:%M") + " Uhr"
+#             )
+
+#             send_mail(
+#                 "Erinnerung Anmeldetermin",
+#                 mail_text,
+#                 self.noreply,
+#                 [appointment_obj.email],
+#                 fail_silently=True,
+#             )
 
 
 # def mail(instance):
