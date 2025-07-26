@@ -8,6 +8,7 @@
 
       <div class="row mb-4">
         <div class="col">
+          <form method="POST" onsubmit="disableSubmitButton(this)">
           <form method="POST">
           {% csrf_token %}
             <div class="row">
@@ -84,5 +85,18 @@
     </div>
   </div>
 </div>
+
+
+<script>
+function disableSubmitButton(form) {
+    // Find the clicked submit button
+    const button = form.querySelector('button[type="submit"][name="save"]');
+    if (button) {
+        button.style.pointerEvents = 'none'; // Disable pointer events
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Speichern...';
+    }
+    return true; // allow form to continue submitting
+}
+</script>
 
 {% endblock content %}
