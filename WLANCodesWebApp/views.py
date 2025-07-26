@@ -5,7 +5,39 @@ from datetime import datetime
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
-from threading import Thread
+
+
+def send_codes_and_mail(student_ids):
+    noreply = Config.objects.get(name="noreply-mail")
+    for id in student_ids:
+        student = Student.objects.get(id=id)
+        oldcode = student.code
+        # put oldcode on delete list if exists
+        if oldcode is not None:
+            CodeDeletion.objects.create(
+                code_to_delete=oldcode,
+                name=student.name,
+                firstname=student.firstname,
+                group=student.group
+            )
+        newcode = Code.objects.filter(type='y').first()
+        student.code = newcode.code
+        # delete used code
+        newcode.delete()
+        student.date = datetime.today()
+        student.save()
+        mail_text_obj = Config.objects.get(name='mail_text')
+        mail_text = mail_text_obj.text
+        mail_text = mail_text.replace('#NAME#', student.firstname)
+        mail_text = mail_text.replace('#CODE#', student.code)
+
+        send_mail(
+            'WLAN-CODE',
+            mail_text,
+            noreply,
+            [student.email],
+            fail_silently=True,
+        )
 
 
 def is_teacher(user):
@@ -73,7 +105,7 @@ def new_student(request):
         f = StudentForm(request.POST)
         if f.is_valid():
             f.save()
-        return redirect('codes')
+        return redirect('students')
 
 
 @login_required
@@ -146,8 +178,7 @@ def students(request, alert=None):
                 # check number of codes
                 if remaining_year >= len(student_ids):
                     alert = 1
-                    thread = mail_thread(student_ids)
-                    thread.start()
+                    send_codes_and_mail(student_ids)
                 else:
                     alert = 2
 
@@ -158,8 +189,7 @@ def students(request, alert=None):
                 student_ids = []
                 student_ids.append(request.POST.get('send'))
                 alert = 1
-                thread = mail_thread(student_ids)
-                thread.start()
+                send_codes_and_mail(student_ids)
             else:
                 alert = 2
 
@@ -172,8 +202,7 @@ def students(request, alert=None):
             # check number of codes
             if remaining_year >= len(student_ids):
                 alert = 1
-                thread = mail_thread(student_ids)
-                thread.start()
+                send_codes_and_mail(student_ids)
             else:
                 alert = 2
 
@@ -211,45 +240,6 @@ def students(request, alert=None):
         'search_string': request.GET.get('search'),
         }
     )
-
-
-class mail_thread(Thread):
-    def __init__(self, student_ids):
-        super(mail_thread, self).__init__()
-        self.student_ids = student_ids
-        self.noreply = Config.objects.get(name="noreply-mail")
-
-    # run method is automatically executed on thread.start()
-    def run(self):
-        for id in self.student_ids:
-            student = Student.objects.get(id=id)
-            oldcode = student.code
-            # put oldcode on delete list if exists
-            if oldcode is not None:
-                CodeDeletion.objects.create(
-                    code_to_delete=oldcode,
-                    name=student.name,
-                    firstname=student.firstname,
-                    group=student.group
-                )
-            newcode = Code.objects.filter(type='y').first()
-            student.code = newcode.code
-            # delete used code
-            newcode.delete()
-            student.date = datetime.today()
-            student.save()
-            mail_text_obj = Config.objects.get(name='mail_text')
-            mail_text = mail_text_obj.text
-            mail_text = mail_text.replace('#NAME#', student.firstname)
-            mail_text = mail_text.replace('#CODE#', student.code)
-
-            send_mail(
-                'WLAN-CODE',
-                mail_text,
-                self.noreply,
-                [student.email],
-                fail_silently=True,
-            )
 
 
 @login_required
