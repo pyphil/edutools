@@ -7,7 +7,6 @@ from .models import DevicelistEntry, Device, Status
 from accounts.models import UserProfile
 from .forms import DevicelistEntryForm, DevicelistEntryFormLoggedIn
 from django.core.mail import send_mail
-from threading import Thread
 from django.db.models import Q
 
 
@@ -159,8 +158,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                 else:
                     email_to_second = ""
 
-                thread = MailThread(subject, mail_text, email_to_second)
-                thread.start()
+                send_support_mail(subject, mail_text, email_to_second)
 
                 if request.POST.get('devicelist_all') == "True":
                     return redirect(reverse('devicelist_all') + "?" + request.GET.urlencode())
@@ -190,8 +188,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
             email_to_second = ""
 
             subject = f'Support Ticket {str(obj.id)} gelöscht'
-            thread = MailThread(subject, mail_text, email_to_second)
-            thread.start()
+            send_support_mail(subject, mail_text, email_to_second)
             obj.delete()
             # Return to devicelist_all if coming from there -> use url parameter
             if request.POST.get('devicelist_all'):
@@ -259,8 +256,7 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
                     email_to_second = ""
 
                 subject = 'Neues Support Ticket ' + str(obj.id)
-                thread = MailThread(subject, mail_text, email_to_second)
-                thread.start()
+                send_support_mail(subject, mail_text, email_to_second)
 
                 if room:
                     return redirect('devicelist', room=room, date=date, std=std, entry_id=entry_id)
@@ -305,28 +301,22 @@ def lastDeviceUsers(request, room, date, dev):
     return render(request, 'deviceusers.html', {'devlist': devlist, 'dev': dev, 'seit_datum': seit_datum})
 
 
-class MailThread(Thread):
-    def __init__(self, subject, mail_text, email_to_second):
-        super(MailThread, self).__init__()
-        # Get email settings from DB
-        try:
-            settings = Setting.objects.filter(name='settings').first()
-        except Exception as e:
-            print(e)
-            print("No Settings object with email configuration yet.")
-        self.subject = subject
-        self.mail_text = mail_text
-        self.email_to = settings.email_to
-        self.email_to_second = email_to_second
-        self.noreply = settings.noreply_mail
-        # self.backend = backend
-
-    # run method is automatically executed on thread.start()
-    def run(self):
-        send_mail(
-            self.subject,
-            self.mail_text,
-            self.noreply,
-            [self.email_to, self.email_to_second],
-            fail_silently=True,
-        )
+def send_support_mail(subject, mail_text, email_to_second):
+    try:
+        settings = Setting.objects.filter(name='settings').first()
+    except Exception as e:
+        print(e)
+        print("No Settings object with email configuration yet.")
+        return
+    email_to = settings.email_to
+    noreply = settings.noreply_mail
+    recipients = [email_to]
+    if email_to_second:
+        recipients.append(email_to_second)
+    send_mail(
+        subject,
+        mail_text,
+        noreply,
+        recipients,
+        fail_silently=True,
+    )
