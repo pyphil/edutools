@@ -36,9 +36,6 @@ def email_check(request):
                     [entered_email],
                     fail_silently=True,
                 )
-                # thread = mail_thread(entered_email, link)
-                # thread.start()
-                # render info page about email with registration link
                 return redirect('registration_email')
             else:
                 email_error = "already_used"
@@ -116,27 +113,3 @@ def change_user(request):
         login(request, request.user)
         return redirect('/accounts/change_user/?success=True')
     return render(request, 'registration/change_user.html', {'form': form, 'success': success})
-
-
-# class mail_thread(Thread):
-#     def __init__(self, email, link):
-#         super(mail_thread, self).__init__()
-#         self.link = link
-#         self.email = email
-#         conf_mail = Config.objects.get(name="accounts_mail_text")
-#         conf_noreply = Config.objects.get(name="noreply-mail")
-#         self.noreply = conf_noreply.setting
-#         self.mail_text = conf_mail.text
-
-#     # run method is automatically executed on thread.start()
-#     def run(self):
-#         # send mail
-#         mail_text = self.mail_text.replace('#LINK#', self.link)
-
-#         send_mail(
-#             'Registrierung eduTools',
-#             mail_text,
-#             self.noreply,
-#             [self.email],
-#             fail_silently=True,
-#         )
