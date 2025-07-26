@@ -8,8 +8,7 @@
 
       <div class="row mb-4">
         <div class="col">
-          <form method="POST" onsubmit="disableSubmitButton(this)">
-          <form method="POST">
+          <form method="POST" onsubmit="disableSubmitButton(event)">
           {% csrf_token %}
             <div class="row">
               <div class="col">
@@ -36,12 +35,11 @@
                   <input type="text" name="krzl" value="{{ user.userprofile.abbr }}" class="form-control" maxlength="10" required id="id_krzl">
                 {% endif %}
               </div>
-
-              
             </div>
+
             <label class="mt-3" for="Beschreibung" class="form-label">Beschreibung:</label>
             {{ devicelist.beschreibung }}
-            
+
             <div class="col">
               <label class="mt-3" for="Status" class="form-label">Status (Admin):</label>
               {% if user.is_staff %}
@@ -62,22 +60,26 @@
                 <input type="text" class="form-control" value="{{ devicelist.instance.behoben }}" readonly disabled>
               {% endif %}
             </div>
-            
+
             {% if user.is_staff %}
               <div class="col">
                 <label class="mt-3" for="email_to_second" class="form-label">Statusänderung außerdem an folgende E-Mail-Adresse senden:</label>
                 <input class="form-control" id="email_to_second" name="email_to_second" value="{{ email }}">
               </div>
             {% endif %}
-            
-            
-            <button type="submit" name="save" value="save" class="btn btn-primary mt-5"><i class="bi bi-save"></i> Speichern</button>
+
+            <button type="submit" name="save" value="save" class="btn btn-primary mt-5">
+              <i class="bi bi-save"></i> Speichern
+            </button>
             <input type="hidden" name="devicelist_all" value="{{ devicelist_all }}" />
             <input type="hidden" name="entry_id" value="{{ entry_id }}" />
-            {% if nodelete %}
-            {% else %}
-              <button type="submit" name="delete" value="delete" class="btn btn-danger mt-5"><i class="bi bi-trash3"></i> Löschen</button>
+
+            {% if not nodelete %}
+              <button type="submit" name="delete" value="delete" class="btn btn-danger mt-5">
+                <i class="bi bi-trash3"></i> Löschen
+              </button>
             {% endif %}
+
             <a href="javascript:history.back()" class="btn btn-secondary mt-5"><i class="bi bi-x-square"></i> Abbrechen</a>
           </form>
         </div>
@@ -86,16 +88,18 @@
   </div>
 </div>
 
-
 <script>
-function disableSubmitButton(form) {
-    // Find the clicked submit button
-    const button = form.querySelector('button[type="submit"][name="save"]');
+function disableSubmitButton(event) {
+    const button = event.submitter; // The actual clicked submit button
     if (button) {
-        button.style.pointerEvents = 'none'; // Disable pointer events
-        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Speichern...';
+        button.style.pointerEvents = 'none';
+        if (button.name === 'save') {
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Speichern...';
+        } else if (button.name === 'delete') {
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Löschen...';
+        }
     }
-    return true; // allow form to continue submitting
+    return true; // allow normal form submission
 }
 </script>
 
