@@ -49,34 +49,38 @@ tbody td {
   <div class="row mt-2 mb-2 mt-4 mb-4">
     <div class="col pe-0">
       {% if search_string %}
-        <input class="form-control" name="search" value="{{ search_string }}">
-      {% else %}  
-        <input class="form-control" placeholder="Suche nach Schülernamen oder Codes" name="search">
+      <input class="form-control" name="search" value="{{ search_string }}">
+      {% else %}
+      <input class="form-control" placeholder="Suche nach Schülernamen oder Codes" name="search">
       {% endif %}
-      </div>
+    </div>
     <div class="col-auto">
       <button type="submit" class="btn btn-primary">Suchen</button>
       <a href="{% url 'students' %}" class="btn btn-secondary">&hairsp;<i class="bi bi-x-lg"></i>&hairsp;</a>
-      <!-- <button class="btn btn-secondary">X</button> -->
     </div>
   </div>
 </form>
-{% if alert == 1 %}
-  <div class="alert alert-info" role="alert">
-    Der Versand der Codes läuft im Hintergrund. Um den Fortschritt hier zu sehen, muss die Seite gelegentlich neu geladen werden.
-  </div>
-{% endif %}
+
+<div id="loading" style="display:none;" class="alert alert-info" role="alert">
+  Der Versand der Codes läuft im Hintergrund. Um den Fortschritt hier zu sehen, muss die Seite gelegentlich neu geladen
+  werden.
+</div>
+
 {% if alert == 2 %}
-  <div class="alert alert-danger" role="alert">
-    Es sind nicht genügend Codes vorrätig, um diese Aktion auszuführen!
-  </div>
+<div class="alert alert-danger" role="alert">
+  Es sind nicht genügend Codes vorrätig, um diese Aktion auszuführen!
+</div>
 {% endif %}
 <form method="post">
   {% csrf_token %}
-    <button name="checked" value="checked" class="btn btn-primary btn-sm">Neuer Code und Versand <strong>markierte</strong> Datensätze</button>
-    <button name="send_all" value="send_all" class="btn btn-primary btn-sm">Neuer Code und Versand für <strong>alle</strong> Datensätze</button>
-    <a href="{% url 'delete_student' 'all' %}" class="btn btn-danger btn-sm">Alle Datensätze löschen</a>
-  <!-- <table class="table table-bordered border-secondary"> -->
+  <button name="checked" value="checked" class="btn btn-primary btn-sm"
+    onclick="document.getElementById('loading').style.display='block'">
+    Neuer Code und Versand <strong>markierte</strong> Datensätze
+  </button>
+  <button name="send_all" value="send_all" class="btn btn-primary btn-sm"
+    onclick="document.getElementById('loading').style.display='block'">Neuer Code und Versand für <strong>alle</strong>
+    Datensätze</button>
+  <a href="{% url 'delete_student' 'all' %}" class="btn btn-danger btn-sm">Alle Datensätze löschen</a>
   <table class="table table-hover table-bordered border-secondary table-sm mt-3">
     <thead>
       <th></th>
@@ -90,24 +94,30 @@ tbody td {
     </thead>
     <tbody>
       {% for student in students %}
-        <tr>
-          <td class="text-center">
-              <input class="form-check-input" name="checkbox" type="checkbox" value="{{ student.id }}" id="{{ student.id }}">
-          </td>
-          <td>{{ student.name }}</td>
-          <td>{{ student.firstname }}</td>
-          <td>{{ student.group }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.date|date:"SHORT_DATETIME_FORMAT" }}</td>
-          <td>{{ student.code }}</td>
-          <td>
-            <span style="white-space: nowrap;">
-              <button name="send" value="{{ student.id }}" class="btn btn-primary btn-sm"><i class="bi bi-tag-fill"></i><i class="bi bi-plus"></i><i class="bi bi-envelope-check-fill"></i></button>
-              <a href="{% url 'edit_student' student.id %}" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
-              <a href="{% url 'delete_student' student.id %}" name="delete" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
-            </span>
-          </td>
-        </tr>
+      <tr>
+        <td class="text-center">
+          <input class="form-check-input" name="checkbox" type="checkbox" value="{{ student.id }}"
+            id="{{ student.id }}">
+        </td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.firstname }}</td>
+        <td>{{ student.group }}</td>
+        <td>{{ student.email }}</td>
+        <td>{{ student.date|date:"SHORT_DATETIME_FORMAT" }}</td>
+        <td>{{ student.code }}</td>
+        <td>
+          <span style="white-space: nowrap;">
+            <button name="send" value="{{ student.id }}" class="btn btn-primary btn-sm"
+              onclick="document.getElementById('loading').style.display='block'">
+              <i class="bi bi-tag-fill"></i><i class="bi bi-plus"></i><i class="bi bi-envelope-check-fill"></i>
+            </button>
+            <a href="{% url 'edit_student' student.id %}" class="btn btn-secondary btn-sm"><i
+                class="bi bi-pencil-fill"></i></a>
+            <a href="{% url 'delete_student' student.id %}" name="delete" class="btn btn-danger btn-sm"><i
+                class="bi bi-trash3-fill"></i></a>
+          </span>
+        </td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>
