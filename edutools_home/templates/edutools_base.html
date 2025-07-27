@@ -38,9 +38,11 @@
 <body>
     <nav class="navbar navbar-expand-sm bg-light mb-5 py-0 shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'edutools_home' %}" style="font-size: 22px; font-weight: 500;">
-                <img src="{% static 'images/edutools_gear.png' %}" width="40" height="40" class="d-inline-block ms-1 align-text-middle" style="border-radius: 10%;"> 
-                eduTools
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'edutools_home' %}" style="font-size: 22px; font-weight: 500;">
+            <img src="{% static 'images/edutools_gear.png' %}" width="40" height="40" class="me-2 rounded">
+            <span>eduTools</span>
+        </a>
+
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
