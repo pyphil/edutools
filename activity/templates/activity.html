@@ -1,6 +1,6 @@
 {% extends 'edutools_base.html' %}
 {% block content %}
-<style>
+<!-- <style>
   .scroll-hint {
     font-size: small;
     display: none;
@@ -10,7 +10,7 @@
       display: block;
     }
   }
-</style>
+</style> -->
 {% if is_admin %}
 <div class="container">
   <div class="card">
@@ -55,62 +55,60 @@
           {% endfor %}
           </select>
         </form>
-        <form method="post">
+        <form method="post" onsubmit="disableSubmitButton(event)">          
           {% csrf_token %}
           <h5 class="mt-4">Wählen Sie dann eine Angebotskombination für ihr Kind aus:</h5>
           <small><i class="text-secondary">Ausgegraute Kombinationen sind im gewählten Block bereits ausgebucht.</i></small>
           <div class="table-responsive">
-            <div class="scroll-hint text-end text-success">
-            Nach rechts scollen >>>
-          </div>
-          <table class="table">
-              <thead>
-                  <tr>
-                      <th>Auswahl</th>
-                      <th>Angebot 1</th>
-                      <th>Angebot 2</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for activity in activities %}
-                      <tr>
-                          <!-- Radio button column -->
-                          <td>
-                              <div class="form-check">
-                                  <input 
-                                      class="form-check-input" 
-                                      type="radio" 
-                                      id="activity_{{ forloop.counter }}" 
-                                      name="select_activity" 
-                                      value="{{ activity.2 }}"
-                                      required
-                                      {% if "ausgebucht" in activity.2 %} disabled {% endif %}
-                                  >
-                              </div>
-                          </td>
-          
-                          <!-- Activity.0 column -->
-                          <td>
-                            <label 
-                            class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" 
-                            for="activity_{{ forloop.counter }}"
-                            >
-                            {{ activity.0 }}
-                            </label>
-                          </td>
-          
-                          <!-- Activity.1 column -->
-                          <td>
-                            <label 
-                            class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" 
-                            for="activity_{{ forloop.counter }}"
-                            >
-                            {{ activity.1 }}
-                            </label>
-                        </td>
-                      </tr>
-                  {% endfor %}
-              </tbody>
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Auswahl</th>
+                <th class="d-none d-md-table-cell">Angebot 1</th>
+                <th class="d-none d-md-table-cell">Angebot 2</th>
+                <th class="d-block d-md-none">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for activity in activities %}
+                <tr>
+                  <!-- Radio button column -->
+                  <td class="align-top">
+                    <div class="form-check">
+                      <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        id="activity_{{ forloop.counter }}" 
+                        name="select_activity" 
+                        value="{{ activity.2 }}"
+                        required
+                        {% if "ausgebucht" in activity.2 %} disabled {% endif %}
+                      >
+                    </div>
+                  </td>
+                  <!-- Angebot 1 and 2: horizontal on md+, stacked on xs/sm -->
+                  <td class="d-none d-md-table-cell align-top">
+                    <label class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" for="activity_{{ forloop.counter }}">
+                      {{ activity.0 }}
+                    </label>
+                  </td>
+                  <td class="d-none d-md-table-cell align-top">
+                    <label class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" for="activity_{{ forloop.counter }}">
+                      {{ activity.1 }}
+                    </label>
+                  </td>
+                  <!-- Stacked version for small screens -->
+                  <td colspan="2" class="d-block d-md-none ps-0">
+                    <div class="mb-1">
+                      <span class="fw-bold">Angebot 1:</span> <label class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" for="activity_{{ forloop.counter }}">{{ activity.0 }}</label>
+                    </div>
+                    <div>
+                      <span class="fw-bold">Angebot 2:</span> <label class="{% if 'ausgebucht' in activity.2 %} text-secondary {% endif %}" for="activity_{{ forloop.counter }}">{{ activity.1 }}</label>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
           </table>
         </div>
           
@@ -119,10 +117,22 @@
             <input class="form-control" id="student_name" name="student_name" required>
             <label for="parents_name">Name der/des Erziehungsberechtigten:</label>
             <input class="form-control" id="parents_name" name="parents_name">
-            <button type="submit" class="btn btn-primary mt-3">Buchen</button>
+            <button type="submit" class="btn btn-lg btn-primary mt-3 col-3"><i class="bi bi-caret-right-fill"></i> Buchen</button>
           </div>
         </form>
       </div>
     </div>
   </div>
+
+<script>
+function disableSubmitButton(event) {
+    const button = event.submitter; // The actual clicked submit button
+    if (button) {
+        button.style.pointerEvents = 'none';
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Buchung wird gespeichert...';
+    }
+    return true; // allow normal form submission
+}
+</script>
+
 {% endblock content %}
