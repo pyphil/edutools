@@ -2,12 +2,12 @@
 {% load static %}
 {% block content %}
 <div class="container py-4">
-  <h1>Verwaltung der Blöcke und Angebote</h1>
-  <h2 class="mb-4">Blöcke</h2>
+  <h2>Verwaltung der Blöcke und Angebote</h2>
+  <h3 class="mb-2">Blöcke</h3>
   <form method="post" class="mb-4">
     {% csrf_token %}
     <div class="row">
-      <div class="col d-flex">
+      <div class="col">
         {{ block_form.name }}
       </div>
       <div class="col-auto" style="width: 90px;">
@@ -45,11 +45,11 @@
     {% endfor %}
   </ul>
 
-  <h2 class="mb-4">Angebote</h2>
+  <h3 class="mb-2">Angebote</h3>
   <form method="post" class="mb-4">
     {% csrf_token %}
     <div class="row">
-      <div class="col d-flex">
+      <div class="col">
         {{ activity_form.name }}
       </div>
       <div class="col-auto" style="width: 90px;">
