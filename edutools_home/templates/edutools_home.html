@@ -2,40 +2,145 @@
 {% block content %}
 
 {% load static %}
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col text-center mt-5">
-                <a href="/booking/"><img src="{% static 'images/schedule_cloud.png' %}" alt="Buchungstool" class="app-icon mb-2"></a>
-                <p>Buchungstool</p>
+
+<div class="container py-5">
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="/booking/" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/schedule_cloud.png' %}" alt="Buchungstool" class="img-fluid app-icon mb-2">
             </div>
-            <div class="col text-center mt-5">
-                <a href="/wlan-codes/"><img src="{% static 'images/wlan-codes-128px.png' %}" alt="WLAN-Codes" class="app-icon mb-2"></a>
-                <p>WLAN-Codes</p>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">Buchungstool</h5>
+                <p class="card-text small text-muted">Raum- und Gerätebuchung für Lehrkräfte und Verwaltung.</p>
+              </div>
             </div>
-            <div class="col text-center mt-5">
-                <a href="{% url 'dsb' %}"><img src="{% static 'images/DSB.png' %}" alt="DSB" class="app-icon mb-2"></a>
-                <p>Digitales Schwarzes Brett</p>
-            </div>
-            <div class="col text-center mt-5">
-                <a href="{% url 'mkr_home' %}"><img src="{% static 'images/MKR2.png' %}" alt="MKR" class="app-icon mb-2"></a>
-                <p>Medienkompetenzrahmen</p>
-            </div>
-            <div class="col text-center mt-5">
-                <a href="{% url 'generate_qr_code' %}"><img src="{% static 'images/qr-code.png' %}" alt="QR-CODE-Generator" class="app-icon mb-2"></a>
-                <p>QR-Code-Generator</p>
-            </div>
-            <div class="col text-center mt-5">
-                <a href="{% url 'inventory' %}"><img src="{% static 'images/library_manager.png' %}" alt="Bibliothek" class="app-icon mb-2"></a>
-                <p>Bibliothek</p>
-            </div>
-            <div class="col text-center mt-5">
-                <a href="{% url 'appointment' %}"><img src="{% static 'images/appointment.png' %}" alt="Terminbuchung" class="app-icon mb-2"></a>
-                <p>Terminbuchung</p>
-            </div>
-            <div class="col text-center mt-5">
-                <a href="{% url 'activity' %}"><img src="{% static 'images/activities.png' %}" alt="Angebote TdoT" class="app-icon mb-2"></a>
-                <p>Angebote TdoT</p>
-            </div>
-        </div>
+          </div>
+        </a>
+      </div>
     </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="/wlan-codes/" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/wlan-codes-128px.png' %}" alt="WLAN-Codes" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">WLAN-Codes</h5>
+                <p class="card-text small text-muted">Verwaltung und Versand von WLAN-Zugangscodes für Schüler:innen.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="{% url 'dsb' %}" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/DSB.png' %}" alt="DSB" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">Digitales Schwarzes Brett</h5>
+                <p class="card-text small text-muted">Aktuelle Informationen und Vertretungspläne digital abrufen.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="{% url 'mkr_home' %}" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/MKR2.png' %}" alt="MKR" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">Medienkompetenzrahmen</h5>
+                <p class="card-text small text-muted">Umsetzung des Medienkompetenzrahmens NRW.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="{% url 'generate_qr_code' %}" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/qr-code.png' %}" alt="QR-CODE-Generator" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">QR-Code-Generator</h5>
+                <p class="card-text small text-muted">Erstelle und speichere individuelle QR-Codes.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="{% url 'inventory' %}" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/library_manager.png' %}" alt="Bibliothek" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">Bibliothek</h5>
+                <p class="card-text small text-muted">Verwaltung und Ausleihe von Büchern und Medien.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="{% url 'appointment' %}" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/appointment.png' %}" alt="Terminbuchung" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">Terminbuchung</h5>
+                <p class="card-text small text-muted">Online-Terminvereinbarung, z.B. für das Anmeldeverfahren.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow h-100 position-relative">
+        <a href="{% url 'activity' %}" class="stretched-link text-decoration-none text-dark">
+          <div class="row g-0 align-items-center">
+            <div class="col-4 text-center p-3">
+              <img src="{% static 'images/activities.png' %}" alt="Angebote TdoT" class="img-fluid app-icon mb-2">
+            </div>
+            <div class="col-8">
+              <div class="card-body">
+                <h5 class="card-title">Angebote TdoT</h5>
+                <p class="card-text small text-muted">Buchung und Verwaltung von Angeboten, z.B. zum Tag der offenen Tür.</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
