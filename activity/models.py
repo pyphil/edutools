@@ -3,6 +3,7 @@ from django.db import models
 
 class ActivityBlock(models.Model):
     name = models.CharField(max_length=200)
+    order = models.PositiveIntegerField(default=0, help_text="Order of this block")
 
     def __str__(self):
         return self.name
@@ -10,12 +11,14 @@ class ActivityBlock(models.Model):
 
 class Activity(models.Model):
     name = models.CharField(max_length=200)
+    order = models.PositiveIntegerField(default=0, help_text="Order of this activity")
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name_plural = 'Activities'
+        ordering = ['order', 'name']
 
 
 class BookedActivity(models.Model):

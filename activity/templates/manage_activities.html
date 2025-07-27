@@ -1,0 +1,90 @@
+{% extends 'edutools_base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+  <h1>Verwaltung der Blöcke und Angebote</h1>
+  <h2 class="mb-4">Blöcke</h2>
+  <form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col d-flex">
+        {{ block_form.name }}
+      </div>
+      <div class="col-auto" style="width: 90px;">
+        {{ block_form.order }}
+      </div>
+      <div class="col-2 d-flex gap-2">
+        <button type="submit" name="add_block" class="btn btn-primary w-100">
+          <i class="bi bi-plus-circle"></i> Block hinzufügen
+        </button>
+      </div>
+    </div>
+  </form>
+  <ul id="block-list" class="list-group mb-5">
+    {% for block in blocks %}
+    <li data-id="{{ block.id }}" class="list-group-item">
+      <form method="post" class="row g-2 align-items-center">
+        {% csrf_token %}
+        <input type="hidden" name="block_id" value="{{ block.id }}">
+        <div class="col">
+          <input type="text" name="name" value="{{ block.name }}" class="form-control">
+        </div>
+        <div class="col-auto" style="width: 90px;">
+          <input type="number" name="order" value="{{ block.order }}" class="form-control">
+        </div>
+        <div class="col-auto d-flex gap-1">
+          <button type="submit" name="save_block" class="btn btn-success" title="Speichern">
+            <i class="bi bi-floppy"></i>
+          </button>
+          <button type="submit" name="delete_block" class="btn btn-danger" onclick="return confirm('Delete block?');" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <h2 class="mb-4">Angebote</h2>
+  <form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col d-flex">
+        {{ activity_form.name }}
+      </div>
+      <div class="col-auto" style="width: 90px;">
+        {{ activity_form.order }}
+      </div>
+      <div class="col-2 d-flex gap-2">
+        <button type="submit" name="add_activity" class="btn btn-primary w-100">
+          <i class="bi bi-plus-circle"></i> Angebot hinzufügen
+        </button>
+      </div>
+    </div>
+  </form>
+  <ul id="activity-list" class="list-group">
+    {% for activity in activities %}
+    <li data-id="{{ activity.id }}" class="list-group-item">
+      <form method="post" class="row g-2 align-items-center">
+        {% csrf_token %}
+        <input type="hidden" name="activity_id" value="{{ activity.id }}">
+        <div class="col">
+          <input type="text" name="name" value="{{ activity.name }}" class="form-control">
+        </div>
+        <div class="col-auto" style="width: 90px;">
+          <input type="number" name="order" value="{{ activity.order }}" class="form-control">
+        </div>
+        <div class="col-auto d-flex gap-1">
+          <button type="submit" name="save_activity" class="btn btn-success" title="Speichern">
+            <i class="bi bi-floppy"></i>
+          </button>
+          <button type="submit" name="delete_activity" class="btn btn-danger" onclick="return confirm('Delete activity?');" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
