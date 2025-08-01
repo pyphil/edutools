@@ -153,6 +153,7 @@ def manage_blocks_and_activities(request):
             if block_form.is_valid():
                 new_block = block_form.save()
                 update_order_on_save(new_block, new_block.order, ActivityBlock)
+                return redirect(f"{request.path}#block-{new_block.id}")
             return redirect(request.path)
 
         if 'save_block' in request.POST:
@@ -164,13 +165,13 @@ def manage_blocks_and_activities(request):
                 new_position = block.order
             block.save()  # Zuerst Name speichern
             update_order_on_save(block, new_position, ActivityBlock)
-            return redirect(request.path)
+            return redirect(f"{request.path}#block-{block.id}")
 
         if 'delete_block' in request.POST:
             block = get_object_or_404(ActivityBlock, pk=request.POST.get('block_id'))
             block.delete()
             renumber_items(ActivityBlock)
-            return redirect(request.path)
+            return redirect(f"{request.path}#block-list")
 
         # -------- Activities --------
         if 'add_activity' in request.POST:
@@ -178,6 +179,7 @@ def manage_blocks_and_activities(request):
             if activity_form.is_valid():
                 new_activity = activity_form.save()
                 update_order_on_save(new_activity, new_activity.order, Activity)
+                return redirect(f"{request.path}#activity-{new_activity.id}")
             return redirect(request.path)
 
         if 'save_activity' in request.POST:
@@ -189,13 +191,13 @@ def manage_blocks_and_activities(request):
                 new_position = activity.order
             activity.save()
             update_order_on_save(activity, new_position, Activity)
-            return redirect(request.path)
+            return redirect(f"{request.path}#activity-{activity.id}")
 
         if 'delete_activity' in request.POST:
             activity = get_object_or_404(Activity, pk=request.POST.get('activity_id'))
             activity.delete()
             renumber_items(Activity)
-            return redirect(request.path)
+            return redirect(f"{request.path}#activity-list")
 
     # GET
     blocks = ActivityBlock.objects.all().order_by('order')
