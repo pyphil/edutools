@@ -8,7 +8,7 @@ def is_activity_admin(user):
     return user.is_staff or user.groups.filter(name="activity_admin").exists()
 
 
-@login_required
+# @login_required
 def activity(request):
     blocks = ActivityBlock.objects.all()
     if blocks:
