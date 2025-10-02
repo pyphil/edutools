@@ -53,6 +53,10 @@ def home(request, room=None):
     else:
         alert_form = RoomAlertForm(instance=room_obj)
 
+    room_alert = room_obj.alert
+    if room_alert == "<p>&nbsp;</p>":
+        room_alert = ""
+
     direction = None
     if request.GET.get('direction'):
         direction = request.GET.get('direction')
@@ -99,7 +103,7 @@ def home(request, room=None):
         {
             'room': room_obj.short_name,
             'room_text': room_obj.room + " - " + room_obj.description,
-            'room_alert': room_obj.alert,
+            'room_alert': room_alert,
             'dates': dates,
             'btncontent': btncontent,
             'currentdate': currentdate,
