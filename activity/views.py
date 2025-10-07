@@ -32,7 +32,7 @@ def activity(request):
         count = BookedActivity.objects.filter(
             block=selected_block, activity=selected_activity
         ).count()
-        if count <= 4 and not exists:
+        if count <= 5 and not exists:
             alert_exists = False
             booking = BookedActivity.objects.create(
                 block=selected_block,
