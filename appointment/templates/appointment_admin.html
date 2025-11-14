@@ -55,7 +55,7 @@
             <option selected>Terminauswahl</option>
             {% endif %}
             {% for date in dates %}
-            <option value="{{ date|date:'c' }}" {% if date|date:'c' == current_date|date:'c' %} selected {% endif %}>{{ date }}</option>
+            <option value="{{ date|date:'c' }}" {% if date|date:'c' == current_date|date:'c' %} selected {% endif %}>{{ date|date:"l, d. F Y" }}</option>
             {% endfor %}
           </select>
         </form>
