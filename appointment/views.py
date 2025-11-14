@@ -30,7 +30,7 @@ def create_appointment(request):
             Appointment.objects.create(date=request.POST.get("date"), time=new_time)
 
         return redirect("appointment")
-    # f = AppointmentCreateForm()
+
     return render(request, "create_appointment.html", {})
 
 
