@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class ActivitySettings(models.Model):
+class ActivitySetting(models.Model):
     title = models.CharField(max_length=300)
 
 

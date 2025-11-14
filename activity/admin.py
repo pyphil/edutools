@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Activity, ActivityBlock, BookedActivity
+from .models import Activity, ActivityBlock, BookedActivity, ActivitySetting
 
 
 class BookedActivityCustomAdmin(admin.ModelAdmin):
@@ -18,4 +18,5 @@ class BookedActivityCustomAdmin(admin.ModelAdmin):
 
 admin.site.register(Activity)
 admin.site.register(ActivityBlock)
+admin.site.register(ActivitySetting)
 admin.site.register(BookedActivity, BookedActivityCustomAdmin)

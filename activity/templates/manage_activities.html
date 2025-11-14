@@ -4,6 +4,20 @@
 <div class="container py-4">
       <div class="text-end"><a href="{% url 'activity' %}" class="btn btn-primary">zurück</a></div>
   <h2>Verwaltung der Blöcke und Angebote</h2>
+  <h3 class="mb-2">Titel</h3>
+  <form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col">
+        {{ title_form.title }}
+      </div>
+      <div class="col-2 d-flex gap-2">
+        <button type="submit" name="save_title" class="btn btn-primary w-100">
+          <i class="bi bi-floppy"></i> Speichern
+        </button>
+      </div>
+    </div>
+  </form>
   <h3 class="mb-2">Blöcke</h3>
   <form method="post" class="mb-4">
     {% csrf_token %}

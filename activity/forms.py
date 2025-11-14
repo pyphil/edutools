@@ -1,5 +1,14 @@
 from django import forms
-from .models import ActivityBlock, Activity
+from .models import ActivityBlock, Activity, ActivitySetting
+
+
+class ActivitySettingForm(forms.ModelForm):
+    class Meta:
+        model = ActivitySetting
+        fields = ['title']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 
 class ActivityBlockForm(forms.ModelForm):
