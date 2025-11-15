@@ -20,14 +20,14 @@ def is_appointment_admin(user):
 def create_appointment(request):
     if request.method == "POST":
         start_time = request.POST.get("start_time")
-        Appointment.objects.create(date=request.POST.get("date"), time=start_time)
-        for i in range(int(request.POST.get("number")) - 1):
+        for i in range(int(request.POST.get("number"))):
             hh, mm = map(int, start_time.split(":"))
             hours_added, new_mm = divmod(mm + int(request.POST.get("interval")), 60)
             new_hh = (hh + hours_added) % 24
             new_time = f"{new_hh:02d}:{new_mm:02d}"
             start_time = new_time
-            Appointment.objects.create(date=request.POST.get("date"), time=new_time)
+            for j in range(int(request.POST.get("slots"))):
+                Appointment.objects.create(date=request.POST.get("date"), time=new_time)
 
         return redirect("appointment")
 
