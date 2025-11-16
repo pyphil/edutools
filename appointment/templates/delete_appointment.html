@@ -24,9 +24,10 @@
             {% endif %}
           </div>
           {% if appointment.student_name %}
-          <button class="btn btn-primary" name="empty" value="empty">Termin leeren und erneut zur Buchung freigeben</button>
+          <button class="btn btn-warning" name="empty" value="empty"><i class="bi bi-eye"></i> Termin leeren und erneut zur Buchung freigeben</button>
+          <button class="btn btn-secondary" name="empty_hide" value="empty_hide"><i class="bi bi-eye-slash-fill"></i> Termin leeren und verstecken</button>
           {% endif %}
-          <button class="btn btn-danger" name="delete" value="delete">Termin komplett aus dem Raster löschen</button>
+          <button class="btn btn-danger" name="delete" value="delete"><i class="bi bi-trash"></i> Termin komplett aus dem Raster löschen</button>
         </form>
       </div>
     </div>

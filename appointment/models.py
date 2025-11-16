@@ -10,6 +10,7 @@ class Appointment(models.Model):
     phone = models.CharField(max_length=50, blank=True)
     date = models.DateField()
     time = models.TimeField()
+    visible = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['time']

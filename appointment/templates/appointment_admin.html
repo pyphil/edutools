@@ -88,7 +88,7 @@
                 {% if appointment.student_name %}
                   <div class="hstack" style="font-size: larger;">
                     <b>{{ appointment.time }}</b><br>
-                    <div class="ms-auto"><a href="{% url 'edit_appointment' appointment.id %}"><i class="bi bi-pencil-square me-1"></i></a> <a href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a></div>
+                    <div class="ms-auto"><a class="btn btn-light" href="{% url 'edit_appointment' appointment.id %}"><i class="bi bi-pencil-square"></i></a> <a class="btn btn-light" href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a></div>
                   </div>
                   <b>Kind:</b> {{ appointment.student_name }}<br>
                   <b>Grundschule:</b> {{ appointment.primary_school }}<br>
@@ -96,10 +96,21 @@
                   <b>E-Mail:</b> {{ appointment.email }}<br>
                   <b>Telefon:</b> {{ appointment.phone }}
                 {% else %}
-                  <div class="hstack" style="font-size: larger;">
-                    <b>{{ appointment.time }}</b><br>
-                    <div class="ms-auto"><a href="{% url 'book_appointment' appointment.id %}"><i class="bi bi-pencil-square me-1"></i></a> <a href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a></div>
-                  </div>
+                  <form method="post">
+                    {% csrf_token %}
+                    <div class="hstack" style="font-size: larger;">
+                      <b>{{ appointment.time }}</b><br>
+                      <div class="ms-auto">
+                        {% if appointment.visible %}
+                          <button type="submit" class="btn btn-light" name="visible_id" value="{{ appointment.id }}"><i class="bi bi-eye"></i></button>
+                          {% else %}
+                          <button type="submit" class="btn btn-light" name="visible_id" value="{{ appointment.id }}"><i class="bi bi-eye-slash-fill"></i></button>
+                        {% endif %}  
+                          <a class="btn btn-light" href="{% url 'book_appointment' appointment.id %}"><i class="bi bi-pencil-square"></i></a>
+                          <a class="btn btn-light" href="{% url 'delete_appointment' appointment.id %}"><i class="bi bi-trash"></i></a>
+                      </div>
+                    </div>
+                  </form>
                 {% endif %}
               </td>
             {% endfor %}

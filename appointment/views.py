@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from .models import Appointment, AppointmentMail
 from WLANCodesWebApp.models import Config
 from .forms import AppointmentForm, MailText
@@ -20,14 +21,15 @@ def is_appointment_admin(user):
 def create_appointment(request):
     if request.method == "POST":
         start_time = request.POST.get("start_time")
+        visible = request.POST.get("visible") == "on"
         for i in range(int(request.POST.get("number"))):
             hh, mm = map(int, start_time.split(":"))
+            for j in range(int(request.POST.get("slots"))):
+                Appointment.objects.create(date=request.POST.get("date"), time=start_time, visible=visible)
+            # add interval to start_time for next appointment batch
             hours_added, new_mm = divmod(mm + int(request.POST.get("interval")), 60)
             new_hh = (hh + hours_added) % 24
-            new_time = f"{new_hh:02d}:{new_mm:02d}"
-            start_time = new_time
-            for j in range(int(request.POST.get("slots"))):
-                Appointment.objects.create(date=request.POST.get("date"), time=new_time)
+            start_time = f"{new_hh:02d}:{new_mm:02d}"
 
         return redirect("appointment")
 
@@ -47,8 +49,8 @@ def appointment(request):
     # create a list of appointments hours for the dates
     appointment_items = []
     for date in dates:
-        # only append appointment if name is empty
-        items = Appointment.objects.filter(date=date, student_name="")
+        # only append appointment if visible and name is empty
+        items = Appointment.objects.filter(date=date, student_name="", visible=True)
         appointment_items.append((date, items))
     return render(
         request,
@@ -65,7 +67,7 @@ def book_appointment(request, id):
 
     if request.method == "POST":
         f = AppointmentForm(request.POST, instance=appointment)
-        if appointment.student_name == "":
+        if is_appointment_admin(request.user) or (appointment.student_name == "" and appointment.visible):
             if f.is_valid():
                 instance = f.save(commit=False)
                 instance.date = instance.date
@@ -102,7 +104,7 @@ def book_appointment(request, id):
         else:
             return render(request, "book_appointment.html", {"form": f, "alert": "booked"})
 
-    if appointment.student_name == "":
+    if is_appointment_admin(request.user) or (appointment.student_name == "" and appointment.visible):
         f = AppointmentForm(instance=appointment)
         return render(request, "book_appointment.html", {"form": f})
     else:
@@ -181,12 +183,15 @@ def edit_appointment(request, id):
 def delete_appointment(request, id):
     appointment = Appointment.objects.get(id=id)
     if request.method == "POST":
-        if request.POST.get("empty"):
+        if request.POST.get("empty") or request.POST.get("empty_hide"):
             appointment.student_name = ""
             appointment.primary_school = ""
             appointment.parents_name = ""
             appointment.email = ""
             appointment.email_2 = ""
+            appointment.phone = ""
+            if request.POST.get("empty_hide"):
+                appointment.visible = False
             appointment.save()
         if request.POST.get("delete"):
             appointment.delete()
@@ -199,6 +204,16 @@ def delete_appointment(request, id):
 @login_required
 @user_passes_test(is_appointment_admin)
 def appointment_admin(request):
+    if request.method == "POST":
+        appointment_id = request.POST.get("visible_id")
+        if appointment_id:
+            appointment = Appointment.objects.get(id=appointment_id)
+            appointment.visible = not appointment.visible
+            appointment.save()
+            print(appointment.date)
+        return redirect(
+            reverse('appointment_admin') + "?select=" + str(appointment.date)
+        )
     items = Appointment.objects.all()
     all_bookings_count = items.count() - items.filter(student_name="").count()
     dates = []
