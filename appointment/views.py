@@ -192,6 +192,8 @@ def delete_appointment(request, id):
             appointment.phone = ""
             if request.POST.get("empty_hide"):
                 appointment.visible = False
+            else:
+                appointment.visible = True
             appointment.save()
         if request.POST.get("delete"):
             appointment.delete()
