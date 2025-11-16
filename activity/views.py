@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Activity, ActivityBlock, BookedActivity
-from .forms import ActivityBlockForm, ActivityForm
+from .models import Activity, ActivityBlock, BookedActivity, ActivitySetting
+from .forms import ActivityBlockForm, ActivityForm, ActivitySettingForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 
@@ -140,6 +140,7 @@ def update_order_on_save(instance, new_position, model):
             item.order = index
             item.save()
 
+
 @login_required
 @user_passes_test(is_activity_admin)
 def manage_blocks_and_activities(request):
@@ -147,6 +148,15 @@ def manage_blocks_and_activities(request):
     activity_form = ActivityForm()
 
     if request.method == "POST":
+        # -------- Title --------
+        if 'save_title' in request.POST:
+            title_instance = ActivitySetting.objects.all().first()  # Assuming single instance
+            title_form = ActivitySettingForm(request.POST, instance=title_instance)
+            if title_form.is_valid():
+                title_form.save()
+                # Optionally: show success message, handle further logic
+            return redirect(request.path)
+
         # -------- Blocks --------
         if 'add_block' in request.POST:
             block_form = ActivityBlockForm(request.POST)
@@ -202,12 +212,14 @@ def manage_blocks_and_activities(request):
     # GET
     blocks = ActivityBlock.objects.all().order_by('order')
     activities = Activity.objects.all().order_by('order')
+    title = ActivitySetting.objects.all().first()
+    title_form = ActivitySettingForm(instance=title)
 
     context = {
+        'title_form': title_form,
         'block_form': block_form,
         'activity_form': activity_form,
         'blocks': blocks,
         'activities': activities,
     }
     return render(request, "manage_activities.html", context)
-

@@ -1,6 +1,10 @@
 from django.db import models
 
 
+class ActivitySetting(models.Model):
+    title = models.CharField(max_length=300)
+
+
 class ActivityBlock(models.Model):
     name = models.CharField(max_length=200)
     order = models.PositiveIntegerField(default=0, help_text="Order of this block")
