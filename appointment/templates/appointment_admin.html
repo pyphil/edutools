@@ -50,7 +50,7 @@
     <div class="card-body">
       <div class="hstack gap-3">
         <form>
-          <select name="select" class="form-select" style="width: 500px;" onchange="this.form.submit()">
+          <select name="select" class="form-select" style="width: 300px;" onchange="this.form.submit()">
             {% if not dates %}
             <option selected>Terminauswahl</option>
             {% endif %}
@@ -58,6 +58,15 @@
             <option value="{{ date|date:'c' }}" {% if date|date:'c' == current_date|date:'c' %} selected {% endif %}>{{ date|date:"l, d. F Y" }}</option>
             {% endfor %}
           </select>
+        </form>
+        <form method="post" class="ms-3">
+          {% csrf_token %}
+          <input type="hidden" name="toggle_day" value="1">
+          <input type="hidden" name="select" value="{{ current_date|date:'c' }}">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="dayHiddenSwitch" name="day_hidden" {% if day_hidden %}checked{% endif %} onchange="this.form.submit()">
+            <label class="form-check-label" for="dayHiddenSwitch">alle Termine dieses Tages sichtbar/unsichtbar machen</label>
+          </div>
         </form>
         <div class="vr"></div>
         <div>
