@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Appointment, AppointmentMail
+from .models import Appointment, AppointmentMail, AppointmentSetting
 
 
 class AppointmentCustomAdmin(admin.ModelAdmin):
@@ -27,3 +27,4 @@ class AppointmentCustomAdmin(admin.ModelAdmin):
 
 admin.site.register(Appointment, AppointmentCustomAdmin)
 admin.site.register(AppointmentMail)
+admin.site.register(AppointmentSetting)
