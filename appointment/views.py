@@ -38,18 +38,19 @@ def create_appointment(request):
 
 def appointment(request):
     appointments = Appointment.objects.all()
-
     # Generate a list of dates for date categories in the frontend
+    # Only include dates that have at least one visible, empty slot.
     dates = []
     for i in appointments:
-        if i.date not in dates:
-            dates.append(i.date)
+        d = i.date
+        if d not in dates:
+            if Appointment.objects.filter(date=d, student_name="", visible=True).exists():
+                dates.append(d)
     dates.sort()
 
-    # create a list of appointments hours for the dates
+    # create a list of appointments hours for the dates (only visible empty slots)
     appointment_items = []
     for date in dates:
-        # only append appointment if visible and name is empty
         items = Appointment.objects.filter(date=date, student_name="", visible=True)
         appointment_items.append((date, items))
     return render(
@@ -207,15 +208,31 @@ def delete_appointment(request, id):
 @user_passes_test(is_appointment_admin)
 def appointment_admin(request):
     if request.method == "POST":
+        # Toggle a single appointment's visibility (existing behavior)
         appointment_id = request.POST.get("visible_id")
         if appointment_id:
             appointment = Appointment.objects.get(id=appointment_id)
             appointment.visible = not appointment.visible
             appointment.save()
-            print(appointment.date)
-        return redirect(
-            reverse('appointment_admin') + "?select=" + str(appointment.date)
-        )
+            return redirect(reverse('appointment_admin') + "?select=" + str(appointment.date))
+
+        # Toggle hide/unhide for the whole selected day.
+        # Form includes a hidden `toggle_day` field and a checkbox `day_hidden`.
+        if request.POST.get("toggle_day"):
+            select_iso = request.POST.get("select")
+            if select_iso:
+                sel_date = datetime.fromisoformat(select_iso).date()
+                # If checkbox is checked, request.POST.get('day_hidden') == 'on'
+                if request.POST.get("day_hidden") == "on":
+                    # hide all appointments for that date
+                    Appointment.objects.filter(date=sel_date).update(visible=False)
+                else:
+                    # unhide (make visible) all appointments for that date
+                    Appointment.objects.filter(date=sel_date).update(visible=True)
+                return redirect(reverse('appointment_admin') + "?select=" + str(sel_date))
+
+        # fallback redirect
+        return redirect(reverse('appointment_admin'))
     items = Appointment.objects.all()
     all_bookings_count = items.count() - items.filter(student_name="").count()
     dates = []
@@ -233,6 +250,12 @@ def appointment_admin(request):
             current_date = None
     appointments = Appointment.objects.filter(date=current_date)
 
+    # Determine whether this day is hidden (no visible appointments)
+    if current_date:
+        day_hidden = not Appointment.objects.filter(date=current_date, visible=True).exists()
+    else:
+        day_hidden = False
+
     return render(
         request,
         "appointment_admin.html",
@@ -241,6 +264,7 @@ def appointment_admin(request):
             "dates": dates,
             "current_date": current_date,
             "all_bookings_count": all_bookings_count,
+            "day_hidden": day_hidden,
         },
     )
 
