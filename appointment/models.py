@@ -19,3 +19,9 @@ class Appointment(models.Model):
 class AppointmentMail(models.Model):
     mail_text = models.TextField(blank=True, null=True)
     mail_text_reminder = models.TextField(blank=True, null=True)
+
+
+class AppointmentSetting(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    show_empty_days = models.BooleanField(default=True)

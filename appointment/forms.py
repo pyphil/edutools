@@ -1,5 +1,5 @@
 from django import forms
-from .models import Appointment, AppointmentMail
+from .models import Appointment, AppointmentMail, AppointmentSetting
 
 
 class AppointmentForm(forms.ModelForm):
@@ -56,4 +56,24 @@ class MailText(forms.ModelForm):
         widgets = {
             'mail_text': forms.Textarea(attrs={'class': 'form-control'}),
             'mail_text_reminder': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+
+class AppointmentSettingForm(forms.ModelForm):
+    class Meta:
+        model = AppointmentSetting
+        fields = [
+            'title',
+            'description',
+            'show_empty_days',
+        ]
+        labels = {
+            'title': 'Titel der Terminseite',
+            'description': 'Beschreibung der Terminseite',
+            'show_empty_days': 'Ausgebuchte Tage mit Hinweis anzeigen',
+        }
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'show_empty_days': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

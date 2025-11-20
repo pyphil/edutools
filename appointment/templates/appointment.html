@@ -18,6 +18,9 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'appointment_email' %}">E-Mail</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'appointment_settings' %}">Einstellungen</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -25,9 +28,9 @@
 {% endif %}
 
   <div class="container mt-5">
-    <h4>Terminbuchung zum Anmeldeverfahren</h4>
+    <h4>{{ settings.title }}</h4>
     <div class="alert alert-light">
-      Wählen Sie zunächst ein Datum für Ihren Termin aus. Je nach Tag und Verfügbarkeit stehen bis zu vier parallele Termine für eine Uhrzeit zur Verfügung. Durch die Auswahl einer Uhrzeit gelangen Sie zum Buchungsformular für Ihren Termin.
+      {{ settings.description|linebreaks }}
     </div>
     {% for date in appointment_items %}
     <div class="accordion" id="appointment_{{ forloop.counter }}">

@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from .models import Appointment, AppointmentMail
+from .models import Appointment, AppointmentMail, AppointmentSetting
+from .forms import AppointmentForm, MailText, AppointmentSettingForm
 from WLANCodesWebApp.models import Config
-from .forms import AppointmentForm, MailText
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 # from threading import Thread
@@ -38,13 +38,18 @@ def create_appointment(request):
 
 def appointment(request):
     appointments = Appointment.objects.all()
+    settings = AppointmentSetting.objects.first()
     # Generate a list of dates for date categories in the frontend
-    # Only include dates that have at least one visible, empty slot.
     dates = []
     for i in appointments:
         d = i.date
         if d not in dates:
-            if Appointment.objects.filter(date=d, student_name="", visible=True).exists():
+            settings = AppointmentSetting.objects.first()
+            if settings and not settings.show_empty_days:
+                # Only include dates that have at least one visible, empty slot.
+                if Appointment.objects.filter(date=d, student_name="", visible=True).exists():
+                    dates.append(d)
+            else:
                 dates.append(d)
     dates.sort()
 
@@ -59,6 +64,7 @@ def appointment(request):
         {
             "appointment_items": appointment_items,
             "is_admin": is_appointment_admin(request.user),
+            "settings": settings,
         },
     )
 
@@ -309,3 +315,20 @@ def appointment_email(request):
         f = MailText(instance=mail_settings)
 
     return render(request, "appointment_email.html", {"form": f})
+
+
+@login_required
+@user_passes_test(is_appointment_admin)
+def appointment_settings(request):
+    settings = AppointmentSetting.objects.first()
+
+    if request.method == "POST":
+        f = AppointmentSettingForm(request.POST, instance=settings)
+        if f.is_valid():
+            f.save()
+            messages.success(request, "Einstellungen gespeichert")
+            return redirect("appointment_settings")
+    else:
+        f = AppointmentSettingForm(instance=settings)
+
+    return render(request, "appointment_settings.html", {"form": f})
