@@ -124,7 +124,7 @@
             <input class="form-control" id="student_name" name="student_name" required>
             <label for="parents_name">Name der/des Erziehungsberechtigten:</label>
             <input class="form-control" id="parents_name" name="parents_name">
-            <button type="submit" class="btn btn-lg btn-primary mt-3 col-3" style="min-width: 200px;"><i class="bi bi-caret-right-fill"></i> Buchen</button>
+            <button id="submit_activity_button" type="submit" class="btn btn-lg btn-primary mt-3 col-3" style="min-width: 200px;"><i class="bi bi-caret-right-fill"></i> Buchen</button>
           </div>
         </form>
       </div>
@@ -140,6 +140,25 @@ function disableSubmitButton(event) {
     }
     return true; // allow normal form submission
 }
+</script>
+
+<script>
+// Disable the submit button if there are no enabled activity radio inputs
+document.addEventListener('DOMContentLoaded', function () {
+    const submitBtn = document.getElementById('submit_activity_button');
+    if (!submitBtn) return;
+
+    const radios = Array.from(document.querySelectorAll('input[name="select_activity"]'));
+    // If there are no radios or all radios are disabled, disable the submit button
+    const anyEnabled = radios.some(r => !r.disabled);
+    if (!anyEnabled) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('disabled');
+        submitBtn.title = 'Keine freien Angebote im gewählten Block verfügbar';
+        // Change text to make the state clearer
+        submitBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Keine freien Angebote';
+    }
+});
 </script>
 
 {% endblock content %}
