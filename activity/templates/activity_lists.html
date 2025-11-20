@@ -25,7 +25,14 @@
 
 </style>
   <div class="container mt-5 printable">
-    <div class="text-end"><a href="{% url 'activity' %}" class="btn btn-primary">zurück</a></div>
+    <div class="row">
+      <div class="col-12 d-flex justify-content-end mb-3">
+        <button class="btn btn-secondary me-2" onclick="window.print()">
+          <i class="bi bi-printer"></i> Drucken
+        </button>
+        <a href="{% url 'activity' %}" class="btn btn-primary">zurück</a>
+      </div>
+    </div>
     <h4>Listen für den Tag der offenen Tür</h4>
       <form>
           Block
