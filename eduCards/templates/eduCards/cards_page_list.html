@@ -1,0 +1,53 @@
+{% extends 'eduCards/base_educards.html' %}
+{% block content %}
+
+<div class="container mt-3 mb-5">
+  <div class="row">
+    <div class="col">
+      <h2 class="mb-4">Cards Pages</h2>
+      
+      {% if cards_pages %}
+        <div class="row">
+          {% for page in cards_pages %}
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="card shadow-lg h-100">
+                <div class="card-body">
+                  <h5 class="card-title">{{ page.title }}</h5>
+                  {% if page.description %}
+                    <p class="card-text">{{ page.description|truncatewords:20 }}</p>
+                  {% endif %}
+                  <p class="text-muted small">
+                    Created: {{ page.created|date:"d.m.Y" }}
+                    {% if page.last_modified_by %}
+                      <br>Last modified: {{ page.last_modified|date:"d.m.Y" }}
+                    {% endif %}
+                  </p>
+                </div>
+                <div class="card-footer">
+                  <a href="{% url 'eduCards:cards_page_detail' page.id %}" class="btn btn-primary">
+                    <i class="bi bi-eye"></i> View Page
+                  </a>
+                  {% if user.is_authenticated %}
+                    <a href="{% url 'eduCards:edit_cards_page' page.id %}" class="btn btn-secondary btn-sm">
+                      <i class="bi bi-pencil"></i> Edit
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <p>No cards pages available yet.</p>
+          {% if user.is_authenticated %}
+            <a href="{% url 'eduCards:create_cards_page' %}" class="btn btn-success">Create Your First Page</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
