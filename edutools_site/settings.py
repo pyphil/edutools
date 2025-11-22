@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'library_manager',
     'appointment',
     'activity',
+    'eduCards',
     'django_ckeditor_5',
 ]
 
@@ -147,7 +148,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
 
-# media root should be kept private on the webserver, so files are server through
+# media root should be kept private on the webserver, so files are served through
 # Django with a view which can be access restricted
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=0.9">
+    <title>EduCards - {{ block.super }}</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    
+    <style>
+      body {
+        background-color: #6279a7ad;
+      }
+      .alert-secondary {
+        background-color: #e2e3e59e;
+      }
+      .category-header {
+        border-left: 4px solid;
+      }
+      /* Column layout for categories */
+      .cards-page-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 100%;
+        padding-bottom: 20px;
+      }
+      .categories-row {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 15px;
+        min-width: fit-content;
+        padding: 10px;
+      }
+      .category-column {
+        flex: 0 0 350px;
+        min-width: 350px;
+        max-width: 350px;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 250px);
+        min-height: 500px;
+      }
+      .category-column-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 0 0 8px 8px;
+      }
+      .category-card-header {
+        flex-shrink: 0;
+        border-radius: 8px 8px 0 0;
+      }
+      .card-item {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+  <div class="container-fluid">
+    <div class="row" style="{% if 'page' in request.path and request.path|slice:":9" == '/educards' %}width: fit-content; min-width: 100%;{% endif %}">
+      <nav class="navbar navbar-expand navbar-light bg-light mt-3 mb-3 shadow">
+        <div class="container-fluid">
+          <div class="d-flex">
+            {% if institution_logo %}
+              <img src="/{{ institution_logo }}" width="40" class="ms-2 me-2" style="object-fit: contain;">
+            {% endif %}
+            <a class="navbar-brand mt-2 me-5" href="/"><h4>{{ institution_name }} EduCards</h4></a>
+            <button class="navbar-toggler me-4" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="btn btn-primary ms-3 shadow" href="{% url 'eduCards:cards_page_list' %}"><i class="bi bi-list-ul"></i> All Pages</a>
+                {% if user.is_authenticated %}
+                  <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                    <button class="btn btn-secondary shadow ms-3"><i class="bi bi-person-circle"></i> Logout ({{ user.username }})</button>
+                  </form>
+                  <a class="btn btn-success ms-3 shadow" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-circle"></i> New Page</a>
+                  {% if user.is_staff %}
+                    <a class="btn btn-warning ms-3 shadow" href="/admin/">Django-Admin</a>
+                  {% endif %}
+                {% else %}
+                  <a class="btn btn-secondary shadow ms-3" href="/accounts/login/?next={{ request.get_full_path|urlencode }}"><i class="bi bi-person-circle"></i> Login</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+    {% block content %}
+    {% endblock content %}
+    </div>
+  </div>
+  </body>
+</html>
