@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from .models import CardsPage, Category, Card
 
 
@@ -9,10 +10,10 @@ class CardsPageForm(ModelForm):
         model = CardsPage
         fields = ('title', 'description', 'is_active', 'order')
         labels = {
-            'title': mark_safe('<strong>Page Title</strong>'),
-            'description': mark_safe('<strong>Description</strong>'),
-            'is_active': mark_safe('<strong>Active</strong>'),
-            'order': mark_safe('<strong>Display Order</strong>'),
+            'title': mark_safe(f'<strong>{_("Page Title")}</strong>'),
+            'description': mark_safe(f'<strong>{_("Description")}</strong>'),
+            'is_active': mark_safe(f'<strong>{_("Active")}</strong>'),
+            'order': mark_safe(f'<strong>{_("Display Order")}</strong>'),
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -27,10 +28,10 @@ class CategoryForm(ModelForm):
         model = Category
         fields = ('name', 'description', 'color', 'order')
         labels = {
-            'name': mark_safe('<strong>Category Name</strong>'),
-            'description': mark_safe('<strong>Description</strong>'),
-            'color': mark_safe('<strong>Color (Hex Code)</strong>'),
-            'order': mark_safe('<strong>Display Order</strong>'),
+            'name': mark_safe(f'<strong>{_("Category Name")}</strong>'),
+            'description': mark_safe(f'<strong>{_("Description")}</strong>'),
+            'color': mark_safe(f'<strong>{_("Color (Hex Code)")}</strong>'),
+            'order': mark_safe(f'<strong>{_("Display Order")}</strong>'),
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -45,11 +46,11 @@ class CardForm(ModelForm):
         model = Card
         fields = ('title', 'content', 'additional_info', 'attachment', 'order')
         labels = {
-            'title': mark_safe('<strong>Card Title</strong>'),
-            'content': mark_safe('<strong>Content</strong>'),
-            'additional_info': mark_safe('<strong>Additional Information</strong>'),
-            'attachment': mark_safe('<strong>Attachment</strong>'),
-            'order': mark_safe('<strong>Display Order</strong>'),
+            'title': mark_safe(f'<strong>{_("Card Title")}</strong>'),
+            'content': mark_safe(f'<strong>{_("Content")}</strong>'),
+            'additional_info': mark_safe(f'<strong>{_("Additional Information")}</strong>'),
+            'attachment': mark_safe(f'<strong>{_("Attachment")}</strong>'),
+            'order': mark_safe(f'<strong>{_("Display Order")}</strong>'),
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),

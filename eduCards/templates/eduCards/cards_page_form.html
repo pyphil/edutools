@@ -1,4 +1,5 @@
 {% extends 'eduCards/base_educards.html' %}
+{% load i18n %}
 {% block content %}
 
 <div class="container mt-3 mb-5">
@@ -8,9 +9,9 @@
         <div class="card-header">
           <strong>{{ title }}</strong>
           {% if cards_page %}
-            <br><small>Created: {{ cards_page.created_by }}, {{ cards_page.created|date:"d.m.Y H:i" }}
+            <br><small>{% trans "Created" %}: {{ cards_page.created_by }}, {{ cards_page.created|date:"d.m.Y H:i" }}
             {% if cards_page.last_modified_by %}
-              <br>Last modified: {{ cards_page.last_modified_by }}, {{ cards_page.last_modified|date:"d.m.Y H:i" }}
+              <br>{% trans "Last modified" %}: {{ cards_page.last_modified_by }}, {{ cards_page.last_modified|date:"d.m.Y H:i" }}
             {% endif %}</small>
           {% endif %}
         </div>
@@ -18,11 +19,11 @@
           <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-primary mt-3">Save</button>
+            <button type="submit" class="btn btn-primary mt-3">{% trans "Save" %}</button>
             {% if cards_page %}
-              <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary mt-3">Cancel</a>
+              <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
             {% else %}
-              <a href="{% url 'eduCards:cards_page_list' %}" class="btn btn-secondary mt-3">Cancel</a>
+              <a href="{% url 'eduCards:cards_page_list' %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
             {% endif %}
           </form>
         </div>
@@ -32,4 +33,3 @@
 </div>
 
 {% endblock content %}
-

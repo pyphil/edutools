@@ -1,4 +1,5 @@
 {% extends 'eduCards/base_educards.html' %}
+{% load i18n %}
 {% block content %}
 
 <div class="container mt-3 mb-5">
@@ -6,15 +7,15 @@
     <div class="col" style="max-width: 600px;">
       <div class="card">
         <div class="card-header bg-danger text-white">
-          <strong>Delete Card</strong>
+          <strong>{% trans "Delete Card" %}</strong>
         </div>
         <div class="card-body">
-          <p>Are you sure you want to delete the card <strong>"{{ card.title }}"</strong>?</p>
-          <p class="text-danger"><small>This action cannot be undone.</small></p>
+          <p>{% blocktrans with card_title=card.title %}Are you sure you want to delete the card <strong>"{{ card_title }}"</strong>?{% endblocktrans %}</p>
+          <p class="text-danger"><small>{% trans "This action cannot be undone." %}</small></p>
           <form method="POST">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Yes, Delete</button>
-            <a href="{% url 'eduCards:cards_page_detail' card.category.cards_page.id %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-danger">{% trans "Yes, Delete" %}</button>
+            <a href="{% url 'eduCards:cards_page_detail' card.category.cards_page.id %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
           </form>
         </div>
       </div>
@@ -23,4 +24,3 @@
 </div>
 
 {% endblock content %}
-

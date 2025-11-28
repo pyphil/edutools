@@ -1,4 +1,5 @@
 {% extends 'eduCards/base_educards.html' %}
+{% load i18n %}
 {% block content %}
 
 <div class="container mt-3 mb-5">
@@ -7,18 +8,18 @@
       <div class="card">
         <div class="card-header">
           <strong>{{ title }}</strong>
-          <br><small>Page: {{ cards_page.title }}</small>
+          <br><small>{% trans "Page" %}: {{ cards_page.title }}</small>
           {% if category %}
-            <br><small>Created: {{ category.created|date:"d.m.Y H:i" }}
-            Last modified: {{ category.last_modified|date:"d.m.Y H:i" }}</small>
+            <br><small>{% trans "Created" %}: {{ category.created|date:"d.m.Y H:i" }}
+            {% trans "Last modified" %}: {{ category.last_modified|date:"d.m.Y H:i" }}</small>
           {% endif %}
         </div>
         <div class="card-body">
           <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-primary mt-3">Save</button>
-            <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary mt-3">Cancel</a>
+            <button type="submit" class="btn btn-primary mt-3">{% trans "Save" %}</button>
+            <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
           </form>
         </div>
       </div>
@@ -27,4 +28,3 @@
 </div>
 
 {% endblock content %}
-

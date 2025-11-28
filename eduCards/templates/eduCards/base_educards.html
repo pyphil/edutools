@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="de">
   <head>
@@ -77,18 +78,18 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
               <div class="navbar-nav">
-                <a class="btn btn-primary ms-3 shadow" href="{% url 'eduCards:cards_page_list' %}"><i class="bi bi-list-ul"></i> All Pages</a>
+                <a class="btn btn-primary ms-3 shadow" href="{% url 'eduCards:cards_page_list' %}"><i class="bi bi-list-ul"></i> {% trans "All Pages" %}</a>
                 {% if user.is_authenticated %}
                   <form method="post" action="{% url 'logout' %}">
                   {% csrf_token %}
-                    <button class="btn btn-secondary shadow ms-3"><i class="bi bi-person-circle"></i> Logout ({{ user.username }})</button>
+                    <button class="btn btn-secondary shadow ms-3"><i class="bi bi-person-circle"></i> {% trans "Logout" %} ({{ user.username }})</button>
                   </form>
-                  <a class="btn btn-success ms-3 shadow" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-circle"></i> New Page</a>
+                  <a class="btn btn-success ms-3 shadow" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-circle"></i> {% trans "New Page" %}</a>
                   {% if user.is_staff %}
-                    <a class="btn btn-warning ms-3 shadow" href="/admin/">Django-Admin</a>
+                    <a class="btn btn-warning ms-3 shadow" href="/admin/">{% trans "Django-Admin" %}</a>
                   {% endif %}
                 {% else %}
-                  <a class="btn btn-secondary shadow ms-3" href="/accounts/login/?next={{ request.get_full_path|urlencode }}"><i class="bi bi-person-circle"></i> Login</a>
+                  <a class="btn btn-secondary shadow ms-3" href="/accounts/login/?next={{ request.get_full_path|urlencode }}"><i class="bi bi-person-circle"></i> {% trans "Login" %}</a>
                 {% endif %}
               </div>
             </div>
