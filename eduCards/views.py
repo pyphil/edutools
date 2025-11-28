@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import FileResponse
 from django.conf import settings
 from django.db.models import Prefetch
+from django.utils.translation import gettext_lazy as _
 from .models import CardsPage, Category, Card
 from .forms import CardsPageForm, CategoryForm, CardForm
 
@@ -48,7 +49,7 @@ def create_cards_page(request):
     
     return render(request, 'eduCards/cards_page_form.html', {
         'form': form,
-        'title': 'Create New Cards Page',
+        'title': _('Create New Cards Page'),
     })
 
 
@@ -71,7 +72,7 @@ def edit_cards_page(request, page_id):
     return render(request, 'eduCards/cards_page_form.html', {
         'form': form,
         'cards_page': cards_page,
-        'title': 'Edit Cards Page',
+        'title': _('Edit Cards Page'),
     })
 
 
@@ -94,7 +95,7 @@ def create_category(request, page_id):
     return render(request, 'eduCards/category_form.html', {
         'form': form,
         'cards_page': cards_page,
-        'title': 'Create New Category',
+        'title': _('Create New Category'),
     })
 
 
@@ -116,7 +117,7 @@ def edit_category(request, category_id):
         'form': form,
         'cards_page': category.cards_page,
         'category': category,
-        'title': 'Edit Category',
+        'title': _('Edit Category'),
     })
 
 
@@ -156,7 +157,7 @@ def create_card(request, category_id):
     return render(request, 'eduCards/card_form.html', {
         'form': form,
         'category': category,
-        'title': 'Create New Card',
+        'title': _('Create New Card'),
     })
 
 
@@ -180,7 +181,7 @@ def edit_card(request, card_id):
         'form': form,
         'category': card.category,
         'card': card,
-        'title': 'Edit Card',
+        'title': _('Edit Card'),
     })
 
 

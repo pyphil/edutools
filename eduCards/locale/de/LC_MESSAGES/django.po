@@ -1,0 +1,161 @@
+# German translations for eduCards
+# Copyright (C) 2024
+# This file is distributed under the same license as the Django project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: eduCards 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Views
+msgid "Create New Cards Page"
+msgstr "Neue Karten-Seite erstellen"
+
+msgid "Edit Cards Page"
+msgstr "Karten-Seite bearbeiten"
+
+msgid "Create New Category"
+msgstr "Neue Kategorie erstellen"
+
+msgid "Edit Category"
+msgstr "Kategorie bearbeiten"
+
+msgid "Create New Card"
+msgstr "Neue Karte erstellen"
+
+msgid "Edit Card"
+msgstr "Karte bearbeiten"
+
+# Forms
+msgid "Page Title"
+msgstr "Seitentitel"
+
+msgid "Display Order"
+msgstr "Anzeigereihenfolge"
+
+msgid "Category Name"
+msgstr "Kategoriename"
+
+msgid "Color (Hex Code)"
+msgstr "Farbe (Hex-Code)"
+
+msgid "Card Title"
+msgstr "Kartentitel"
+
+# Templates
+msgid "Cards Pages"
+msgstr "Karten-Seiten"
+
+msgid "View Page"
+msgstr "Seite anzeigen"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "No cards pages available yet."
+msgstr "Noch keine Karten-Seiten verfügbar."
+
+msgid "Create Your First Page"
+msgstr "Erste Seite erstellen"
+
+msgid "Edit Page"
+msgstr "Seite bearbeiten"
+
+msgid "Add Column"
+msgstr "Spalte hinzufügen"
+
+msgid "Add Card"
+msgstr "Karte hinzufügen"
+
+msgid "Edit Column"
+msgstr "Spalte bearbeiten"
+
+msgid "Delete Column"
+msgstr "Spalte löschen"
+
+msgid "Are you sure you want to delete this column and all its cards?"
+msgstr "Sind Sie sicher, dass Sie diese Spalte und alle ihre Karten löschen möchten?"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Are you sure you want to delete this card?"
+msgstr "Sind Sie sicher, dass Sie diese Karte löschen möchten?"
+
+msgid "Additional Info"
+msgstr "Zusätzliche Informationen"
+
+msgid "Modified"
+msgstr "Geändert"
+
+msgid "No cards yet."
+msgstr "Noch keine Karten."
+
+msgid "Add First Card"
+msgstr "Erste Karte hinzufügen"
+
+msgid "No columns yet."
+msgstr "Noch keine Spalten."
+
+msgid "Create First Column"
+msgstr "Erste Spalte erstellen"
+
+msgid "All Pages"
+msgstr "Alle Seiten"
+
+msgid "Logout"
+msgstr "Abmelden"
+
+msgid "New Page"
+msgstr "Neue Seite"
+
+msgid "Django-Admin"
+msgstr "Django-Admin"
+
+msgid "Login"
+msgstr "Anmelden"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "Delete Category"
+msgstr "Kategorie löschen"
+
+msgid "Are you sure you want to delete the category \"%(category_name)s\"?"
+msgstr "Sind Sie sicher, dass Sie die Kategorie \"%(category_name)s\" löschen möchten?"
+
+msgid "This will also delete all cards in this category. This action cannot be undone."
+msgstr "Dies löscht auch alle Karten in dieser Kategorie. Diese Aktion kann nicht rückgängig gemacht werden."
+
+msgid "Yes, Delete"
+msgstr "Ja, löschen"
+
+msgid "Delete Card"
+msgstr "Karte löschen"
+
+msgid "Are you sure you want to delete the card \"%(card_title)s\"?"
+msgstr "Sind Sie sicher, dass Sie die Karte \"%(card_title)s\" löschen möchten?"
+
+msgid "This action cannot be undone."
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden."
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Last modified"
+msgstr "Zuletzt geändert"
