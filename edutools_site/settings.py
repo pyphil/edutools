@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'library_manager',
     'appointment',
     'activity',
+    'dsb',
+    'upload',
     'django_ckeditor_5',
 ]
 

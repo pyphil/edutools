@@ -22,6 +22,8 @@ urlpatterns = [
     path('activity/', include('activity.urls')),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
     path('logo/<filename>', views.get_logo, name='get_logo'),
+    path('dsb/', include('dsb.urls')),
+    path('upload/', include('upload.urls')),
 ]
 
 # urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
