@@ -73,7 +73,7 @@
         </div>
         <div class="col-auto">
             <button class="btn btn-primary">Suchen</button>
-            <a href="{% url 'inventory' %}?filter_text=&filter_category=&filter_status=" class="btn btn-secondary" name="reset" value="reset" data-bs-toggle="tooltip" data-bs-title="Filter und Suche zurücksetzen">X</a>
+            <a href="{% url 'inventory' %}?location={{ current_location }}&filter_text=&filter_category=&filter_status=" class="btn btn-secondary" name="reset" value="reset" data-bs-toggle="tooltip" data-bs-title="Filter und Suche zurücksetzen">X</a>
         </div>
       </div>
     </form>
@@ -95,7 +95,7 @@
       <tbody>
         {% for item in library_items %}
         {% if library_admin %}
-          <tr onclick="window.location.href='/library_manager/edit/{{ item.id }}?filter_category={{ current_category }}&filter_status={{ current_status  }}&filter_text={{ current_text }}'" style="cursor: pointer;">
+          <tr onclick="window.location.href='/library_manager/edit/{{ item.id }}?location={{ current_location }}&filter_category={{ current_category }}&filter_status={{ current_status  }}&filter_text={{ current_text }}'" style="cursor: pointer;">
         {% endif %}
           <td>{{ item.author }}</td>
           <td>{{ item.title }}</td>
@@ -127,7 +127,7 @@
 
     {% if item_count %}
       <div class="text-center mb-4">
-        <a href="{% url 'inventory' %}?filter_text={{ current_text }}&filter_category={{ current_category }}&show_all=1">Alle {{ item_count }} Datensätze anzeigen</a>
+        <a href="{% url 'inventory' %}?location={{ current_location }}&filter_text={{ current_text }}&filter_category={{ current_category }}&filter_status={{ current_status }}&show_all=1">Alle {{ item_count }} Datensätze anzeigen</a>
       </div>
     {% endif %}
 
