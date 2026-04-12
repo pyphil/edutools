@@ -9,6 +9,7 @@ class InventoryItemForm(ModelForm):
         fields = (
             'author',
             'title',
+            'location',
             'category_shelfmark',
             # 'status',
             'inventory_number',
@@ -17,6 +18,7 @@ class InventoryItemForm(ModelForm):
         labels = {
             'author': 'Autor:in',
             'title': 'Titel',
+            'location': 'Bibliothek',
             'category_shelfmark': 'Bereich/Signatur',
             # 'status': 'Status',
             'inventory_number': 'Inventarnummer (automatisch)',
@@ -25,6 +27,7 @@ class InventoryItemForm(ModelForm):
         widgets = {
             'author': forms.TextInput(attrs={'class': 'form-control'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.Select(attrs={'class': 'form-select', 'style': 'width: 40%'}),
             'category_shelfmark': forms.Select(attrs={'class': 'form-select', 'style': 'width: 40%'}),
             # 'status': forms.Select(attrs={'class': 'form-select', 'style': 'width: 40%'}),
             'inventory_number': forms.TextInput(attrs={'class': 'form-control text-center', 'style': 'width: 100px'}),

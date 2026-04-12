@@ -17,19 +17,24 @@ def is_library_assistant(user):
 
 @login_required
 def inventory(request):
-    if request.GET.get('location'):
-        current_location = request.GET.get('location')
+    locations_qs = LibraryLocation.objects.all()
+    first_location = locations_qs.first()
+    current_location = None
+    loc_param = request.GET.get('location')
+    if loc_param:
+        try:
+            loc_id = int(loc_param)
+            if locations_qs.filter(pk=loc_id).exists():
+                current_location = loc_id
+        except (ValueError, TypeError):
+            pass
+    if current_location is None and first_location is not None:
+        current_location = first_location.id
+
+    if current_location is None:
+        library_items = InventoryItem.objects.none()
     else:
-        # use first location as default
-        current_location = LibraryLocation.objects.filter().first()
-        if current_location:
-            current_location = int(current_location.id)
-
-    # Get objects for location
-    library_items = InventoryItem.objects.filter(location=current_location)
-
-    # Get locations for filter
-    locations = LibraryLocation.objects.all()
+        library_items = InventoryItem.objects.filter(location_id=current_location)
 
     # Get status for filter
     status_items = LibraryStatus.objects.all()
@@ -71,7 +76,7 @@ def inventory(request):
         'current_category': int(current_category),
         'current_text': current_text,
         'item_count': item_count,
-        'locations': locations,
+        'locations': locations_qs,
         'current_location': current_location,
         'status_items': status_items,
         'current_status': int(current_status),
@@ -98,7 +103,10 @@ def edit(request, id):
             filter_category = request.GET.get('filter_category', '0')
             filter_status = request.GET.get('filter_status', '0')
             filter_text = request.GET.get('filter_text', '')
-            return redirect(f"{reverse('inventory')}?filter_category={filter_category}&filter_status={filter_status}&filter_text={filter_text}")
+            return redirect(
+                f"{reverse('inventory')}?filter_category={filter_category}&filter_status={filter_status}"
+                f"&filter_text={filter_text}&location={inst.location_id}"
+            )
         else:
             return render(request, 'library_edit.html', {'form': f})
 
@@ -114,17 +122,27 @@ def new(request):
         if f.is_valid():
             inst = f.save(commit=False)
             inst.inventory_number = inst.next_inventory_number
-            location_obj = LibraryLocation.objects.get(id=request.GET.get('location'))
-            inst.location = location_obj
             current_status, created = LibraryStatus.objects.get_or_create(name="verfügbar")
             inst.status = current_status
             inst.save()
-            return redirect(f"{reverse('inventory')}?filter_category=&filter_text={inst.inventory_number}")
+            return redirect(
+                f"{reverse('inventory')}?filter_category=0&filter_status=0&filter_text={inst.inventory_number}"
+                f"&location={inst.location_id}"
+            )
         else:
             return render(request, 'library_new.html', {'form': f})
 
     default_status = LibraryStatus.objects.filter().last()
-    f = InventoryItemForm(initial={'status': default_status})
+    initial = {'status': default_status}
+    loc_param = request.GET.get('location')
+    if loc_param:
+        try:
+            loc_id = int(loc_param)
+            if LibraryLocation.objects.filter(pk=loc_id).exists():
+                initial['location'] = loc_id
+        except (ValueError, TypeError):
+            pass
+    f = InventoryItemForm(initial=initial)
     return render(request, 'library_new.html', {'form': f})
 
 
