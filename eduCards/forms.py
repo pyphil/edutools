@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.forms import ModelForm
 from django import forms
 from django.utils.safestring import mark_safe
@@ -21,6 +23,16 @@ class CardsPageForm(ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'order': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
+class CardsPageShareForm(forms.Form):
+    teachers = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(Q(is_staff=True) | Q(groups__name='teachers')).distinct(),
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-select', 'size': '8'}),
+        label=_('Share with teachers'),
+        help_text=_('Select one or more teachers to share this page with.'),
+    )
 
 
 class CategoryForm(ModelForm):

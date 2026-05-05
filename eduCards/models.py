@@ -10,6 +10,12 @@ class CardsPage(models.Model):
         User, on_delete=models.PROTECT,
         related_name='created_cards_pages'
     )
+    shared_with = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name='shared_cards_pages',
+        help_text="Teachers who can access this page besides the creator."
+    )
     created = models.DateTimeField(auto_now_add=True)
     last_modified_by = models.ForeignKey(
         User, on_delete=models.PROTECT,
@@ -73,7 +79,7 @@ class Card(models.Model):
         null=True, blank=True, upload_to="eduCards/attachments/"
     )
     created_by = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name='created_cards'
+        User, on_delete=models.PROTECT, related_name='created_cards', null=True, blank=True
     )
     created = models.DateTimeField(auto_now_add=True)
     last_modified_by = models.ForeignKey(
@@ -91,3 +97,31 @@ class Card(models.Model):
 
     def __str__(self):
         return f"{str(self.category)} - {str(self.title)}"
+
+
+class CardsPageAccessToken(models.Model):
+    ACCESS_VIEW = 'view'
+    ACCESS_EDIT = 'edit'
+    ACCESS_CHOICES = [
+        (ACCESS_VIEW, 'View Only'),
+        (ACCESS_EDIT, 'View & Create Cards'),
+    ]
+
+    cards_page = models.ForeignKey(
+        CardsPage, on_delete=models.CASCADE, related_name='access_tokens'
+    )
+    token = models.CharField(max_length=64, unique=True)
+    access_level = models.CharField(max_length=10, choices=ACCESS_CHOICES, default=ACCESS_EDIT)
+    created_by = models.ForeignKey(
+        User, on_delete=models.PROTECT, related_name='created_cards_page_tokens'
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = 'Cards Page Access Token'
+        verbose_name_plural = 'Cards Page Access Tokens'
+        ordering = ['cards_page', '-created']
+
+    def __str__(self):
+        return f"{self.cards_page.title} - {self.token[:12]}... ({self.get_access_level_display()})"

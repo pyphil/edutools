@@ -1,0 +1,16 @@
+{% extends 'eduCards/base_educards.html' %}
+{% load i18n %}
+{% block content %}
+<div class="container mt-5">
+  <div class="alert alert-warning">
+    <h4 class="alert-heading">{% trans "Access Denied" %}</h4>
+    <p>{% trans "You need QR access for this page before you can add cards." %}</p>
+    <hr>
+    <p class="mb-0">
+      <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-primary">
+        {% trans "Return to Page" %}
+      </a>
+    </p>
+  </div>
+</div>
+{% endblock content %}

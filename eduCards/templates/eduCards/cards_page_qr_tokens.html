@@ -1,0 +1,117 @@
+{% extends 'eduCards/base_educards.html' %}
+{% load i18n %}
+{% block content %}
+<div class="container mt-3 mb-5">
+  <div class="row">
+    <div class="col">
+      <h2>{% trans "Share" %} {{ cards_page.title }}</h2>
+      <p class="text-muted">{% trans "Share this page with students via QR access or with other teachers by account." %}</p>
+
+      <div class="row gy-4">
+        <div class="col-lg-6">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <h5 class="card-title">{% trans "Generate QR Access" %}</h5>
+              <p class="text-muted">{% trans "Create a QR code so students can open the page. Choose whether they can only view or also create cards." %}</p>
+              <form method="post" class="mb-3">
+                {% csrf_token %}
+                <div class="row g-2 align-items-end">
+                  <div class="col-auto">
+                    <label class="form-label">{% trans "Access Level" %}</label>
+                    <select name="access_level" class="form-select">
+                      {% for value, label in access_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-auto">
+                    <button name="create_qr" value="1" class="btn btn-primary">
+                      <i class="bi bi-qr-code"></i> {% trans "Create QR Code" %}
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {% if token_data %}
+                <div class="row gy-3">
+                  {% for item in token_data %}
+                    <div class="col-12">
+                      <div class="card border-light shadow-sm">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                              <h6 class="card-title mb-1">{% trans "QR Token" %} {{ forloop.counter }}</h6>
+                              <p class="card-text mb-1"><small class="text-muted">{{ item.url }}</small></p>
+                              <span class="badge bg-info">{{ item.token.get_access_level_display }}</span>
+                            </div>
+                            <form method="post">
+                              {% csrf_token %}
+                              <button name="delete" value="{{ item.token.id }}" class="btn btn-danger btn-sm">{% trans "Delete" %}</button>
+                            </form>
+                          </div>
+                          <div class="text-center mt-3">
+                            <img src="data:image/png;base64,{{ item.qr_base64 }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="alert alert-info mb-0">
+                  {% trans "No QR tokens created yet. Create one to give students access." %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body">
+              <h5 class="card-title">{% trans "Share with Teachers" %}</h5>
+              <p class="text-muted">{% trans "Grant access to other teacher accounts so they can work on this page as well." %}</p>
+
+              <form method="post" class="mb-3">
+                {% csrf_token %}
+                {{ share_form.non_field_errors }}
+                <div class="mb-3">
+                  <label class="form-label" for="id_teachers">{{ share_form.teachers.label }}</label>
+                  {{ share_form.teachers }}
+                  {% if share_form.teachers.help_text %}
+                    <div class="form-text">{{ share_form.teachers.help_text }}</div>
+                  {% endif %}
+                </div>
+                <button name="share" value="1" class="btn btn-primary">{% trans "Save Shared Teachers" %}</button>
+              </form>
+
+              {% if shared_teachers %}
+                <h6>{% trans "Currently shared with" %}</h6>
+                <div class="list-group list-group-flush">
+                  {% for teacher in shared_teachers %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <span>{{ teacher.get_full_name|default:teacher.username }}</span>
+                      <form method="post" class="mb-0">
+                        {% csrf_token %}
+                        <button name="remove_share" value="{{ teacher.id }}" class="btn btn-outline-danger btn-sm">{% trans "Remove" %}</button>
+                      </form>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="alert alert-secondary mb-0">
+                  {% trans "This page is not yet shared with any other teachers." %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary">{% trans "Back to Page" %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -84,7 +84,9 @@
                   {% csrf_token %}
                     <button class="btn btn-secondary shadow ms-3"><i class="bi bi-person-circle"></i> {% trans "Logout" %} ({{ user.username }})</button>
                   </form>
-                  <a class="btn btn-success ms-3 shadow" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-circle"></i> {% trans "New Page" %}</a>
+                  {% if user_is_teacher %}
+                    <a class="btn btn-success ms-3 shadow" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-circle"></i> {% trans "New Page" %}</a>
+                  {% endif %}
                   {% if user.is_staff %}
                     <a class="btn btn-warning ms-3 shadow" href="/admin/">{% trans "Django-Admin" %}</a>
                   {% endif %}

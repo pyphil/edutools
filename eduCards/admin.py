@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CardsPage, Category, Card
+from .models import CardsPage, Category, Card, CardsPageAccessToken
 
 
 class CategoryInline(admin.TabularInline):
@@ -52,7 +52,15 @@ class CardAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+class CardsPageAccessTokenAdmin(admin.ModelAdmin):
+    list_display = ('cards_page', 'token', 'created_by', 'created', 'is_active')
+    list_filter = ('cards_page', 'is_active', 'created')
+    search_fields = ('token', 'cards_page__title', 'created_by__username')
+    readonly_fields = ('created',)
+
+
 admin.site.register(CardsPage, CardsPageAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Card, CardAdmin)
+admin.site.register(CardsPageAccessToken, CardsPageAccessTokenAdmin)
 

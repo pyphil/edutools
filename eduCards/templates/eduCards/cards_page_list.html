@@ -7,7 +7,70 @@
     <div class="col">
       <h2 class="mb-4">{% trans "Cards Pages" %}</h2>
       
-      {% if cards_pages %}
+      {% if own_pages or shared_pages %}
+        {% if own_pages %}
+          <h4 class="mb-3">{% trans "My Pages" %}</h4>
+          <div class="row mb-4">
+            {% for page in own_pages %}
+              <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-lg h-100">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ page.title }}</h5>
+                    {% if page.description %}
+                      <p class="card-text">{{ page.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    <p class="text-muted small">
+                      {% trans "Created" %}: {{ page.created|date:"d.m.Y" }}
+                      {% if page.last_modified_by %}
+                        <br>{% trans "Last modified" %}: {{ page.last_modified|date:"d.m.Y" }}
+                      {% endif %}
+                    </p>
+                  </div>
+                  <div class="card-footer">
+                    <a href="{% url 'eduCards:cards_page_detail' page.id %}" class="btn btn-primary">
+                      <i class="bi bi-eye"></i> {% trans "View Page" %}
+                    </a>
+                    {% if user_is_teacher %}
+                      <a href="{% url 'eduCards:edit_cards_page' page.id %}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-pencil"></i> {% trans "Edit" %}
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if shared_pages %}
+          <h4 class="mb-3">{% trans "Shared with me" %}</h4>
+          <div class="row mb-4">
+            {% for page in shared_pages %}
+              <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-lg h-100 border-info">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ page.title }}</h5>
+                    {% if page.description %}
+                      <p class="card-text">{{ page.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    <p class="text-muted small">
+                      {% trans "Created" %}: {{ page.created|date:"d.m.Y" }}
+                      {% if page.last_modified_by %}
+                        <br>{% trans "Last modified" %}: {{ page.last_modified|date:"d.m.Y" }}
+                      {% endif %}
+                    </p>
+                  </div>
+                  <div class="card-footer">
+                    <a href="{% url 'eduCards:cards_page_detail' page.id %}" class="btn btn-primary">
+                      <i class="bi bi-eye"></i> {% trans "View Page" %}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% elif cards_pages %}
         <div class="row">
           {% for page in cards_pages %}
             <div class="col-md-6 col-lg-4 mb-4">
@@ -28,11 +91,6 @@
                   <a href="{% url 'eduCards:cards_page_detail' page.id %}" class="btn btn-primary">
                     <i class="bi bi-eye"></i> {% trans "View Page" %}
                   </a>
-                  {% if user.is_authenticated %}
-                    <a href="{% url 'eduCards:edit_cards_page' page.id %}" class="btn btn-secondary btn-sm">
-                      <i class="bi bi-pencil"></i> {% trans "Edit" %}
-                    </a>
-                  {% endif %}
                 </div>
               </div>
             </div>
@@ -41,7 +99,7 @@
       {% else %}
         <div class="alert alert-info">
           <p>{% trans "No cards pages available yet." %}</p>
-          {% if user.is_authenticated %}
+          {% if user_is_teacher %}
             <a href="{% url 'eduCards:create_cards_page' %}" class="btn btn-success">{% trans "Create Your First Page" %}</a>
           {% endif %}
         </div>
