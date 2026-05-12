@@ -70,7 +70,7 @@
       <div class="col">
         <div class="card shadow">
           <div class="card-header">
-            <h1 class="h1 mb-0 text-center"><strong>Heute (DSB2)</strong></h1>
+            <h1 class="h1 mb-0 text-center"><strong>Heute {{ dsb2_name }}</strong></h1>
           </div>
           <div id="heute" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -96,7 +96,7 @@
       <div class="col">
         <div class="card shadow">
           <div class="card-header">
-            <h1 class="h1 mb-0 text-center"><strong>Nächster Schultag (DSB2)</strong></h1>
+            <h1 class="h1 mb-0 text-center"><strong>Nächster Schultag {{ dsb2_name }}</strong></h1>
           </div>
           <div id="morgen" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -125,7 +125,7 @@
             {% if files_infodsb2 %}
             <div class="card shadow">
               <div class="card-header">
-                <h5 class="h5 mb-0 text-center">Info MZ</h5>
+                <h5 class="h5 mb-0 text-center">Info {{ dsb2_name }}</h5>
               </div>
               <div id="info2" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
@@ -151,12 +151,9 @@
         </div>
         <div class="row mt-5">
           <div class="col text-center">
-            <a href="{% url 'dsb1' key %}" class="btn btn-primary shadow h5"><i class="bi bi-arrow-right-circle-fill"></i> Plan Niederzier</a>
+            <a href="{% url 'dsb1' key %}" class="btn btn-primary shadow h5"><i class="bi bi-arrow-right-circle-fill"></i> Plan {{ dsb1_name }}</a>
             <a href="{% url 'dsb_terminplan' key %}" class="btn btn-primary shadow h5"><i class="bi bi-calendar"></i> Kalender</a>
           </div>
-          <!-- <div class="alert alert-warning text-center mt-5 shadow" role="alert">
-            Der Pendlerplan kann nun angezeigt werden.
-          </div> -->
         </div>
       </div>
 
