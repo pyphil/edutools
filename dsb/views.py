@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import FileResponse, Http404
 from django.core.exceptions import PermissionDenied
 from .models import Key
+from .models import DsbName
 from upload.models import UploadLaufband
 
 
@@ -39,6 +40,8 @@ def dsb2(request, key):
             'files_infodsb2': files_infodsb2,
             'timestamp': timestamp,
             'key': key,
+            'dsb1_name': get_dsb_name("dsb1"),
+            'dsb2_name': get_dsb_name("dsb2"),
             }
         )
     else:
@@ -83,6 +86,8 @@ def dsb1(request, key):
             'files_kplan': files_kplan,
             'timestamp': timestamp,
             'key': key,
+            'dsb1_name': get_dsb_name("dsb1"),
+            'dsb2_name': get_dsb_name("dsb2"),
             }
         )
     else:
@@ -135,6 +140,8 @@ def dsb1_sus(request, key):
             'timestamp': timestamp,
             'laufband_nz': laufband_nz,
             'key': key,
+            'dsb1_name': get_dsb_name("dsb1"),
+            'dsb2_name': get_dsb_name("dsb2"),
             }
         )
     else:
@@ -180,6 +187,8 @@ def dsb2_sus(request, key):
             'timestamp': timestamp,
             'laufband_mz': laufband_mz,
             'key': key,
+            'dsb1_name': get_dsb_name("dsb1"),
+            'dsb2_name': get_dsb_name("dsb2"),
             }
         )
     else:
@@ -202,6 +211,7 @@ def dsb2_info(request, key):
         return render(request, 'dsb2_info.html', {
             'files_infodsb2': files_infodsb2,
             'key': key,
+            'dsb2_name': get_dsb_name("dsb2"),
             }
         )
     else:
@@ -224,6 +234,7 @@ def dsb1_info(request, key):
         return render(request, 'dsb1_info.html', {
             'files_infodsb1': files_infodsb1,
             'key': key,
+            'dsb1_name': get_dsb_name("dsb1"),
             }
         )
     else:
@@ -307,3 +318,18 @@ def dsb_media(request, key, subfolder, filename):
 
     # Serve the file
     return FileResponse(open(file_path, 'rb'), content_type=content_type)
+
+
+def get_dsb_name(dsb):
+    dsb_name, created = DsbName.objects.get_or_create(
+        pk=1,
+        defaults={"dsb1": "", "dsb2": ""},
+    )
+
+    if dsb == "dsb1":
+        if dsb_name.dsb1:
+            return f"({dsb_name.dsb1})"
+    if dsb == "dsb2":
+        if dsb_name.dsb2:
+            return f"({dsb_name.dsb2})"
+    return ""

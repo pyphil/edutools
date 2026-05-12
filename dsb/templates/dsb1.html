@@ -64,7 +64,7 @@
       <div class="col">
         <div class="card shadow">
           <div class="card-header">
-            <h1 class="h1 mb-0 text-center"><strong>Heute (DSB1)</strong></h1>
+            <h1 class="h1 mb-0 text-center"><strong>Heute {{ dsb1_name }}</strong></h1>
           </div>
           <div id="heute" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -90,7 +90,7 @@
       <div class="col">
         <div class="card shadow">
           <div class="card-header">
-            <h1 class="h1 mb-0 text-center"><strong>Nächster Schultag (DSB1)</strong></h1>
+            <h1 class="h1 mb-0 text-center"><strong>Nächster Schultag {{ dsb1_name }}</strong></h1>
           </div>
           <div id="morgen" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -149,7 +149,7 @@
           <div class="col text-center">
             <div class="card shadow">
               <div class="card-header">
-                <h5 class="h5 mb-0 text-center">Info Niederzier</h5>
+                <h5 class="h5 mb-0 text-center">Info {{ dsb1_name }}</h5>
               </div>
               <div id="infodsb2" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
@@ -181,7 +181,7 @@
 
         <div class="row mt-5">
           <div class="col text-center">
-            <a href="{% url 'dsb2' key %}" class="btn btn-primary shadow h5"><i class="bi bi-arrow-right-circle-fill"></i> Plan Merzenich</a>
+            <a href="{% url 'dsb2' key %}" class="btn btn-primary shadow h5"><i class="bi bi-arrow-right-circle-fill"></i> Plan {{ dsb2_name }}</a>
             <a href="{% url 'dsb_terminplan' key %}" class="btn btn-primary shadow h5"><i class="bi bi-calendar"></i> Kalender</a>
           </div>
         </div>
