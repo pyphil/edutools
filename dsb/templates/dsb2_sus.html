@@ -56,6 +56,12 @@
 
 {% load static %}
 <body>
+  {% if request.user.is_staff %}
+  <a href="{% url 'dsb_admin' %}" title="DSB Einstellungen"
+     style="position: fixed; top: 1rem; right: 1rem; z-index: 2000; width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.92); border-radius: 50%; box-shadow: 0 0 0.9rem rgba(0,0,0,0.18); color: #212529; text-decoration: none;">
+    <i class="bi bi-gear-fill" style="font-size: 1.4rem;"></i>
+  </a>
+  {% endif %}
   <div class="container-fluid">
     <div class="row mt-4">
       <div class="col">

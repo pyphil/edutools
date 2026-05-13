@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 import datetime
 import os
 from django.conf import settings
@@ -6,7 +7,8 @@ from django.http import FileResponse, Http404
 from django.core.exceptions import PermissionDenied
 from .models import Key
 from .models import DsbName
-from upload.models import UploadLaufband
+from .forms import KeyForm, DsbNameForm, UploadKeyForm
+from upload.models import UploadLaufband, UploadKey
 
 
 def dsb2(request, key):
@@ -279,6 +281,122 @@ def dsb_terminplan(request, key):
         )
     else:
         return redirect('/')
+
+
+def dsb_admin(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('/')
+
+    dsb_name, _ = DsbName.objects.get_or_create(
+        pk=1,
+        defaults={"dsb1": "", "dsb2": ""},
+    )
+    keys = Key.objects.order_by('key')
+    upload_keys = UploadKey.objects.order_by('key')
+    status_message = None
+    key_form = KeyForm()
+    uploadkey_form = UploadKeyForm()
+    dsbname_form = DsbNameForm(instance=dsb_name)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_dsbname':
+            dsbname_form = DsbNameForm(request.POST, instance=dsb_name)
+            if dsbname_form.is_valid():
+                dsbname_form.save()
+                messages.success(request, 'DSB-Bezeichnungen wurden gespeichert.')
+                return redirect('dsb_admin')
+            else:
+                status_message = 'Bitte gültige DSB-Bezeichnungen eingeben.'
+
+        elif action == 'add_key':
+            key_form = KeyForm(request.POST)
+            if key_form.is_valid():
+                key_form.save()
+                messages.success(request, 'Neuer Zugangsschlüssel wurde hinzugefügt.')
+                return redirect('dsb_admin')
+            else:
+                status_message = 'Bitte einen gültigen Zugangsschlüssel eingeben.'
+
+        elif action == 'edit_key':
+            key_id = request.POST.get('key_id')
+            if key_id:
+                try:
+                    key_obj = Key.objects.get(pk=key_id)
+                    key_form = KeyForm(request.POST, instance=key_obj)
+                    if key_form.is_valid():
+                        key_form.save()
+                        messages.success(request, 'Zugangsschlüssel wurde aktualisiert.')
+                        return redirect('dsb_admin')
+                    else:
+                        status_message = 'Bitte einen gültigen Zugangsschlüssel eingeben.'
+                except Key.DoesNotExist:
+                    status_message = 'Der ausgewählte Zugangsschlüssel wurde nicht gefunden.'
+            else:
+                status_message = 'Kein Zugangsschlüssel ausgewählt.'
+
+        elif action == 'delete_key':
+            key_id = request.POST.get('key_id')
+            if key_id:
+                Key.objects.filter(pk=key_id).delete()
+                messages.success(request, 'Zugangsschlüssel wurde entfernt.')
+                return redirect('dsb_admin')
+            else:
+                status_message = 'Kein Zugangsschlüssel ausgewählt.'
+
+        elif action == 'add_uploadkey':
+            uploadkey_form = UploadKeyForm(request.POST)
+            if uploadkey_form.is_valid():
+                uploadkey_form.save()
+                messages.success(request, 'Neuer Upload-Schlüssel wurde hinzugefügt.')
+                return redirect('dsb_admin')
+            else:
+                status_message = 'Bitte einen gültigen Upload-Schlüssel eingeben.'
+
+        elif action == 'edit_uploadkey':
+            uploadkey_id = request.POST.get('uploadkey_id')
+            if uploadkey_id:
+                try:
+                    uploadkey_obj = UploadKey.objects.get(pk=uploadkey_id)
+                    uploadkey_form = UploadKeyForm(request.POST, instance=uploadkey_obj)
+                    if uploadkey_form.is_valid():
+                        uploadkey_form.save()
+                        messages.success(request, 'Upload-Schlüssel wurde aktualisiert.')
+                        return redirect('dsb_admin')
+                    else:
+                        status_message = 'Bitte einen gültigen Upload-Schlüssel eingeben.'
+                except UploadKey.DoesNotExist:
+                    status_message = 'Der ausgewählte Upload-Schlüssel wurde nicht gefunden.'
+            else:
+                status_message = 'Kein Upload-Schlüssel ausgewählt.'
+
+        elif action == 'delete_uploadkey':
+            uploadkey_id = request.POST.get('uploadkey_id')
+            if uploadkey_id:
+                UploadKey.objects.filter(pk=uploadkey_id).delete()
+                messages.success(request, 'Upload-Schlüssel wurde entfernt.')
+                return redirect('dsb_admin')
+            else:
+                status_message = 'Kein Upload-Schlüssel ausgewählt.'
+
+        keys = Key.objects.order_by('key')
+        upload_keys = UploadKey.objects.order_by('key')
+        if action not in ['add_key', 'edit_key', 'delete_key']:
+            key_form = KeyForm()
+        if action not in ['add_uploadkey', 'edit_uploadkey', 'delete_uploadkey']:
+            uploadkey_form = UploadKeyForm()
+        if action != 'update_dsbname':
+            dsbname_form = DsbNameForm(instance=dsb_name)
+
+    return render(request, 'dsb_admin.html', {
+        'dsbname_form': dsbname_form,
+        'key_form': key_form,
+        'uploadkey_form': uploadkey_form,
+        'keys': keys,
+        'upload_keys': upload_keys,
+        'status_message': status_message,
+    })
 
 
 def dsb_media(request, key, subfolder, filename):

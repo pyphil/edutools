@@ -11,5 +11,6 @@ urlpatterns = [
     path('dsb1_info/<str:key>/', views.dsb1_info, name="dsb1_info"),
     path('dsb_kplan/<str:key>/', views.dsb_kplan, name="dsb_kplan"),
     path('dsb_terminplan/<str:key>/', views.dsb_terminplan, name="dsb_terminplan"),
+    path('dsb_admin/', views.dsb_admin, name="dsb_admin"),
     path('media/<str:key>/<str:subfolder>/<path:filename>', views.dsb_media, name="dsb_media"),
 ]
