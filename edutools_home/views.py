@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from buchungstool_settings.models import Setting
+from dsb.models import Key
 from django.contrib.admin.views.decorators import staff_member_required
 from accounts.models import UserProfile
 from django.contrib.auth.models import User
@@ -15,8 +15,8 @@ def edutools_home(request):
 
 @login_required
 def dsb(request):
-    settings = Setting.objects.filter(name="settings").first()
-    return redirect(settings.dsb_link)
+    key = Key.objects.first()
+    return redirect("dsb1", key=key.key)
 
 
 @login_required
