@@ -28,6 +28,7 @@ admin.site.login = admin_login
 login_view = ratelimit(
     key='ip', 
     rate='60/m', 
+    method="POST",
     block=True,
 )(
     ratelimit(
@@ -43,7 +44,7 @@ urlpatterns = [
     path('', include('edutools_home.urls')),
     path('wlan-codes/', include('WLANCodesWebApp.urls')),
     path('wlan-codes/codeimport/', include('codeimport.urls')),
-    path(('accounts/login/'), login_view, name='login'),
+    path('accounts/login/', login_view, name='login'),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('booking/', include('buchungstool.urls')),
