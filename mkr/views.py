@@ -144,6 +144,3 @@ def lehrplanansicht(request):
         }
     )
 
-
-def rate_limit_exceeded_view(request):
-    return render(request, 'rate_limit_exceeded.html')

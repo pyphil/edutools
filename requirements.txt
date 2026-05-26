@@ -1,6 +1,7 @@
 asgiref==3.11.1
 Django==5.2.13
 django-ckeditor-5==0.2.20
+jango-ratelimit==4.1.0
 pillow==12.2.0
 pypng==0.20220715.0
 qrcode==7.4.2

@@ -113,3 +113,9 @@ def change_user(request):
         login(request, request.user)
         return redirect('/accounts/change_user/?success=True')
     return render(request, 'registration/change_user.html', {'form': form, 'success': success})
+
+
+def rate_limit_exceeded_view(request, exception):
+    print(exception)
+    return render(request, 'registration/rate_limit_exceeded.html')
+

@@ -9,4 +9,5 @@ urlpatterns = [
     path('registation_email/', views.registration_email, name='registration_email'),
     path('account_success/', views.account_success, name='account_success'),
     path('change_user/', views.change_user, name='change_user'),
+    path('rate-limit-exceeded/', views.rate_limit_exceeded_view, name='rate_limit_exceeded'),
 ]

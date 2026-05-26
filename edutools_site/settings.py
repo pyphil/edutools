@@ -63,8 +63,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'edutools_site.middleware.login_rate_limiter.LoginRateLimiterMiddleware',
+    # add rate limit middleware to get custom error page for rate limit errors
+    'django_ratelimit.middleware.RatelimitMiddleware',
 ]
+
+RATELIMIT_VIEW = "accounts.views.rate_limit_exceeded_view"
 
 ROOT_URLCONF = 'edutools_site.urls'
 
