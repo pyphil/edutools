@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth import login
 from .models import RegistrationID
-from WLANCodesWebApp.models import Config, AllowedEmail
+from WLANCodesWebApp.models import Config
 from .forms import RegisterUserForm, ChangeUsernameForm
 from uuid import uuid4
 from django.core.mail import send_mail

@@ -1,4 +1,3 @@
-import code
 from django.contrib import admin
 from .models import Student, Code, CodeDeletion, Config, AllowedEmail
 
