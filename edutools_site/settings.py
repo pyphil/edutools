@@ -12,20 +12,69 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# load .env file if it exists
+load_dotenv(BASE_DIR / ".env")
 
-try:
-    from .local_settings import *
-except ImportError:
-    SECRET_KEY = 'django-insecure-s^yj*f)rk(dd5f29vchnuu)p+9=bjfdc3d&yru+w@ba9z(^v_9'
 
-    # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = True
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.lower() in ("1", "true", "yes", "on")
 
-    ALLOWED_HOSTS = ['*']
+
+def env_int(name, default=0):
+    value = os.environ.get(name)
+
+    if value is None or value == "":
+        return default
+
+    return int(value)
+
+
+def env_list(name, default=""):
+    value = os.environ.get(name, default)
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure-dev-only-change-me"
+)
+
+DEBUG = env_bool("DEBUG", default=False)
+
+ALLOWED_HOSTS = env_list(
+    "ALLOWED_HOSTS",
+    default="localhost,127.0.0.1"
+)
+
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default="")
+
+# Falls nginx oder später ein HTTPS-Reverse-Proxy davor sitzt
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+
+# Email settings
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", default=True)
+
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+
+EMAIL_PORT = env_int("EMAIL_PORT", default=587)
+
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER
+)
 
 
 # Application definition
@@ -105,10 +154,17 @@ WSGI_APPLICATION = 'edutools_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# allow overriding the sqlite path from environment (e.g. Docker)
+SQLITE_PATH = os.environ.get("SQLITE_PATH")
+if SQLITE_PATH is None or SQLITE_PATH == "":
+    SQLITE_PATH = str(BASE_DIR / "db.sqlite3")
+else:
+    SQLITE_PATH = str(SQLITE_PATH)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': SQLITE_PATH,
     }
 }
 
@@ -150,11 +206,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(BASE_DIR, 'public/static'))
 
-# media root should be kept private on the webserver, so files are server through
+# media root should be kept private on the webserver, so files are served through
 # Django with a view which can be access restricted
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

@@ -1,0 +1,21 @@
+.git
+.gitignore
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.env
+*.sqlite3
+db.sqlite3
+
+media/
+public/static/
+
+*.log
+
+.DS_Store
+
+# Lokale Django-Settings nicht ins Image kopieren
+**/local_settings.py
