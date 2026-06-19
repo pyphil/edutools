@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+echo "Running database migrations..."
+python manage.py migrate
+
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+
+echo "Creating superuser if it doesn't exist..."
+python manage.py shell << END
+import os
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@localhost')
+password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin')
+
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username=username, email=email, password=password)
+    print(f"Superuser '{username}' created successfully")
+else:
+    print(f"Superuser '{username}' already exists")
+END
+
+echo "Starting Gunicorn..."
+gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 60 edutools_site.wsgi:application
