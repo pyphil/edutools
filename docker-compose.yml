@@ -1,55 +1,53 @@
+version: '3.8'
+
 services:
-  web:
+  django:
     build: .
-    container_name: edutools_web
-    restart: unless-stopped
-
-    environment:
-      DJANGO_SETTINGS_MODULE: edutools_site.settings
-      SECRET_KEY: ${SECRET_KEY}
-      DEBUG: ${DEBUG:-False}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
-      #CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-}
-
-      SQLITE_PATH: /data/db.sqlite3
-      MEDIA_ROOT: /data/media
-      STATIC_ROOT: /app/public/static
-
-      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
-      EMAIL_HOST: ${EMAIL_HOST}
-      EMAIL_PORT: ${EMAIL_PORT:-587}
-      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
-      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL}
-
-    volumes:
-      - ./data:/data
-      - static_volume:/app/public/static
-
-    expose:
-      - "8000"
-
+    container_name: edutools_django
     command: >
-      sh -c "
-        python manage.py migrate --noinput &&
-        python manage.py collectstatic --noinput --clear &&
-        gunicorn edutools_site.wsgi:application --bind 0.0.0.0:8000
-      "
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 60 edutools_site.wsgi:application"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./media:/app/media
+      - ./public/static:/app/public/static
+    environment:
+      # Override .env settings specifically for Docker
+      SQLITE_PATH: /app/data/db.sqlite3
+      STATIC_ROOT: /app/public/static
+      MEDIA_ROOT: /app/media
+    expose:
+      - 8000
+    networks:
+      - edutools_network
+    restart: unless-stopped
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:alpine
     container_name: edutools_nginx
+    ports:
+      - "127.0.0.1:8001:80"
+      # - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./media:/app/media:ro
+      - ./public/static:/app/public/static:ro
+      # Uncomment the lines below if you have SSL certificates
+      # - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - django
+    networks:
+      - edutools_network
     restart: unless-stopped
 
-    depends_on:
-      - web
-
-    ports:
-      - "8000:8000"
-
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/static:ro
+networks:
+  edutools_network:
+    driver: bridge
 
 volumes:
-  static_volume:
+  data:
+  media:
+  static:

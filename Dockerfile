@@ -1,27 +1,32 @@
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
 WORKDIR /app
 
-# Systemnutzer für die App anlegen
-RUN addgroup --system --gid 1000 app \
-    && adduser --system --uid 1000 --ingroup app app
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Python-Abhängigkeiten installieren
-COPY requirements.txt /app/
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Projekt kopieren
-COPY . /app/
+# Copy project
+COPY . .
 
-# Verzeichnisse für SQLite, Media und Static vorbereiten
-RUN mkdir -p /data/media /app/public/static \
-    && chown -R app:app /app /data
+# Create directories for volumes
+RUN mkdir -p /app/data /app/media /app/public/static
 
-USER app
+# Collect static files (will fail if DEBUG=False without a static root, but that's ok for this stage)
+RUN python manage.py collectstatic --noinput --ignore=*.scss || true
 
+# Create a non-root user
+RUN useradd -m -u 1000 django && chown -R django:django /app
+USER django
+
+# Expose port
 EXPOSE 8000
 
-CMD ["gunicorn", "edutools_site.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "edutools_site.wsgi:application"]
