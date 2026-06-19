@@ -56,7 +56,7 @@ ALLOWED_HOSTS = env_list(
 
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default="")
 
-# Falls nginx oder später ein HTTPS-Reverse-Proxy davor sitzt
+# For HTTPS-Reverse-Proxy
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
