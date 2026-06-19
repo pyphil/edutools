@@ -6,7 +6,8 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Systemnutzer für die App anlegen
-RUN addgroup --system app && adduser --system --group app
+RUN addgroup --system --gid 1000 app \
+    && adduser --system --uid 1000 --ingroup app app
 
 # Python-Abhängigkeiten installieren
 COPY requirements.txt /app/
