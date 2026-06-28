@@ -1,0 +1,97 @@
+{% extends 'library_base.html' %}
+{% block content %}
+
+<div class="card shadow bg-light mb-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+        <h2>Buch verlängern</h2>
+      </div>
+    </div>
+
+    <div class="alert alert-light">
+      <small>
+        <b>Ausleihende Person:</b> {{ borrowed_item.first_name }} {{ borrowed_item.surname }}<br>
+        <b>Klasse:</b> {{ borrowed_item.school_class }}
+      </small>
+    </div>
+
+    <div class="alert alert-light">
+      <small>
+        <b>Autor:in:</b> {{ borrowed_item.book.author }}<br>
+        <b>Titel:</b> {{ borrowed_item.book.title }}<br>
+        <b>Aktuelles Rückgabedatum:</b> {{ borrowed_item.return_date }}
+      </small>
+    </div>
+
+    <div id="extendBaseDate" data-base-date="{{ borrowed_item.return_date|date:'Y-m-d' }}" hidden></div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="row mb-4">
+        <label for="id_days">Verlängern um:</label>
+        <div class="col" id="id_days">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="days" id="inlineRadio1" value="7" checked onclick="calculateDate()">
+            <label class="form-check-label" for="inlineRadio1">1 Woche</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="days" id="inlineRadio2" value="14" onclick="calculateDate()">
+            <label class="form-check-label" for="inlineRadio2">2 Wochen</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="days" id="inlineRadio3" value="21" onclick="calculateDate()">
+            <label class="form-check-label" for="inlineRadio3">3 Wochen</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="days" id="inlineRadio4" value="28" onclick="calculateDate()">
+            <label class="form-check-label" for="inlineRadio4">4 Wochen</label>
+          </div>
+          <span class="badge rounded-pill text-bg-primary"><i class="bi bi-arrow-right-short"></i><span id="futureDate"></span></span>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <label for="id_return_date">Oder festes Rückgabedatum:</label>
+        <div class="col">
+          <input class="form-control" type="date" name="return_date" id="id_return_date" onchange="calculateDate()">
+        </div>
+      </div>
+      <button name="save" class="btn btn-primary">Speichern</button>
+      <a href="javascript:history.back()" class="btn btn-secondary">Abbrechen</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    calculateDate();
+  });
+
+  function calculateDate() {
+    const returnDateInput = document.getElementById('id_return_date');
+    if (returnDateInput && returnDateInput.value) {
+      const selectedDate = new Date(`${returnDateInput.value}T00:00:00`);
+      document.getElementById('futureDate').textContent = formatDate(selectedDate);
+      return;
+    }
+
+    const selectedOption = document.querySelector('input[name="days"]:checked').value;
+    const baseDateElement = document.getElementById('extendBaseDate');
+    const baseDateValue = baseDateElement?.dataset.baseDate;
+    const baseDate = baseDateValue ? new Date(`${baseDateValue}T00:00:00`) : new Date();
+    const futureDate = new Date(baseDate);
+    futureDate.setDate(baseDate.getDate() + parseInt(selectedOption, 10));
+
+    document.getElementById('futureDate').textContent = formatDate(futureDate);
+  }
+
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}.${month}.${year}`;
+  }
+</script>
+
+{% endblock content %}

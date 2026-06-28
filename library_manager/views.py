@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import InventoryItem, LibraryCategoryShelfmark, LibraryLocation, LibraryStatus, LibraryBorrowedItem
 from .forms import InventoryItemForm, LibraryBorrowedItemsForm, LibraryCategoryShelfmarkNewForm
@@ -189,6 +189,34 @@ def borrow(request, id):
 def returnlist(request):
     borrowed_items = LibraryBorrowedItem.objects.all()
     return render(request, 'library_returnlist.html', {'borrowed_items': borrowed_items})
+
+
+@login_required
+@user_passes_test(is_library_admin)
+def extend_book(request, id):
+    borrowed_item = get_object_or_404(LibraryBorrowedItem, id=id)
+
+    if request.method == 'POST':
+        selected_return_date = request.POST.get('return_date')
+        if selected_return_date:
+            try:
+                borrowed_item.return_date = timezone.datetime.strptime(selected_return_date, '%Y-%m-%d').date()
+            except ValueError:
+                borrowed_item.return_date = borrowed_item.return_date or borrowed_item.borrowing_date
+        else:
+            days = request.POST.get('days', '7')
+            try:
+                days = int(days)
+            except (TypeError, ValueError):
+                days = 7
+
+            current_return_date = borrowed_item.return_date or borrowed_item.borrowing_date
+            borrowed_item.return_date = current_return_date + timezone.timedelta(days=days)
+
+        borrowed_item.save()
+        return redirect('returnlist')
+
+    return render(request, 'library_extend.html', {'borrowed_item': borrowed_item})
 
 
 @login_required
