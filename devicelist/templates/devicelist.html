@@ -7,7 +7,7 @@
       <h2 class="mb-3">Support Tickets {{ room }}</h2>
 
       <form action="{% url 'deviceEntryNew' room date std entry_id %}">
-        <button type="submit" class="btn btn-primary"><strong>+</strong> </button>
+        <button type="submit" class="btn btn-primary"><strong>+</strong> neuer Eintrag</button>
       </form>
 
       {% for device in devices %}
