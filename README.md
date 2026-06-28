@@ -20,7 +20,7 @@
 - **QR Code Generator** with management of the generated codes
 - **Appointment:** Enables parents to book an appointment, e.g. for the school's registration procedure, while school staff can manage the appointments and print lists in the backend.
 - **Activity:** Enables parents to book different kind of activities, e.g. to organize the Open Day.
-- Possibility to link a digital notice board/representation plan view (integration of the djDSB app into the collection is planned for the future)
+- a digital notice board also displaying the school's substitute teacher schedule
 
 *eduTools* includes self-registration for teachers based on their school email addresses.
 
@@ -38,7 +38,7 @@
 - **QR-Code Generator** mit Verwaltung der generierten Codes
 - **Termin:** Ermöglicht es den Eltern, einen Termin zu buchen, z. B. für das Anmeldeverfahren der Schule, während das Schulpersonal die Termine verwalten und Listen im Backend drucken kann.
 - **Aktivität:** Ermöglicht es den Eltern, verschiedene Arten von Aktivitäten zu buchen, z.B. für den Tag der offenen Tür.
-- Möglichkeit ein Digitales Schwarzes Brett/Vertretungsplanansicht zu verlinken (Einbindung der App djDSB in die Sammlung ist für die Zukunft geplant)
+- ein Digitales Schwarzes Brett mit Vertretungsplanansicht
 
 *eduTools* enthält eine Selbstregistrierung für Lehrkräfte basierend auf deren Dienst-E-Mail-Adressen.
 
