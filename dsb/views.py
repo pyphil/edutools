@@ -84,7 +84,7 @@ def dsb1(request, key):
         return render(request, 'dsb1.html', {
             'files_vheutedsb1': files_vheutedsb1,
             'files_vmorgendsb1': files_vmorgendsb1,
-            'files_infodsb2': files_infodsb1,
+            'files_infodsb1': files_infodsb1,
             'files_kplan': files_kplan,
             'timestamp': timestamp,
             'key': key,
