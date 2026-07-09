@@ -80,5 +80,8 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-## Using local_settings.py
-The ```file local_settings.py``` in /edutools_site/ is used in settings.py if present in order to hide your secret key and email settings. Use the template ```local_settings_template.py``` to create your settings file.
+## Using .env for settings
+The project its sensitive settings from a local .env file using django-environ. 
+Copy [.env.example](.env.example) to .env and adjust the values for your environment, e.g. for the django secret key, allowed hosts and the email configuration.
+
+For local development, set DEBUG=True, for production always False.

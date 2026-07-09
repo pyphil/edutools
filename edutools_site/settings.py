@@ -12,20 +12,35 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, 'django-insecure-s^yj*f)rk(dd5f29vchnuu)p+9=bjfdc3d&yru+w@ba9z(^v_9'),
+    ALLOWED_HOSTS=(list, ['*']),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_HOST=(str, ''),
+    EMAIL_PORT=(int, 587),
+    EMAIL_HOST_USER=(str, ''),
+    EMAIL_HOST_PASSWORD=(str, ''),
+    DEFAULT_FROM_EMAIL=(str, ''),
+)
 
-try:
-    from .local_settings import *
-except ImportError:
-    SECRET_KEY = 'django-insecure-s^yj*f)rk(dd5f29vchnuu)p+9=bjfdc3d&yru+w@ba9z(^v_9'
+environ.Env.read_env(BASE_DIR / '.env')
 
-    # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = True
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env.bool('DEBUG', default=True)
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'] if DEBUG else [])
 
-    ALLOWED_HOSTS = ['*']
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST = env('EMAIL_HOST', default='')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='')
 
 
 # Application definition
