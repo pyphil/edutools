@@ -17,23 +17,18 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(
-    DEBUG=(bool, False),
-    SECRET_KEY=(str, 'django-insecure-s^yj*f)rk(dd5f29vchnuu)p+9=bjfdc3d&yru+w@ba9z(^v_9'),
-    ALLOWED_HOSTS=(list, ['*']),
-    EMAIL_USE_TLS=(bool, True),
-    EMAIL_HOST=(str, ''),
-    EMAIL_PORT=(int, 587),
-    EMAIL_HOST_USER=(str, ''),
-    EMAIL_HOST_PASSWORD=(str, ''),
-    DEFAULT_FROM_EMAIL=(str, ''),
-)
+env = environ.Env()
 
-environ.Env.read_env(BASE_DIR / '.env')
+env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env.bool('DEBUG', default=True)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'] if DEBUG else [])
+
+DEBUG = env.bool('DEBUG', default=False)
+
+ALLOWED_HOSTS = env.list(
+    'ALLOWED_HOSTS',
+    default=['localhost', '127.0.0.1'] if DEBUG else []
+)
 
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST = env('EMAIL_HOST', default='')
