@@ -5,7 +5,6 @@ from .forms import AppointmentForm, MailText, AppointmentSettingForm
 from WLANCodesWebApp.models import Config
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
-# from threading import Thread
 from django.core.mail import send_mail
 from django.contrib import messages
 

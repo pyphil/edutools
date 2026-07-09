@@ -119,8 +119,3 @@ def import_userprofiles_from_csv(request):
         return redirect("userprofiles")
 
     return render(request, "edutools_import_userprofiles.html")
-
-
-# def mkr(request):
-#     settings = Setting.objects.filter(name='settings').first()
-#     return redirect(settings.mkr_link)

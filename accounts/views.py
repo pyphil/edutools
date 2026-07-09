@@ -1,10 +1,9 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth import login
 from .models import RegistrationID
-from WLANCodesWebApp.models import Config, AllowedEmail
+from WLANCodesWebApp.models import Config
 from .forms import RegisterUserForm, ChangeUsernameForm
 from uuid import uuid4
-from threading import Thread
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -113,3 +112,7 @@ def change_user(request):
         login(request, request.user)
         return redirect('/accounts/change_user/?success=True')
     return render(request, 'registration/change_user.html', {'form': form, 'success': success})
+
+
+def rate_limit_exceeded_view(request, exception=None):
+    return render(request, 'registration/rate_limit_exceeded.html', status=429)
