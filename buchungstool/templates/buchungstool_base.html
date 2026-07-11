@@ -38,7 +38,6 @@
           <img src="/{{ institution_logo }}" width="40" class="ms-3"> 
         {% endif %}  
         <a class="navbar-brand ps-3 mb-0 h1" href="/booking/">{{ institution_name }} Buchungstool</a>
-        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
           aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -46,12 +45,6 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             {% if user.is_authenticated %}
-              <li class="nav-item">
-                <form method="post" action="{% url 'logout' %}">
-                  {% csrf_token %}
-                  <button class="btn nav-link active text-info" aria-current="page"><strong>Logout ({{ user.username }})</strong></button>
-                </form>
-              </li>
               {% if user.is_staff %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle {% if '/settings/' in request.path %} active {% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -101,6 +94,7 @@
             {% endif %}
           {% endif %}
         </div>
+        {% include 'includes/user_menu.html' %}
       </div>
     </nav>
 

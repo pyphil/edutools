@@ -10,7 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <style>
       body {
-        background-color: #ebebeb;
+        background: rgb(142,198,238);
+        background: linear-gradient(90deg, rgba(142,198,238,1) 10%, rgba(94,173,214,1) 50%, rgba(162,221,222,1) 92%);
       }
     </style>
     <meta name="format-detection" content="telephone=no">
@@ -28,25 +29,10 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          {% if user.is_authenticated %}
-            <li class="nav-item">
-              <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-               <button class="btn nav-link active" style="color: #0d6efd;"><strong><i class="bi bi-person-circle"></i> Logout ({{ user.username }})</strong></button>
-              </form>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link {% if request.path == '/accounts/change_user/' %}active{% endif %}" href="/accounts/change_user/"><i class="bi bi-gear-fill"></i> Konto verwalten</a>
-            </li>
-          {% endif %}
-          {% if user.is_staff %}
-            <li class="nav-item">
-              <a class="nav-link" href="/admin/">Django-Admin</a>
-            </li>
-          {% endif %}
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"> 
         </ul>
       </div>
+      {% include 'includes/user_menu.html' %}
     </div>
   </nav>
 
