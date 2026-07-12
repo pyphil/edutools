@@ -27,7 +27,7 @@
 
             <div class="mb-3">
               <label class="form-label fw-bold">Kürzel:</label>
-              <input type="text" class="form-control-plaintext bg-light" value="{{ user.profile.kuerzel|default:user.username }}" readonly>
+              <input type="text" class="form-control-plaintext bg-light" value="{{ user.userprofile.abbr|default:user.username }}" readonly>
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold">E-Mail:</label>

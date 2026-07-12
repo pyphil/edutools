@@ -1,0 +1,28 @@
+{% if user.is_authenticated %}
+  <div class="dropdown d-flex ms-auto">
+    <button class="btn btn-outline-dark dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-person-circle me-2" style="font-size: 1.2rem;"></i>
+      <span class="align-middle">{% if user.userprofile.abbr %}{{ user.userprofile.abbr }}{% else %}{{ user.username }}{% endif %}</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+      <li><a class="dropdown-item text-end" href="/accounts/change_user/"><i class="bi bi-gear"></i> Kontoeinstellungen</a></li>
+      {% if user.is_staff %}
+        <li><hr class="dropdown-divider"></li>
+        <li><h6 class="dropdown-header text-end">Administration</h6></li>
+        <li><a class="dropdown-item text-end" href="/userprofiles/">Benutzerprofile</a></li>
+        <li><a class="dropdown-item text-end" href="/admin/">Django Admin</a></li>
+      {% endif %}
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="dropdown-item text-end btn btn-link w-100 text-decoration-none">
+            <b><i class="bi bi-box-arrow-right"></i> Logout</b>
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+{% else %}
+  <a href="{% url 'login' %}" class="btn btn-outline-success d-flex ms-auto" type="submit">Login</a>
+{% endif %}

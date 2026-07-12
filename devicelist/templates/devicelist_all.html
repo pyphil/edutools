@@ -54,7 +54,7 @@
       </form>
 
       <!-- <div class="text-end"> -->
-        <a href="{% url 'deviceEntryNewAll' %}" type="submit" class="btn btn-primary"><strong>+</strong> neuer Eintrag</a>
+        <a href="{% url 'deviceEntryNewAll' %}" type="submit" class="btn btn-primary mb-3"><strong>+</strong> neuer Eintrag</a>
       <!-- </div> -->
 
       <div class="row mb-4">
@@ -94,13 +94,10 @@
                     <td class="align-middle">{{ devicelist_entry.krzl }}</td>
                     <td class="{{ devicelist_entry.status.color }} align-middle">{{ devicelist_entry.status }}</td>
                     <td class="align-middle">
-                      <div class="text-end">
-                        <!-- <a href="{% url 'deviceEntry' devicelist_entry.id devicelist_entry.room.short_name devicelist_entry.datum devicelist_entry.stunde devicelist_entry.id %}?devicelist_all=True&filter_status={{ filter_status }}&filter_room={{ filter_room }}&textfilter={{ textfilter }}" class="btn btn-secondary btn-sm mb-1"><i class="bi bi-pencil-fill"></i> Ändern</a> -->
-                          <a href="{% url 'deviceEntry' devicelist_entry.id devicelist_entry.room.short_name devicelist_entry.datum devicelist_entry.stunde devicelist_entry.id %}?{{ request.GET.urlencode }}&devicelist_all=True" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i> Ändern</a>
+                      <div class="text-end d-flex justify-content-end gap-1">
+                          <a href="{% url 'deviceEntry' devicelist_entry.id devicelist_entry.room.short_name devicelist_entry.datum devicelist_entry.stunde devicelist_entry.id %}?{{ request.GET.urlencode }}&devicelist_all=True" class="btn btn-secondary btn-sm"><i class="bi bi-pencil-fill"></i></a>
                         {% if devicelist_entry.device.dbname %}
-                          <span style="white-space: nowrap;">
-                            <a href="{% url 'deviceusers' devicelist_entry.room.short_name devicelist_entry.datum devicelist_entry.device.dbname %}?devicelist_all=True" class="btn btn-secondary btn-sm"><i class="bi bi-people-fill"></i> letzte Benutzer</a>
-                          </span>
+                          <a href="{% url 'deviceusers' devicelist_entry.room.short_name devicelist_entry.datum devicelist_entry.device.dbname %}?devicelist_all=True" class="btn btn-secondary btn-sm"><i class="bi bi-people-fill"></i></a>
                         {% endif %}
                       </div>
                     </td>
