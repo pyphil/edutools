@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>AGs</h1>
+<ul>
+  {% for club in clubs %}
+    <li>{{ club.name }} {% if club.max_size %}- Max: {{ club.max_size }}{% endif %}</li>
+  {% endfor %}
+</ul>
+<p><a href="{% url 'clubs:choose' %}">Zur Wahl</a></p>
+{% endblock %}

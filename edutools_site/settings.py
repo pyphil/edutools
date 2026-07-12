@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'library_manager',
     'appointment',
     'activity',
+    'clubs',
     'dsb',
     'upload',
     'django_ckeditor_5',
