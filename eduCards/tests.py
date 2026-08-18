@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
@@ -134,4 +135,86 @@ class EduCardsPermissionsTests(TestCase):
         response = self.client.get(reverse('eduCards:edit_category', kwargs={'category_id': self.category.id}))
         self.assertEqual(response.status_code, 302)
         self.assertIn('/accounts/login/', response['Location'])
+
+    def test_card_form_uses_single_multi_file_upload_section(self):
+        """The card form presents one clear multi-file upload section."""
+        self.assertTrue(self.client.login(username='teacher', password='password'))
+        response = self.client.get(reverse('eduCards:create_card', kwargs={'category_id': self.category.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Files')
+        self.assertNotContains(response, 'Primary Attachment')
+
+    def test_creating_card_saves_uploaded_files_as_attachments(self):
+        """Files selected in the uploader are persisted as card attachments."""
+        self.assertTrue(self.client.login(username='teacher', password='password'))
+        uploaded_file = SimpleUploadedFile('sample.txt', b'hello world', content_type='text/plain')
+        response = self.client.post(
+            reverse('eduCards:create_card', kwargs={'category_id': self.category.id}),
+            {
+                'title': 'File Card',
+                'content': 'Uploaded file should be saved',
+                'order': 0,
+                'attachments': [uploaded_file],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        card = Card.objects.get(title='File Card')
+        attachment = card.attachments.first()
+        self.assertIsNotNone(attachment)
+        self.assertTrue(attachment.file.name.endswith('.txt'))
+        self.assertEqual(attachment.file.read().decode('utf-8'), 'hello world')
+
+    def test_card_detail_renders_images_inline(self):
+        """Image attachments are shown inline instead of a download button."""
+        card = Card.objects.create(
+            category=self.category,
+            title='Image card',
+            content='A rich text card',
+            attachment=SimpleUploadedFile('sample.png', b'fake-image-bytes', content_type='image/png'),
+            order=0,
+        )
+        self.assertTrue(self.client.login(username='teacher', password='password'))
+        response = self.client.get(reverse('eduCards:cards_page_detail', kwargs={'page_id': self.page.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'img')
+        self.assertContains(response, 'data-bs-toggle="modal"')
+        self.assertContains(response, 'Download')
+        self.assertContains(response, 'inline=1')
+
+    def test_card_detail_renders_pdfs_inline(self):
+        """PDF attachments render as a first-page preview using PDF.js."""
+        Card.objects.create(
+            category=self.category,
+            title='PDF card',
+            content='A rich text card',
+            attachment=SimpleUploadedFile('sample.pdf', b'%PDF-1.4', content_type='application/pdf'),
+            order=0,
+        )
+        self.assertTrue(self.client.login(username='teacher', password='password'))
+        response = self.client.get(reverse('eduCards:cards_page_detail', kwargs={'page_id': self.page.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'pdfjs-preview')
+        self.assertContains(response, 'pdf.min.js')
+        self.assertContains(response, 'canvas')
+        self.assertContains(response, 'target="_blank"')
+        self.assertContains(response, 'Download')
+
+    def test_inline_pdf_response_allows_embedding(self):
+        """Inline PDF responses remain browser-fetchable for PDF.js preview rendering."""
+        card = Card.objects.create(
+            category=self.category,
+            title='PDF frame card',
+            content='A PDF card',
+            attachment=SimpleUploadedFile('sample.pdf', b'%PDF-1.4', content_type='application/pdf'),
+            order=0,
+        )
+        self.assertTrue(self.client.login(username='teacher', password='password'))
+        response = self.client.get(
+            reverse('eduCards:download_attachment', kwargs={'card_id': card.id}),
+            {'inline': '1'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response['Content-Disposition'].startswith('inline; filename="'))
+        self.assertTrue(response['Content-Disposition'].endswith('.pdf"'))
+        self.assertEqual(response.get('Content-Type').split(';')[0], 'application/pdf')
 

@@ -1,4 +1,5 @@
 import base64
+import mimetypes
 import secrets
 from io import BytesIO
 
@@ -10,7 +11,7 @@ from django.conf import settings
 from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from .models import CardsPage, Category, Card, CardsPageAccessToken
+from .models import CardsPage, Category, Card, CardAttachment, CardsPageAccessToken
 from .forms import CardsPageForm, CategoryForm, CardForm, CardsPageShareForm
 
 
@@ -303,6 +304,10 @@ def create_card(request, category_id):
             card.category = category
             card.created_by = request.user if request.user.is_authenticated else None
             card.save()
+
+            for uploaded_file in form.cleaned_data.get('attachments', []):
+                CardAttachment.objects.create(card=card, file=uploaded_file)
+
             return redirect('eduCards:cards_page_detail', page_id=page.id)
     else:
         form = CardForm()
@@ -326,6 +331,10 @@ def edit_card(request, card_id):
             card = form.save(commit=False)
             card.last_modified_by = request.user
             card.save()
+
+            for uploaded_file in form.cleaned_data.get('attachments', []):
+                CardAttachment.objects.create(card=card, file=uploaded_file)
+
             return redirect('eduCards:cards_page_detail', page_id=card.category.cards_page.id)
     else:
         form = CardForm(instance=card)
@@ -354,16 +363,49 @@ def delete_card(request, card_id):
     })
 
 
-@login_required
-@user_passes_test(is_teacher)
-def download_attachment(request, card_id):
-    """Download a card attachment"""
+def delete_attachment(request, card_id, attachment_id):
+    """Delete an attached file from a card."""
     card = get_object_or_404(Card, id=card_id)
-    if card.attachment:
-        return FileResponse(
-            open(settings.MEDIA_ROOT + '/' + str(card.attachment), 'rb'),
-            as_attachment=True,
-            filename=card.attachment.name.split('/')[-1]
-        )
+    attachment = get_object_or_404(CardAttachment, id=attachment_id, card=card)
+
+    if not request.user.is_authenticated or not is_teacher(request.user):
+        return redirect('eduCards:cards_page_detail', page_id=card.category.cards_page.id)
+
+    if request.method == 'POST':
+        attachment.delete()
+
+    return redirect('eduCards:cards_page_detail', page_id=card.category.cards_page.id)
+
+
+def download_attachment(request, card_id):
+    """Serve a card attachment for download or inline preview."""
+    card = get_object_or_404(Card, id=card_id)
+    if not can_view_page(request, card.category.cards_page):
+        return redirect('eduCards:cards_page_detail', page_id=card.category.cards_page.id)
+
+    attachment_id = request.GET.get('attachment_id')
+    attachment = None
+    if attachment_id:
+        attachment = get_object_or_404(CardAttachment, id=attachment_id, card=card)
+    elif card.attachment:
+        attachment = type('AttachmentProxy', (), {'file': card.attachment})()
+
+    if attachment:
+        file_path = settings.MEDIA_ROOT + '/' + str(attachment.file)
+        content_type, _ = mimetypes.guess_type(file_path)
+        if not content_type:
+            content_type = 'application/octet-stream'
+
+        inline = request.GET.get('inline', '0') == '1'
+        with open(file_path, 'rb') as fh:
+            content = fh.read()
+
+        response = FileResponse(BytesIO(content), content_type='application/pdf' if file_path.lower().endswith('.pdf') else content_type)
+        filename = str(attachment.file).split('/')[-1]
+        disposition = 'inline' if inline else 'attachment'
+        response['Content-Disposition'] = f'{disposition}; filename="{filename}"'
+        response['Cache-Control'] = 'no-store'
+        return response
+
     return redirect('eduCards:cards_page_detail', page_id=card.category.cards_page.id)
 

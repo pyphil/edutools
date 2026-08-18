@@ -19,7 +19,34 @@
         <div class="card-body">
           <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.media }}
+
+            <div class="mb-3">
+              {{ form.title.label_tag }}
+              {{ form.title }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.content.label_tag }}
+              {{ form.content }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.additional_info.label_tag }}
+              {{ form.additional_info }}
+            </div>
+
+            <div class="mb-3">
+              <label for="id_attachments" class="form-label"><strong>{% trans "Files" %}</strong></label>
+              <input type="file" name="attachments" id="id_attachments" class="form-control" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.webp,.txt,.zip">
+              <div class="form-text">{% trans "You can select several files at once." %}</div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.order.label_tag }}
+              {{ form.order }}
+            </div>
+
             <button type="submit" class="btn btn-primary mt-3">{% trans "Save" %}</button>
             <a href="{% url 'eduCards:cards_page_detail' category.cards_page.id %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
           </form>

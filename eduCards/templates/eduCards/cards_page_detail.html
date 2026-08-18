@@ -81,18 +81,106 @@
                   </h6>
                   <div class="card-body px-2 py-2">
                     <small>
-                      <div style="font-size: 0.85rem;">{{ card.content|linebreaks }}</div>
+                      <div style="font-size: 0.85rem;">{{ card.content|safe }}</div>
                       {% if card.additional_info %}
                         <div class="mt-2" style="font-size: 0.85rem;">
                           <strong>{% trans "Additional Info" %}:</strong>
-                          <div>{{ card.additional_info|linebreaks }}</div>
+                          <div>{{ card.additional_info|safe }}</div>
                         </div>
                       {% endif %}
-                      {% if card.attachment %}
+                      {% if card.attachment or card.attachments.all %}
                         <div class="mt-2">
-                          <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-download"></i> <small>{{ card.attachment.name|slice:"15:"|truncatechars:20 }}</small>
-                          </a>
+                          {% for attachment in card.attachments.all %}
+                            {% with attachment_name=attachment.file.name|lower %}
+                              {% if '.png' in attachment_name or '.jpg' in attachment_name or '.jpeg' in attachment_name or '.gif' in attachment_name or '.webp' in attachment_name %}
+                                {% with modal_id=attachment.id|default:card.id %}
+                                  <div class="border rounded p-2 mb-2 bg-light">
+                                    <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" target="_blank" rel="noopener" class="d-block text-center" aria-label="Bild im Browser öffnen">
+                                      <img src="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" alt="{{ card.title }}" class="img-fluid rounded shadow-sm" style="max-height: 220px; width: auto; max-width: 100%;">
+                                    </a>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                      <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
+                                        <i class="bi bi-download"></i>
+                                      </a>
+                                      {% if user_is_teacher %}
+                                        <form method="post" action="{% url 'eduCards:delete_attachment' card.id attachment.id %}" class="d-inline" onsubmit="return confirm('{% trans "Delete this file?" %}');">
+                                          {% csrf_token %}
+                                          <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans "Delete" %}">
+                                            <i class="bi bi-trash"></i>
+                                          </button>
+                                        </form>
+                                      {% endif %}
+                                    </div>
+                                  </div>
+                                {% endwith %}
+                              {% elif '.pdf' in attachment_name %}
+                                <div class="pdfjs-preview border rounded p-2 mb-2 bg-light" data-pdf-url="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" style="max-width: 100%;">
+                                  <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" target="_blank" rel="noopener" class="d-block text-decoration-none" aria-label="PDF im Browser öffnen">
+                                    <canvas class="w-100 rounded" style="display: block; max-height: 260px; background: white; border: 1px solid #dee2e6;"></canvas>
+                                  </a>
+                                  <div class="d-flex flex-wrap gap-2 mt-2">
+                                    <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
+                                      <i class="bi bi-download"></i>
+                                    </a>
+                                    {% if user_is_teacher %}
+                                      <form method="post" action="{% url 'eduCards:delete_attachment' card.id attachment.id %}" class="d-inline" onsubmit="return confirm('{% trans "Delete this file?" %}');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans "Delete" %}">
+                                          <i class="bi bi-trash"></i>
+                                        </button>
+                                      </form>
+                                    {% endif %}
+                                  </div>
+                                </div>
+                              {% else %}
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                  <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-download"></i> <small>{{ attachment.file.name|slice:"15:"|truncatechars:20 }}</small>
+                                  </a>
+                                  {% if user_is_teacher %}
+                                    <form method="post" action="{% url 'eduCards:delete_attachment' card.id attachment.id %}" class="d-inline" onsubmit="return confirm('{% trans "Delete this file?" %}');">
+                                      {% csrf_token %}
+                                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> <small>{% trans "Delete" %}</small>
+                                      </button>
+                                    </form>
+                                  {% endif %}
+                                </div>
+                              {% endif %}
+                            {% endwith %}
+                          {% empty %}
+                            {% with attachment_name=card.attachment.name|lower %}
+                              {% if '.png' in attachment_name or '.jpg' in attachment_name or '.jpeg' in attachment_name or '.gif' in attachment_name or '.webp' in attachment_name %}
+                                {% with modal_id=card.id %}
+                                  <div class="border rounded p-2 mb-2 bg-light">
+                                    <a href="{% url 'eduCards:download_attachment' card.id %}?inline=1" target="_blank" rel="noopener" class="d-block text-center" aria-label="Bild im Browser öffnen">
+                                      <img src="{% url 'eduCards:download_attachment' card.id %}?inline=1" alt="{{ card.title }}" class="img-fluid rounded shadow-sm" style="max-height: 220px; width: auto; max-width: 100%;">
+                                    </a>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                      <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
+                                        <i class="bi bi-download"></i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                {% endwith %}
+                              {% elif '.pdf' in attachment_name %}
+                                <div class="pdfjs-preview border rounded p-2 mb-2 bg-light" data-pdf-url="{% url 'eduCards:download_attachment' card.id %}?inline=1" style="max-width: 100%;">
+                                  <a href="{% url 'eduCards:download_attachment' card.id %}?inline=1" target="_blank" rel="noopener" class="d-block text-decoration-none" aria-label="PDF im Browser öffnen">
+                                    <canvas class="w-100 rounded" style="display: block; max-height: 260px; background: white; border: 1px solid #dee2e6;"></canvas>
+                                  </a>
+                                  <div class="d-flex flex-wrap gap-2 mt-2">
+                                    <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
+                                      <i class="bi bi-download"></i>
+                                    </a>
+                                  </div>
+                                </div>
+                              {% else %}
+                                <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary mb-2" title="{% trans "Download" %}">
+                                  <i class="bi bi-download"></i>
+                                </a>
+                              {% endif %}
+                            {% endwith %}
+                          {% endfor %}
                         </div>
                       {% endif %}
                         {% if user_is_teacher %}
@@ -145,3 +233,45 @@
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof pdfjsLib === 'undefined') {
+      return;
+    }
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    document.querySelectorAll('.pdfjs-preview').forEach(function (preview) {
+      const pdfUrl = preview.dataset.pdfUrl;
+      const canvas = preview.querySelector('canvas');
+      if (!pdfUrl || !canvas) {
+        return;
+      }
+
+      pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
+        return pdf.getPage(1);
+      }).then(function (page) {
+        const containerWidth = preview.clientWidth || 260;
+        const viewport = page.getViewport({ scale: 1 });
+        const scale = Math.min(containerWidth / viewport.width, 1.3);
+        const scaledViewport = page.getViewport({ scale: scale });
+
+        canvas.width = Math.ceil(scaledViewport.width);
+        canvas.height = Math.ceil(scaledViewport.height);
+
+        const context = canvas.getContext('2d');
+        return page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+      }).catch(function () {
+        canvas.style.display = 'none';
+        const fallback = document.createElement('div');
+        fallback.className = 'text-muted small';
+        fallback.textContent = 'PDF Vorschau konnte nicht geladen werden.';
+        preview.appendChild(fallback);
+      });
+    });
+  });
+</script>
+{% endblock extra_js %}

@@ -18,5 +18,6 @@ urlpatterns = [
     path('card/<int:card_id>/delete/', views.delete_card, name='delete_card'),
     path('category/<int:category_id>/card/create/', views.create_card, name='create_card'),
     path('card/<int:card_id>/download/', views.download_attachment, name='download_attachment'),
+    path('card/<int:card_id>/attachment/<int:attachment_id>/delete/', views.delete_attachment, name='delete_attachment'),
 ]
 

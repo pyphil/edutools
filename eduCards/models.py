@@ -99,6 +99,19 @@ class Card(models.Model):
         return f"{str(self.category)} - {str(self.title)}"
 
 
+class CardAttachment(models.Model):
+    """Additional file attached to a card."""
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to="eduCards/attachments/")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created', 'id']
+
+    def __str__(self):
+        return self.file.name
+
+
 class CardsPageAccessToken(models.Model):
     ACCESS_VIEW = 'view'
     ACCESS_EDIT = 'edit'
