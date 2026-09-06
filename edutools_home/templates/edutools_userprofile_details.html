@@ -4,7 +4,7 @@
 <div class="container mt-5">
     <div class="card">
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="userprofile-form">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="email">E-Mail</label>
@@ -36,9 +36,16 @@
                         </select>
                     </div>
                 {% endif %}
-                <button type="submit" class="btn btn-primary">Speichern</button>
-                <a href="{% url 'userprofiles' %}" class="btn btn-secondary">Abbrechen</a>
             </form>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                <button type="submit" form="userprofile-form" class="btn btn-primary">Speichern</button>
+                <a href="{% url 'userprofiles' %}" class="btn btn-secondary">Abbrechen</a>
+                <form class="ms-auto" method="post" action="{% url 'userprofile_delete' userprofile.id %}"
+                    onsubmit="return confirm('Benutzerprofil und zugehöriges Benutzerkonto wirklich löschen?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Benutzerprofil und Konto löschen</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

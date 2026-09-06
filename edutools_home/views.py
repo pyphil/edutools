@@ -5,6 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from accounts.models import UserProfile
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+from django.db import transaction
 import csv
 from django.contrib import messages
 
@@ -53,6 +54,22 @@ def userprofile_details(request, id):
         "edutools_userprofile_details.html",
         {"userprofile": userprofile, "groups": groups},
     )
+
+
+@login_required
+@staff_member_required
+def userprofile_delete(request, id):
+    if request.method != "POST":
+        return redirect("userprofile_details", id=id)
+
+    userprofile = UserProfile.objects.get(id=id)
+    user = userprofile.user
+    with transaction.atomic():
+        userprofile.delete()
+        if user:
+            user.delete()
+    messages.success(request, "Benutzerprofil gelöscht.")
+    return redirect("userprofiles")
 
 
 @login_required
