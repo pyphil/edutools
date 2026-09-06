@@ -232,10 +232,6 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
             if f.is_valid():
                 koffer = get_object_or_404(Room, id=int(request.POST.get('room')))
                 device = Device.objects.get(id=int(request.POST.get('device')))
-                if request.user.is_staff:
-                    status = Status.objects.get(id=int(request.POST.get('status')))
-                else:
-                    status = request.POST.get('status')
                 obj = f.save()
                 mail_text = (
                     "ID: " + str(obj.id) + "\n" +
@@ -245,7 +241,7 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
                     "Gerät: " + str(device) + "\n" +
                     "Kürzel: " + request.POST.get('krzl') + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
-                    "Status: " + str(status)
+                    "Status: " + str(obj.status)
                 )
 
                 email_to_second = f.cleaned_data.get('email_to_second', '')
