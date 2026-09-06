@@ -119,6 +119,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                 email = userprofile.email
             else:
                 email = ""
+            f.initial['email_to_second'] = email
         else:
             f = DevicelistEntryForm(instance=obj)
             email = ""
@@ -153,10 +154,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                 )
                 subject = f'Support Ticket {str(obj.id)} Update: {str(status)}'
 
-                if request.POST.get('email_to_second'):
-                    email_to_second = request.POST.get('email_to_second')
-                else:
-                    email_to_second = ""
+                email_to_second = f.cleaned_data.get('email_to_second', '')
 
                 send_support_mail(subject, mail_text, email_to_second)
 
@@ -250,10 +248,7 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
                     "Status: " + str(status)
                 )
 
-                if request.POST.get('email_to_second'):
-                    email_to_second = request.POST.get('email_to_second')
-                else:
-                    email_to_second = ""
+                email_to_second = f.cleaned_data.get('email_to_second', '')
 
                 subject = 'Neues Support Ticket ' + str(obj.id)
                 send_support_mail(subject, mail_text, email_to_second)
