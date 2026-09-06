@@ -64,7 +64,7 @@
             {% if user.is_staff %}
               <div class="col">
                 <label class="mt-3" for="email_to_second" class="form-label">Statusänderung außerdem an folgende E-Mail-Adresse senden:</label>
-                <input class="form-control" id="email_to_second" name="email_to_second" value="{{ email }}">
+                {{ devicelist.email_to_second }}
               </div>
             {% endif %}
 

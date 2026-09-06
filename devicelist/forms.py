@@ -25,6 +25,11 @@ class DevicelistEntryForm(ModelForm):
 
 
 class DevicelistEntryFormLoggedIn(ModelForm):
+    email_to_second = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = DevicelistEntry
         fields = (
