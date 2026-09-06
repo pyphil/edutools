@@ -1,5 +1,5 @@
 asgiref==3.11.1
-Django==5.2.15
+Django==5.2.16
 django-ckeditor-5==0.2.20
 django-environ==0.14.0
 django-ratelimit==4.1.0
