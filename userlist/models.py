@@ -10,5 +10,9 @@ class Userlist(models.Model):
     krzl = models.CharField(blank=True, max_length=3)
     created = models.DateTimeField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        self.krzl = self.krzl.upper()
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
         return self.lerngruppe + " - " + self.krzl

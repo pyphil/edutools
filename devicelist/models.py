@@ -45,6 +45,10 @@ class DevicelistEntry(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, default=1)
     behoben = models.CharField(max_length=10, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.krzl = self.krzl.upper()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = "DevicelistEntries"
 

@@ -147,7 +147,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                     "Stunde: " + request.POST.get('stunde') + "\n" +
                     "Standort/Koffer: " + koffer.short_name + "\n" +
                     "Gerät: " + str(device) + "\n" +
-                    "Kürzel: " + request.POST.get('krzl') + "\n" +
+                    "Kürzel: " + obj.krzl + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
                     "Status: " + str(status) + "\n" +
                     "Bearbeitet von: " + bearbeitet_von
@@ -178,7 +178,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                     "Stunde: " + request.POST.get('stunde') + "\n" +
                     "Standort/Koffer: " + koffer.short_name + "\n" +
                     "Gerät: " + str(device) + "\n" +
-                    "Kürzel: " + request.POST.get('krzl') + "\n" +
+                    "Kürzel: " + obj.krzl + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
                     "Status: " + str(status)
                 )
@@ -239,7 +239,7 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
                     "Stunde: " + request.POST.get('stunde') + "\n" +
                     "Standort/Koffer: " + koffer.short_name + "\n" +
                     "Gerät: " + str(device) + "\n" +
-                    "Kürzel: " + request.POST.get('krzl') + "\n" +
+                    "Kürzel: " + obj.krzl + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
                     "Status: " + str(obj.status)
                 )
