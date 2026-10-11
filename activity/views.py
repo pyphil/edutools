@@ -11,6 +11,7 @@ def is_activity_admin(user):
 # @login_required
 def activity(request):
     blocks = ActivityBlock.objects.all()
+    title = ActivitySetting.objects.all().first().title
     if blocks:
         current_block_id = int(request.GET.get("block", blocks.first().id))
     else:
@@ -62,6 +63,7 @@ def activity(request):
         request,
         "activity.html",
         {
+            "title": title,
             "activities": activity_list,
             "blocks": blocks,
             "current_block_id": current_block_id,
@@ -74,10 +76,12 @@ def activity(request):
 def success(request):
     id = request.session.get("last_booking_id")
     obj = BookedActivity.objects.get(id=id)
+    title = ActivitySetting.objects.all().first().title
     return render(
         request,
         "success.html",
         {
+            "title": title,
             "activity_block": obj.block,
             "activity": obj.activity,
         },
