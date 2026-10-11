@@ -31,4 +31,9 @@ class UserProfileDeleteTests(TestCase):
 		self.assertRedirects(response, "/userprofiles/")
 		self.assertFalse(UserProfile.objects.filter(pk=profile.pk).exists())
 
+	def test_add_page_renders_without_persisted_profile(self):
+		response = self.client.get("/userprofile_add/")
+
+		self.assertEqual(response.status_code, 200)
+
 # Create your tests here.
