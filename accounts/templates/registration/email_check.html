@@ -25,6 +25,14 @@
               </strong>
             </div>
           {% endif %}
+          {% if email_error == "mail_failed" %}
+            <div class="alert alert-danger">
+              <strong>
+                Die E-Mail mit dem Registrierungslink konnte leider nicht versendet werden.
+                Bitte versuche es später erneut oder wende dich an die Administration.
+              </strong>
+            </div>
+          {% endif %}
           <button type="submit" class="btn btn-primary mt-2">Absenden</button>
           <a href="{% url 'codes' %}" class="btn btn-secondary mt-2">Abbrechen</a>
         </form>

@@ -30,6 +30,44 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='')
 
+# Links in registration and password reset e-mails always use https unless disabled
+EMAIL_LINKS_USE_HTTPS = env.bool('EMAIL_LINKS_USE_HTTPS', default=True)
+
+# Registration links expire after this many hours
+ACCOUNTS_REGISTRATION_LINK_TIMEOUT_HOURS = env.int('ACCOUNTS_REGISTRATION_LINK_TIMEOUT_HOURS', default=48)
+
+# Enable if eduTools runs behind a reverse proxy that terminates TLS and sets X-Forwarded-Proto
+if env.bool('USE_SECURE_PROXY_SSL_HEADER', default=False):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Logging: errors when sending e-mails (registration, password reset) are written
+# to the console / web server error log and optionally to LOG_FILE.
+LOG_FILE = env('LOG_FILE', default='')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '{asctime} {levelname} {name}: {message}', 'style': '{'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+        **({'file': {'class': 'logging.FileHandler', 'filename': LOG_FILE, 'formatter': 'simple'}}
+           if LOG_FILE else {}),
+    },
+    'loggers': {
+        'accounts': {
+            'handlers': ['console', 'file'] if LOG_FILE else ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.contrib.auth': {
+            'handlers': ['console', 'file'] if LOG_FILE else ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}
+
 
 # Application definition
 
