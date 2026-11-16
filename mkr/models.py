@@ -77,9 +77,9 @@ class Kompetenzkarte(models.Model):
     ]
     durchf_planung = models.CharField(max_length=1, choices=DURCHF_PLANUNG_CHOICES)
     download = models.FileField(null=True, blank=True, upload_to="downloads/")
-    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    last_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='edited_datasets', null=True, blank=True)
+    last_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='edited_datasets', null=True, blank=True)
     changed = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:

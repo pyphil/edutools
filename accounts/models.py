@@ -7,6 +7,10 @@ class UserProfile(models.Model):
     email = models.EmailField()
     user = models.OneToOneField(User, on_delete=models.PROTECT, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.abbr = self.abbr.upper()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.abbr
 
