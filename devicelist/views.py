@@ -119,6 +119,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                 email = userprofile.email
             else:
                 email = ""
+            f.initial['email_to_second'] = email
         else:
             f = DevicelistEntryForm(instance=obj)
             email = ""
@@ -146,17 +147,14 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                     "Stunde: " + request.POST.get('stunde') + "\n" +
                     "Standort/Koffer: " + koffer.short_name + "\n" +
                     "Gerät: " + str(device) + "\n" +
-                    "Kürzel: " + request.POST.get('krzl') + "\n" +
+                    "Kürzel: " + obj.krzl + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
                     "Status: " + str(status) + "\n" +
                     "Bearbeitet von: " + bearbeitet_von
                 )
                 subject = f'Support Ticket {str(obj.id)} Update: {str(status)}'
 
-                if request.POST.get('email_to_second'):
-                    email_to_second = request.POST.get('email_to_second')
-                else:
-                    email_to_second = ""
+                email_to_second = f.cleaned_data.get('email_to_second', '')
 
                 send_support_mail(subject, mail_text, email_to_second)
 
@@ -180,7 +178,7 @@ def devicelistEntry(request, id, room, date, std, entry_id):
                     "Stunde: " + request.POST.get('stunde') + "\n" +
                     "Standort/Koffer: " + koffer.short_name + "\n" +
                     "Gerät: " + str(device) + "\n" +
-                    "Kürzel: " + request.POST.get('krzl') + "\n" +
+                    "Kürzel: " + obj.krzl + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
                     "Status: " + str(status)
                 )
@@ -234,10 +232,6 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
             if f.is_valid():
                 koffer = get_object_or_404(Room, id=int(request.POST.get('room')))
                 device = Device.objects.get(id=int(request.POST.get('device')))
-                if request.user.is_staff:
-                    status = Status.objects.get(id=int(request.POST.get('status')))
-                else:
-                    status = request.POST.get('status')
                 obj = f.save()
                 mail_text = (
                     "ID: " + str(obj.id) + "\n" +
@@ -245,15 +239,12 @@ def devicelistEntryNew(request, room=None, date=None, std=None, entry_id=None):
                     "Stunde: " + request.POST.get('stunde') + "\n" +
                     "Standort/Koffer: " + koffer.short_name + "\n" +
                     "Gerät: " + str(device) + "\n" +
-                    "Kürzel: " + request.POST.get('krzl') + "\n" +
+                    "Kürzel: " + obj.krzl + "\n" +
                     "Beschreibung: " + request.POST.get('beschreibung') + "\n" +
-                    "Status: " + str(status)
+                    "Status: " + str(obj.status)
                 )
 
-                if request.POST.get('email_to_second'):
-                    email_to_second = request.POST.get('email_to_second')
-                else:
-                    email_to_second = ""
+                email_to_second = f.cleaned_data.get('email_to_second', '')
 
                 subject = 'Neues Support Ticket ' + str(obj.id)
                 send_support_mail(subject, mail_text, email_to_second)

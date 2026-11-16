@@ -70,6 +70,10 @@ class Booking(models.Model):
     pen_29 = models.CharField(max_length=2, blank=True)
     pen_30 = models.CharField(max_length=2, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.krzl = self.krzl.upper()
+        super().save(*args, **kwargs)
+
 
 class Category(models.Model):
     def get_next_number():
