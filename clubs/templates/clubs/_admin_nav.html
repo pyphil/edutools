@@ -1,0 +1,29 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-2">
+    <ul class="nav nav-underline justify-content-center flex-wrap">
+      <li class="nav-item">
+        <a class="nav-link {% if nav == 'overview' %}active{% endif %}" href="{% url 'clubs:manage' %}"><i class="bi bi-speedometer2"></i> Übersicht</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if nav == 'students' %}active{% endif %}" href="{% url 'clubs:manage_students' %}"><i class="bi bi-people"></i> Schüler:innen &amp; Zuordnung</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if nav == 'clubs' %}active{% endif %}" href="{% url 'clubs:manage_clubs' %}"><i class="bi bi-grid"></i> AGs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if nav == 'import' %}active{% endif %}" href="{% url 'clubs:import' %}"><i class="bi bi-upload"></i> Import</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-printer"></i> Drucken</a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{% url 'clubs:print_codes' %}" target="_blank">Code-Zettel nach Klassen</a></li>
+          <li><a class="dropdown-item" href="{% url 'clubs:print_by_club' %}" target="_blank">Listen nach AG</a></li>
+          <li><a class="dropdown-item" href="{% url 'clubs:print_by_group' %}" target="_blank">Listen nach Klassen</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'clubs:index' %}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Wahlseite</a>
+      </li>
+    </ul>
+  </div>
+</div>

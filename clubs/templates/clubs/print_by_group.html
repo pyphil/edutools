@@ -1,0 +1,36 @@
+{% extends 'clubs/print_base.html' %}
+{% block title %}AG-Listen nach Klassen{% endblock %}
+{% block heading %}Listen nach Klassen{% endblock %}
+{% block content %}
+  {% for group, students in sections.items %}
+    <div class="section">
+      <div class="d-flex justify-content-between align-items-end border-bottom border-2 border-dark pb-1 mb-2">
+        <div>
+          <div class="small text-muted">{{ setting.title }}</div>
+          <h3 class="mb-0">Klasse {{ group|default:"(ohne Klasse)" }}</h3>
+        </div>
+        <div class="text-end small">{{ students|length }} Schüler:innen</div>
+      </div>
+      <table class="list">
+        <thead><tr><th style="width: 9mm;">Nr.</th><th>Name</th><th>Vorname</th><th>AG</th></tr></thead>
+        <tbody>
+          {% for s in students %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ s.last_name }}</td>
+              <td>{{ s.first_name }}</td>
+              <td>
+                {% if s.assigned %}<b>{{ s.assigned.name }}</b>
+                {% elif s.has_voted %}<i>noch nicht zugeordnet</i>
+                {% else %}<i>nicht gewählt</i>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="print-footer">Stand: {% now "d.m.Y, H:i" %} Uhr</div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Keine Schüler:innen vorhanden.</p>
+  {% endfor %}
+{% endblock %}

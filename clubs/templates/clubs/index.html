@@ -1,10 +1,39 @@
-{% extends 'base.html' %}
+{% extends 'edutools_base.html' %}
 {% block content %}
-<h1>AGs</h1>
-<ul>
-  {% for club in clubs %}
-    <li>{{ club.name }} {% if club.max_size %}- Max: {{ club.max_size }}{% endif %}</li>
-  {% endfor %}
-</ul>
-<p><a href="{% url 'clubs:choose' %}">Zur Wahl</a></p>
-{% endblock %}
+<div class="container" style="max-width: 560px;">
+  {% if is_admin %}
+    <div class="text-end mb-2">
+      <a href="{% url 'clubs:manage' %}" class="btn btn-light btn-sm shadow-sm"><i class="bi bi-gear"></i> Verwaltung</a>
+    </div>
+  {% endif %}
+  {% include 'clubs/_messages.html' %}
+  <div class="card shadow">
+    <div class="card-body p-4">
+      <h2 class="card-title text-center mb-1">{{ setting.title }}</h2>
+      {% if setting.voting_open %}
+        <p class="text-center text-success mb-4"><i class="bi bi-check-circle"></i> Die Wahl ist geöffnet.</p>
+      {% else %}
+        <p class="text-center text-secondary mb-4"><i class="bi bi-lock"></i> Die Wahl ist zurzeit geschlossen.</p>
+      {% endif %}
+
+      {% if session_student %}
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+          <span>Angemeldet als <b>{{ session_student.full_name }}</b></span>
+          <a href="{% url 'clubs:choose' %}" class="btn btn-primary btn-sm">weiter</a>
+        </div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <label for="{{ form.code.id_for_label }}" class="form-label">{{ form.code.label }}</label>
+        {{ form.code }}
+        {% for error in form.code.errors %}
+          <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+        <div class="form-text">Den Code hast du auf einem Zettel von deiner Klassenleitung bekommen.</div>
+        <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Weiter</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

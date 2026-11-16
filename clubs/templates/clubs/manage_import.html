@@ -1,0 +1,73 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+<div class="container-lg">
+  {% include 'clubs/_admin_nav.html' %}
+  {% include 'clubs/_messages.html' %}
+
+  {% if result %}
+    <div class="card shadow-sm mb-4 border-success">
+      <div class="card-body">
+        <h4>Ergebnis des Imports</h4>
+        <ul class="mb-2">
+          <li><b>{{ result.created|length }}</b> neu angelegt (mit Wahlcode)</li>
+          <li><b>{{ result.existing }}</b> bereits vorhanden – unverändert, Wahlcode bleibt gültig</li>
+          {% if result.errors %}<li class="text-danger"><b>{{ result.errors|length }}</b> Zeile(n) übersprungen</li>{% endif %}
+        </ul>
+        {% if result.errors %}
+          <details class="mb-2"><summary class="small">übersprungene Zeilen anzeigen</summary>
+            <ul class="small mb-0">{% for e in result.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          </details>
+        {% endif %}
+        {% if created_groups %}
+          <div class="small">Code-Zettel für neu angelegte Klassen drucken:
+            {% for g in created_groups %}<a class="btn btn-sm btn-outline-primary ms-1 mb-1" target="_blank" href="{% url 'clubs:print_codes' %}?klasse={{ g|urlencode }}">{{ g|default:"(ohne Klasse)" }}</a>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4>Schüler:innen importieren</h4>
+      <p>
+        Erwartet werden die Spalten <b>Nachname</b>, <b>Vorname</b> und <b>Klasse</b>
+        (Trennzeichen Semikolon, Komma oder Tabulator, z. B. Export aus Excel oder der Schulverwaltung).
+        Ohne Kopfzeile wird genau diese Reihenfolge angenommen. Weitere Spalten werden ignoriert.
+      </p>
+      <p class="small text-muted">
+        Jede neue Person erhält automatisch einen persönlichen Wahlcode. Wer schon vorhanden ist
+        (gleicher Nach-, Vorname und gleiche Klasse), wird übersprungen und behält den Code –
+        die Liste kann also gefahrlos erneut importiert werden, z. B. für Nachzügler.
+        Die hochgeladene Datei selbst wird nicht gespeichert.
+      </p>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
+          {{ form.csv_file }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.pasted.id_for_label }}">{{ form.pasted.label }}</label>
+          {{ form.pasted }}
+          <div class="form-text">Spalten können auch direkt aus Excel kopiert und hier eingefügt werden.</div>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Importieren</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-danger">
+    <div class="card-body">
+      <h5 class="text-danger">Neues Schuljahr / Wahl neu beginnen</h5>
+      <p class="small mb-2">Löscht alle {{ total_count }} Schüler:innen inklusive Wahlcodes, Wünsche und Zuordnungen. Die AGs bleiben erhalten.</p>
+      <form method="post" class="d-flex gap-2 flex-wrap" onsubmit="return confirm('Wirklich alle Schüler:innen löschen?');">
+        {% csrf_token %}
+        <input type="text" name="confirm" class="form-control" style="max-width: 220px;" placeholder="LÖSCHEN eingeben" autocomplete="off">
+        <button type="submit" name="delete_all" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Alle löschen</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

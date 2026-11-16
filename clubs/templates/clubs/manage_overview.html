@@ -1,0 +1,185 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+<div class="container-lg">
+  {% include 'clubs/_admin_nav.html' %}
+  {% include 'clubs/_messages.html' %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">Schüler:innen</div>
+        <div class="fs-3 fw-semibold">{{ total }}</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <a class="text-decoration-none text-reset" href="{% url 'clubs:manage_students' %}?status=not_voted">
+      <div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">gewählt / noch offen</div>
+        <div class="fs-3 fw-semibold">{{ voted }} <span class="fs-5 {% if not_voted %}text-danger{% else %}text-muted{% endif %}">/ {{ not_voted }}</span></div>
+      </div></div></a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a class="text-decoration-none text-reset" href="{% url 'clubs:manage_students' %}?status=unassigned">
+      <div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">zugeordnet / gewählt ohne AG</div>
+        <div class="fs-3 fw-semibold">{{ assigned }} <span class="fs-5 {% if waiting %}text-warning{% else %}text-muted{% endif %}">/ {{ waiting }}</span></div>
+      </div></div></a>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">Plätze gesamt</div>
+        <div class="fs-3 fw-semibold">{% if unlimited %}{{ capacity }}+{% else %}{{ capacity }}{% endif %}</div>
+        {% if not unlimited and capacity < total %}<div class="small text-danger">weniger Plätze als Schüler:innen</div>{% endif %}
+      </div></div>
+    </div>
+  </div>
+
+  {% if over_clubs %}
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i> <b>Überbelegt:</b>
+      {% for c in over_clubs %}<a class="alert-link" href="{% url 'clubs:manage_students' %}?ag={{ c.id }}">{{ c.name }}</a> ({{ c.n_assigned }}/{{ c.max_size }}){% if not forloop.last %}, {% endif %}{% endfor %}
+    </div>
+  {% endif %}
+
+  {% if unplaced %}
+    <div class="alert alert-warning">
+      <b>Nicht zugeordnet, weil alle drei Wunsch-AGs voll sind:</b>
+      <ul class="mb-0">
+        {% for s in unplaced %}
+          <li><a class="alert-link" href="{% url 'clubs:student_edit' s.pk %}?next={{ request.get_full_path|urlencode }}">{{ s.last_name }}, {{ s.first_name }}</a> ({{ s.group }}) – Wünsche: {% for w in s.wishes %}{% if w %}{{ w.name }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0">Belegung der AGs</h4>
+        <form method="post" class="d-flex align-items-center gap-2" onsubmit="return confirm('Schüler:innen jetzt automatisch nach ihren Wünschen zuordnen?');">
+          {% csrf_token %}
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" name="reset" value="1" id="reset">
+            <label class="form-check-label small" for="reset">bestehende Zuordnungen verwerfen</label>
+          </div>
+          <button type="submit" name="auto_assign" class="btn btn-primary"><i class="bi bi-magic"></i> Automatisch zuordnen</button>
+        </form>
+      </div>
+      <p class="small text-muted">
+        Die automatische Zuordnung verteilt zuerst alle nach dem 1. Wunsch, dann die Übrigen nach dem 2. und 3. Wunsch –
+        innerhalb jeder Runde in zufälliger Reihenfolge und nur bis zur maximalen Gruppengröße.
+        Bereits zugeordnete Schüler:innen bleiben unverändert, solange das Häkchen nicht gesetzt ist.
+      </p>
+      {% if clubs %}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>AG</th>
+              <th class="text-end" title="Anzahl Erstwünsche">1. W.</th>
+              <th class="text-end" title="Anzahl Zweitwünsche">2. W.</th>
+              <th class="text-end" title="Anzahl Drittwünsche">3. W.</th>
+              <th class="text-end">zugeordnet</th>
+              <th class="text-end">max.</th>
+              <th style="min-width: 160px;">Auslastung</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in clubs %}
+            <tr class="{% if c.is_over %}table-danger{% endif %}">
+              <td>
+                <a href="{% url 'clubs:manage_students' %}?ag={{ c.id }}" class="text-reset fw-semibold">{{ c.name }}</a>
+                {% if c.leader %}<div class="small text-muted">{{ c.leader }}</div>{% endif %}
+              </td>
+              <td class="text-end">{{ c.n_wish1 }}{% if c.demand_over %} <i class="bi bi-fire text-warning" title="Mehr Erstwünsche als Plätze"></i>{% endif %}</td>
+              <td class="text-end">{{ c.n_wish2 }}</td>
+              <td class="text-end">{{ c.n_wish3 }}</td>
+              <td class="text-end fw-semibold">{{ c.n_assigned }}</td>
+              <td class="text-end">{{ c.max_size|default:"–" }}</td>
+              <td>
+                {% if c.max_size %}
+                  <div class="progress" role="progressbar" aria-valuenow="{{ c.percent }}" aria-valuemin="0" aria-valuemax="100" title="{{ c.n_assigned }} von {{ c.max_size }}">
+                    <div class="progress-bar {% if c.is_over %}bg-danger{% elif c.is_full %}bg-warning{% else %}bg-success{% endif %}" style="width: {{ c.percent }}%"></div>
+                  </div>
+                {% else %}
+                  <span class="small text-muted">unbegrenzt</span>
+                {% endif %}
+              </td>
+              <td class="text-nowrap small">
+                {% if c.is_over %}<span class="badge text-bg-danger">{{ c.over_by }} zu viel</span>{% elif c.is_full %}<span class="badge text-bg-warning">voll</span>{% elif c.free is not None %}<span class="text-muted">{{ c.free }} frei</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>Noch keine AGs angelegt. <a href="{% url 'clubs:manage_clubs' %}">AGs anlegen</a></p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h4>Wahlbeteiligung nach Klassen</h4>
+          {% if groups %}
+          <table class="table table-sm align-middle mb-0">
+            <thead><tr><th>Klasse</th><th class="text-end">SuS</th><th class="text-end">gewählt</th><th class="text-end">zugeordnet</th><th style="min-width: 120px;"></th><th></th></tr></thead>
+            <tbody>
+            {% for g in groups %}
+              <tr>
+                <td><a class="text-reset" href="{% url 'clubs:manage_students' %}?klasse={{ g.group|urlencode }}">{{ g.group|default:"(ohne Klasse)" }}</a></td>
+                <td class="text-end">{{ g.total }}</td>
+                <td class="text-end">{{ g.voted }}</td>
+                <td class="text-end">{{ g.assigned }}</td>
+                <td><div class="progress" style="height: 8px;"><div class="progress-bar {% if g.percent == 100 %}bg-success{% endif %}" style="width: {{ g.percent }}%"></div></div></td>
+                <td class="text-nowrap">
+                  <a href="{% url 'clubs:print_codes' %}?klasse={{ g.group|urlencode }}" target="_blank" title="Code-Zettel drucken"><i class="bi bi-qr-code"></i></a>
+                  <a href="{% url 'clubs:print_by_group' %}?klasse={{ g.group|urlencode }}" target="_blank" class="ms-2" title="Klassenliste drucken"><i class="bi bi-printer"></i></a>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+            <p>Noch keine Schüler:innen importiert. <a href="{% url 'clubs:import' %}">Zum Import</a></p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h4>Einstellungen</h4>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ settings_form.title.id_for_label }}">{{ settings_form.title.label }}</label>
+              {{ settings_form.title }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="{{ settings_form.intro_text.id_for_label }}">{{ settings_form.intro_text.label }}</label>
+              {{ settings_form.intro_text }}
+              <div class="form-text">{{ settings_form.intro_text.help_text }}</div>
+            </div>
+            <div class="form-check form-switch mb-2">
+              {{ settings_form.voting_open }}
+              <label class="form-check-label" for="{{ settings_form.voting_open.id_for_label }}">{{ settings_form.voting_open.label }}</label>
+              <div class="form-text">{{ settings_form.voting_open.help_text }}</div>
+            </div>
+            <div class="form-check form-switch mb-3">
+              {{ settings_form.show_assignment }}
+              <label class="form-check-label" for="{{ settings_form.show_assignment.id_for_label }}">{{ settings_form.show_assignment.label }}</label>
+              <div class="form-text">{{ settings_form.show_assignment.help_text }}</div>
+            </div>
+            <button type="submit" name="save_settings" class="btn btn-primary"><i class="bi bi-floppy"></i> Speichern</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

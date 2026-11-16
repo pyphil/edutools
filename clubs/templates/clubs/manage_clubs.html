@@ -1,0 +1,51 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+<div class="container-lg">
+  {% include 'clubs/_admin_nav.html' %}
+  {% include 'clubs/_messages.html' %}
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4>Neue AG</h4>
+      <form method="post" class="row g-2">
+        {% csrf_token %}
+        <div class="col-md-4">{{ new_form.name }}{% for e in new_form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+        <div class="col-md-3">{{ new_form.leader }}</div>
+        <div class="col-6 col-md-2">{{ new_form.max_size }}{% for e in new_form.max_size.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+        <div class="col-6 col-md-1">{{ new_form.order }}</div>
+        <div class="col-md-2"><button type="submit" name="add_club" class="btn btn-primary w-100"><i class="bi bi-plus-circle"></i> Anlegen</button></div>
+        <div class="col-12">{{ new_form.description }}</div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h4>AGs <span class="text-muted fw-normal fs-6">Name · Leitung · max. Teilnehmende · Reihenfolge</span></h4>
+      <ul class="list-group">
+      {% for club in clubs %}
+        <li class="list-group-item">
+          <form method="post" class="row g-2 align-items-start">
+            {% csrf_token %}
+            <input type="hidden" name="club_id" value="{{ club.id }}">
+            <div class="col-md-4">{{ club.form.name }}</div>
+            <div class="col-md-3">{{ club.form.leader }}</div>
+            <div class="col-6 col-md-2">{{ club.form.max_size }}</div>
+            <div class="col-6 col-md-1">{{ club.form.order }}</div>
+            <div class="col-md-2 d-flex gap-1">
+              <button type="submit" name="save_club" class="btn btn-success flex-fill" title="Speichern"><i class="bi bi-floppy"></i></button>
+              <button type="submit" name="delete_club" class="btn btn-danger flex-fill" title="Löschen"
+                onclick="return confirm('AG „{{ club.name|escapejs }}“ löschen?{% if club.n_assigned or club.n_wish1 or club.n_wish2 or club.n_wish3 %} Zuordnungen ({{ club.n_assigned }}) und Wünsche für diese AG gehen verloren.{% endif %}');"><i class="bi bi-trash"></i></button>
+            </div>
+            <div class="col-md-10">{{ club.form.description }}</div>
+            <div class="col-md-2 small text-muted pt-1">{{ club.n_assigned }} zugeordnet<br>{{ club.n_wish1 }} Erstwünsche</div>
+          </form>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">Noch keine AGs angelegt.</li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock content %}

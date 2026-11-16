@@ -1,0 +1,47 @@
+{% extends 'clubs/print_base.html' %}
+{% block title %}Teilnehmerlisten nach AG{% endblock %}
+{% block heading %}Listen nach AG{% endblock %}
+{% block filters %}
+  <select name="ag" class="form-select form-select-sm" onchange="this.form.submit()">
+    <option value="">alle AGs</option>
+    {% for c in all_clubs %}<option value="{{ c.id }}" {% if current_club == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+{% endblock %}
+{% block content %}
+  {% for club in clubs %}
+    <div class="section">
+      <div class="d-flex justify-content-between align-items-end border-bottom border-2 border-dark pb-1 mb-2">
+        <div>
+          <div class="small text-muted">{{ setting.title }}</div>
+          <h3 class="mb-0">{{ club.name }}</h3>
+          {% if club.leader %}<div>Leitung: {{ club.leader }}</div>{% endif %}
+        </div>
+        <div class="text-end">
+          <b>{{ club.n_assigned }}</b>{% if club.max_size %} / {{ club.max_size }}{% endif %} Teilnehmende
+          {% if club.is_over %}<div class="text-danger small fw-semibold">überbelegt</div>{% endif %}
+        </div>
+      </div>
+      {% if club.members %}
+        <table class="list">
+          <thead><tr><th style="width: 9mm;">Nr.</th><th>Name</th><th>Vorname</th><th style="width: 22mm;">Klasse</th><th style="width: 22mm;">Wunsch</th></tr></thead>
+          <tbody>
+            {% for s in club.members %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.last_name }}</td>
+                <td>{{ s.first_name }}</td>
+                <td>{{ s.group }}</td>
+                <td>{% if s.rank %}{{ s.rank }}.{% else %}–{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted">Keine Teilnehmenden zugeordnet.</p>
+      {% endif %}
+      <div class="print-footer">Stand: {% now "d.m.Y, H:i" %} Uhr</div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Keine AGs vorhanden.</p>
+  {% endfor %}
+{% endblock %}

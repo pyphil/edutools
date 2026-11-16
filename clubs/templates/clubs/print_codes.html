@@ -1,0 +1,45 @@
+{% extends 'clubs/print_base.html' %}
+{% block title %}Wahlcodes{% if current_group %} {{ current_group }}{% endif %}{% endblock %}
+{% block heading %}Code-Zettel{% endblock %}
+{% block style %}
+  .slips { display: grid; grid-template-columns: 1fr 1fr; }
+  .slip { border: 1px dashed #868e96; padding: 4mm; height: 52mm; break-inside: avoid; display: flex; gap: 3mm; overflow: hidden; }
+  .slip .info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .slip .title { font-size: 8.5pt; color: #495057; }
+  .slip .name { font-size: 12pt; font-weight: 600; line-height: 1.2; }
+  .slip .group { font-size: 9pt; }
+  .slip .code { font-family: var(--bs-font-monospace); font-size: 17pt; font-weight: 700; letter-spacing: 1px; margin-top: auto; }
+  .slip .url { font-size: 7pt; word-break: break-all; color: #495057; }
+  .slip .qr svg { width: 26mm; height: 26mm; }
+  .section-title { font-size: 9pt; color: #6c757d; margin-bottom: 2mm; }
+{% endblock %}
+{% block filters %}
+  {{ block.super }}
+  <select name="qr" class="form-select form-select-sm" onchange="this.form.submit()">
+    <option value="1" {% if with_qr %}selected{% endif %}>mit QR-Code</option>
+    <option value="0" {% if not with_qr %}selected{% endif %}>ohne QR-Code</option>
+  </select>
+{% endblock %}
+{% block content %}
+  {% for group, students in sections.items %}
+    <div class="section">
+      <div class="section-title">Wahlcodes Klasse {{ group|default:"(ohne Klasse)" }} – {{ students|length }} Zettel – zum Ausschneiden</div>
+      <div class="slips">
+        {% for s in students %}
+          <div class="slip">
+            <div class="info">
+              <div class="title">{{ setting.title }} – persönlicher Wahlcode</div>
+              <div class="name">{{ s.first_name }} {{ s.last_name }}</div>
+              <div class="group">{% if s.group %}Klasse {{ s.group }}{% endif %}</div>
+              <div class="code">{{ s.display_token }}</div>
+              <div class="url">{% if with_qr %}QR-Code scannen oder {% endif %}{{ base_url }} öffnen und Code eingeben.</div>
+            </div>
+            {% if with_qr %}<div class="qr">{{ s.qr }}</div>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Keine Schüler:innen vorhanden.</p>
+  {% endfor %}
+{% endblock %}

@@ -1,8 +1,78 @@
-{% extends 'base.html' %}
+{% extends 'edutools_base.html' %}
 {% block content %}
-<h1>AG-Wahl</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button class="btn btn-primary" type="submit">Absenden</button>
-</form>
-{% endblock %}
+<div class="container" style="max-width: 720px;">
+  {% include 'clubs/_messages.html' %}
+  <div class="card shadow">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+        <div>
+          <h2 class="card-title mb-0">{{ setting.title }}</h2>
+          <div class="text-muted">Hallo {{ student.full_name }}{% if student.group %} ({{ student.group }}){% endif %}</div>
+        </div>
+        <form method="post" action="{% url 'clubs:student_logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-box-arrow-right"></i> Abmelden</button>
+        </form>
+      </div>
+
+      {% if setting.show_assignment and student.assigned %}
+        <div class="alert alert-success">
+          <i class="bi bi-star-fill"></i> Du wurdest der AG <b>{{ student.assigned.name }}</b> zugeordnet.
+          {% if student.assigned.leader %}<br><small>Leitung: {{ student.assigned.leader }}</small>{% endif %}
+        </div>
+      {% endif %}
+
+      {% if setting.intro_text %}
+        <div class="mb-3">{{ setting.intro_text|linebreaksbr }}</div>
+      {% endif %}
+
+      {% if setting.voting_open %}
+        {% if not clubs %}
+          <div class="alert alert-warning">Es wurden noch keine AGs eingetragen.</div>
+        {% else %}
+          {% if choice %}
+            <div class="alert alert-info small">Du hast bereits gewählt (zuletzt am {{ choice.submitted_at|date:"d.m.Y, H:i" }} Uhr). Du kannst deine Wahl hier ändern.</div>
+          {% endif %}
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% for error in form.non_field_errors %}
+              <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+            {% for field in form %}
+              <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}{% if not field.field.required %} <span class="fw-normal text-muted">(optional)</span>{% endif %}</label>
+                {{ field }}
+                {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+              </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary btn-lg w-100">Wahl speichern</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-secondary"><i class="bi bi-lock"></i> Die Wahl ist geschlossen.</div>
+        {% if choice %}
+          <h5>Deine Wünsche</h5>
+          <ol>
+            {% for club in choice.wishes %}<li>{{ club.name }}</li>{% endfor %}
+          </ol>
+        {% else %}
+          <p>Du hast keine Wünsche abgegeben.</p>
+        {% endif %}
+      {% endif %}
+
+      {% if clubs and setting.voting_open %}
+        <hr class="my-4">
+        <h5>Die AGs im Überblick</h5>
+        <div class="list-group list-group-flush">
+          {% for club in clubs %}
+            <div class="list-group-item px-0">
+              <div class="fw-semibold">{{ club.name }}{% if club.leader %} <span class="fw-normal text-muted small">– {{ club.leader }}</span>{% endif %}</div>
+              {% if club.description %}<div class="small">{{ club.description|linebreaksbr }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,38 +1,37 @@
 from django.contrib import admin
-from .models import ClubSetting, Club, ClubChoice, StudentUpload
+
+from .models import Club, ClubChoice, ClubSetting, Student
 
 
 @admin.register(ClubSetting)
 class ClubSettingAdmin(admin.ModelAdmin):
-    list_display = ['title']
+    list_display = ['title', 'voting_open', 'show_assignment']
 
 
 @admin.register(Club)
 class ClubAdmin(admin.ModelAdmin):
-    list_display = ['name', 'max_size', 'order']
+    list_display = ['name', 'leader', 'max_size', 'order']
     ordering = ['order', 'name']
+
+
+class ClubChoiceInline(admin.StackedInline):
+    model = ClubChoice
+    extra = 0
+    readonly_fields = ['submitted_at']
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ['last_name', 'first_name', 'group', 'token', 'assigned']
+    list_filter = ['group', 'assigned']
+    search_fields = ['last_name', 'first_name', 'token']
+    readonly_fields = ['token', 'created_at']
+    inlines = [ClubChoiceInline]
 
 
 @admin.register(ClubChoice)
 class ClubChoiceAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name', 'choice1', 'choice2', 'choice3', 'assigned']
-    list_filter = ['assigned', 'choice1']
-    search_fields = ['first_name', 'last_name']
+    list_display = ['student', 'choice1', 'choice2', 'choice3', 'submitted_at']
+    list_filter = ['choice1']
+    search_fields = ['student__last_name', 'student__first_name']
     readonly_fields = ['submitted_at']
-
-    actions = ['assign_first_choice']
-
-    def assign_first_choice(self, request, queryset):
-        """Admin action to assign first choice for selected students."""
-        for c in queryset:
-            if c.choice1:
-                c.assigned = c.choice1
-                c.save()
-        self.message_user(request, "First choices assigned where available.")
-    assign_first_choice.short_description = "Assign first choice where available"
-
-
-@admin.register(StudentUpload)
-class StudentUploadAdmin(admin.ModelAdmin):
-    list_display = ['uploaded_at', 'uploaded_by', 'csv_file']
-    readonly_fields = ['uploaded_at']

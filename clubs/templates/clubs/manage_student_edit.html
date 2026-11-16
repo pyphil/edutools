@@ -1,0 +1,58 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+<div class="container" style="max-width: 800px;">
+  {% include 'clubs/_admin_nav.html' %}
+  {% include 'clubs/_messages.html' %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <h4 class="mb-0">{{ student.full_name }} <span class="text-muted fw-normal">{{ student.group }}</span></h4>
+        <a href="{{ back }}" class="btn btn-outline-secondary btn-sm">zurück</a>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-5">
+          <div class="border rounded p-3 text-center h-100">
+            <div class="small text-muted">Wahlcode</div>
+            <div class="fs-3 font-monospace fw-semibold">{{ student.display_token }}</div>
+            <form method="post" class="mt-2" onsubmit="return confirm('Neuen Code erzeugen? Der bisherige Code wird ungültig.');">
+              {% csrf_token %}
+              <button type="submit" name="new_token" class="btn btn-sm btn-outline-warning"><i class="bi bi-arrow-repeat"></i> neuen Code erzeugen</button>
+            </form>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="border rounded p-3 h-100">
+            <div class="small text-muted mb-1">Wünsche</div>
+            {% if student.has_voted %}
+              <ol class="mb-2">{% for w in student.wishes %}{% if w %}<li>{{ w.name }}</li>{% endif %}{% endfor %}</ol>
+              <div class="small text-muted">abgegeben am {{ student.choice.submitted_at|date:"d.m.Y, H:i" }} Uhr</div>
+              <form method="post" class="mt-2" onsubmit="return confirm('Wahl zurücksetzen? Die Wünsche werden gelöscht.');">
+                {% csrf_token %}
+                <button type="submit" name="reset_choice" class="btn btn-sm btn-outline-danger">Wahl zurücksetzen</button>
+              </form>
+            {% else %}
+              <span class="badge text-bg-secondary">noch nicht gewählt</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="col-md-6">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        <div class="col-12 d-flex justify-content-between">
+          <button type="submit" name="save" class="btn btn-primary"><i class="bi bi-floppy"></i> Speichern</button>
+          <button type="submit" name="delete" class="btn btn-outline-danger" formnovalidate onclick="return confirm('{{ student.full_name|escapejs }} mit Wahlcode und Wahl löschen?');"><i class="bi bi-trash"></i> Löschen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
