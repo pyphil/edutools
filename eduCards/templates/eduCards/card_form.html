@@ -1,59 +1,154 @@
 {% extends 'eduCards/base_educards.html' %}
-{% load i18n %}
+{% block title %}{{ title }}{% endblock title %}
+{% block body_class %}ec-board-page{% endblock body_class %}
+{% block body_attrs %}style="--ec-board-bg: {{ cards_page.background_css }};"{% endblock body_attrs %}
+
 {% block content %}
+<div class="container py-4" style="max-width: 860px;">
+  <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-glass btn-sm mb-3"><i class="bi bi-arrow-left"></i> {{ cards_page.icon }} {{ cards_page.title }}</a>
 
-<div class="container mt-3 mb-5">
-  <div class="row justify-content-center">
-    <div class="col" style="max-width: 900px;">
-      <div class="card">
-        <div class="card-header">
-          <strong>{{ title }}</strong>
-          <br><small>{% trans "Category" %}: {{ category.name }} ({{ category.cards_page.title }})</small>
-          {% if card %}
-            <br><small>{% trans "Created" %}: {{ card.created_by }}, {{ card.created|date:"d.m.Y H:i" }}
-            {% if card.last_modified_by %}
-              <br>{% trans "Last modified" %}: {{ card.last_modified_by }}, {{ card.last_modified|date:"d.m.Y H:i" }}
-            {% endif %}</small>
-          {% endif %}
-        </div>
-        <div class="card-body">
-          <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.media }}
-
-            <div class="mb-3">
-              {{ form.title.label_tag }}
-              {{ form.title }}
-            </div>
-
-            <div class="mb-3">
-              {{ form.content.label_tag }}
-              {{ form.content }}
-            </div>
-
-            <div class="mb-3">
-              {{ form.additional_info.label_tag }}
-              {{ form.additional_info }}
-            </div>
-
-            <div class="mb-3">
-              <label for="id_attachments" class="form-label"><strong>{% trans "Files" %}</strong></label>
-              <input type="file" name="attachments" id="id_attachments" class="form-control" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.webp,.txt,.zip">
-              <div class="form-text">{% trans "You can select several files at once." %}</div>
-            </div>
-
-            <div class="mb-3">
-              {{ form.order.label_tag }}
-              {{ form.order }}
-            </div>
-
-            <button type="submit" class="btn btn-primary mt-3">{% trans "Save" %}</button>
-            <a href="{% url 'eduCards:cards_page_detail' category.cards_page.id %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
-          </form>
-        </div>
+  <form method="post" enctype="multipart/form-data" novalidate id="ec-card-form">
+    {% csrf_token %}
+    {{ form.media }}
+    <div class="ec-panel ec-editor p-4" id="ec-editor" style="--card-bg: {{ card.color_css|default:'#ffffff' }};">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <span class="badge rounded-pill text-bg-light"><i class="bi bi-pencil-square"></i> {{ title }}</span>
+        {% if card %}
+          <span class="small text-secondary">Erstellt {{ card.created|date:"d.m.Y, H:i" }} Uhr{% if card.display_author %} von {{ card.display_author }}{% endif %}{% if card.last_modified_by %} · zuletzt bearbeitet von {{ card.last_modified_by.get_full_name|default:card.last_modified_by.username }}{% endif %}</span>
+        {% endif %}
       </div>
-    </div>
-  </div>
-</div>
 
+      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+      <div class="mb-3">
+        <label class="visually-hidden" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+        <input type="text" name="title" id="{{ form.title.id_for_label }}" class="form-control ec-title-input" maxlength="200" required
+               placeholder="Überschrift" value="{{ form.title.value|default:'' }}" autofocus>
+        {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="{{ form.content.id_for_label }}">{{ form.content.label }}</label>
+        {{ form.content }}
+        {% for error in form.content.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-7">
+          <label class="form-label" for="{{ form.link_url.id_for_label }}"><i class="bi bi-link-45deg"></i> {{ form.link_url.label }}</label>
+          {{ form.link_url }}
+          {% for error in form.link_url.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          <div class="form-text">YouTube-Links werden als Video eingebettet (erst nach Klick geladen).</div>
+        </div>
+        {% if form.category %}
+          <div class="col-md-5">
+            <label class="form-label" for="{{ form.category.id_for_label }}"><i class="bi bi-layout-three-columns"></i> {{ form.category.label }}</label>
+            {{ form.category }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><i class="bi bi-paperclip"></i> {{ form.attachments.label }}</label>
+        <div class="ec-dropzone" id="ec-dropzone">
+          <input type="file" name="attachments" id="id_attachments" multiple accept="{{ form.attachments.field.widget.attrs.accept }}">
+          <i class="bi bi-cloud-arrow-up d-block mb-1"></i>
+          <strong class="text-body">Dateien hierher ziehen</strong> oder klicken zum Auswählen
+          <div class="small mt-1">{{ form.attachments.help_text }}</div>
+        </div>
+        <ul class="ec-file-list" id="ec-file-list"></ul>
+        {% for error in form.attachments.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+
+        {% if files %}
+          <div class="mt-2">
+            <div class="small fw-semibold text-secondary mb-1">Bereits angehängt</div>
+            {% for file in files %}
+              <div class="ec-file">
+                <i class="bi {{ file.icon }} ec-file-icon"></i>
+                <span>{{ file.name }}</span>
+                <a href="{{ file.download_url }}" class="ec-icon-btn" title="Download"><i class="bi bi-download"></i></a>
+                {% if file.id %}
+                  <button type="submit" form="ec-del-att-{{ file.id }}" class="ec-icon-btn text-danger" title="Datei entfernen"
+                          onclick="return confirm('Diese Datei entfernen?');"><i class="bi bi-trash3"></i></button>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">{{ form.color.label }}</label>
+        {{ form.color }}
+      </div>
+
+      {% if form.author_name %}
+        <div class="mb-3" style="max-width: 360px;">
+          <label class="form-label" for="{{ form.author_name.id_for_label }}"><i class="bi bi-person"></i> {{ form.author_name.label }} <span class="fw-normal text-secondary">(optional)</span></label>
+          {{ form.author_name }}
+        </div>
+      {% endif %}
+
+      <details class="mb-2" {% if form.additional_info.value %}open{% endif %}>
+        <summary class="fw-semibold text-primary mb-2" style="cursor: pointer;">Zusatzinfo hinzufügen</summary>
+        <label class="form-label small text-secondary" for="{{ form.additional_info.id_for_label }}">{{ form.additional_info.label }}</label>
+        {{ form.additional_info }}
+      </details>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-end mt-3">
+      <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-glass px-4">Abbrechen</a>
+      <button type="submit" class="btn btn-ec px-4"><i class="bi bi-check2"></i> {% if card %}Speichern{% else %}Veröffentlichen{% endif %}</button>
+    </div>
+  </form>
+
+  {% for file in files %}
+    {% if file.id %}
+      <form method="post" action="{% url 'eduCards:delete_attachment' card.id file.id %}" id="ec-del-att-{{ file.id }}" class="d-none">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+      </form>
+    {% endif %}
+  {% endfor %}
+</div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var colors = {
+    {% for key, css in card_color_css.items %}'{{ key }}': '{{ css }}',{% endfor %}
+  };
+  var editor = document.getElementById('ec-editor');
+  document.querySelectorAll('input[name="color"]').forEach(function (radio) {
+    radio.addEventListener('change', function () { editor.style.setProperty('--card-bg', colors[radio.value] || '#fff'); });
+  });
+  if (!document.querySelector('input[name="color"]:checked')) {
+    var white = document.querySelector('input[name="color"][value="white"]');
+    if (white) { white.checked = true; }
+  }
+
+  var zone = document.getElementById('ec-dropzone');
+  var input = document.getElementById('id_attachments');
+  var list = document.getElementById('ec-file-list');
+  function showFiles() {
+    list.innerHTML = '';
+    Array.prototype.forEach.call(input.files, function (file) {
+      var li = document.createElement('li');
+      var size = file.size > 1048576 ? (file.size / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(file.size / 1024)) + ' KB';
+      li.innerHTML = '<i class="bi bi-file-earmark-check text-success"></i> <span></span> <small class="text-secondary"></small>';
+      li.querySelector('span').textContent = file.name;
+      li.querySelector('small').textContent = size;
+      list.appendChild(li);
+    });
+  }
+  input.addEventListener('change', showFiles);
+  ['dragenter', 'dragover'].forEach(function (name) {
+    zone.addEventListener(name, function () { zone.classList.add('is-over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (name) {
+    zone.addEventListener(name, function () { zone.classList.remove('is-over'); });
+  });
+})();
+</script>
+{% endblock extra_js %}

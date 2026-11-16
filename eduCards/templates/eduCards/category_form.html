@@ -1,30 +1,48 @@
 {% extends 'eduCards/base_educards.html' %}
-{% load i18n %}
-{% block content %}
+{% block title %}{{ title }}{% endblock title %}
+{% block body_class %}ec-board-page{% endblock body_class %}
+{% block body_attrs %}style="--ec-board-bg: {{ cards_page.background_css }};"{% endblock body_attrs %}
 
-<div class="container mt-3 mb-5">
-  <div class="row justify-content-center">
-    <div class="col" style="max-width: 900px;">
-      <div class="card">
-        <div class="card-header">
-          <strong>{{ title }}</strong>
-          <br><small>{% trans "Page" %}: {{ cards_page.title }}</small>
-          {% if category %}
-            <br><small>{% trans "Created" %}: {{ category.created|date:"d.m.Y H:i" }}
-            {% trans "Last modified" %}: {{ category.last_modified|date:"d.m.Y H:i" }}</small>
-          {% endif %}
-        </div>
-        <div class="card-body">
-          <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary mt-3">{% trans "Save" %}</button>
-            <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
-          </form>
+{% block content %}
+<div class="container py-4" style="max-width: 620px;">
+  <div class="ec-panel p-4">
+    <div class="small text-secondary mb-1">{{ cards_page.icon }} {{ cards_page.title }}</div>
+    <h1 class="h4 fw-bold mb-4">{{ title }}</h1>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        {{ form.name }}
+        {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          {{ form.color }}
+          {% for color in column_colors %}
+            <button type="button" class="btn p-0 border-0" data-color="{{ color }}" title="{{ color }}" style="width: 32px; height: 32px; border-radius: 999px; background: {{ color }};"></button>
+          {% endfor %}
         </div>
       </div>
-    </div>
+      <div class="mb-4">
+        <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        {{ form.description }}
+      </div>
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-light rounded-pill px-4">Abbrechen</a>
+        <button type="submit" class="btn btn-ec px-4">Speichern</button>
+      </div>
+    </form>
   </div>
 </div>
-
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-color]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.getElementById('{{ form.color.id_for_label }}').value = btn.dataset.color;
+    });
+  });
+</script>
+{% endblock extra_js %}

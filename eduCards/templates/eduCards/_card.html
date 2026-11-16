@@ -1,0 +1,165 @@
+{% load educards_tags %}
+<article class="ec-card{% if card.is_pinned %} is-pinned{% endif %}{% if not card.is_approved %} is-pending{% endif %}{% if is_member %} is-draggable{% endif %}"
+         id="card-{{ card.id }}" data-card-id="{{ card.id }}" style="--card-bg: {{ card.color_css }};">
+  <header class="ec-card-head">
+    <h3 class="ec-card-title">{{ card.title }}</h3>
+    {% if card.can_manage %}
+      <div class="dropdown ec-hide-present">
+        <button class="ec-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" title="Beitrag bearbeiten"><i class="bi bi-three-dots"></i></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          {% if is_member and not card.is_approved %}
+            <li>
+              <form method="post" action="{% url 'eduCards:approve_card' card.id %}">{% csrf_token %}
+                <button class="dropdown-item text-success"><i class="bi bi-check2-circle"></i> Freigeben</button>
+              </form>
+            </li>
+          {% endif %}
+          <li><a class="dropdown-item" href="{% url 'eduCards:edit_card' card.id %}"><i class="bi bi-pencil"></i> Bearbeiten</a></li>
+          {% if is_member %}
+            <li>
+              <form method="post" action="{% url 'eduCards:pin_card' card.id %}">{% csrf_token %}
+                <button class="dropdown-item"><i class="bi bi-pin-angle"></i> {% if card.is_pinned %}Nicht mehr anheften{% else %}Oben anheften{% endif %}</button>
+              </form>
+            </li>
+          {% endif %}
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'eduCards:delete_card' card.id %}" onsubmit="return confirm('Diesen Beitrag wirklich löschen?');">{% csrf_token %}
+              <button class="dropdown-item text-danger"><i class="bi bi-trash3"></i> Löschen</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if card.is_pinned or not card.is_approved %}
+    <div class="ec-card-flags">
+      {% if card.is_pinned %}<span class="ec-flag is-pinned"><i class="bi bi-pin-angle-fill"></i> Angeheftet</span>{% endif %}
+      {% if not card.is_approved %}<span class="ec-flag is-pending"><i class="bi bi-hourglass-split"></i> Wartet auf Freigabe</span>{% endif %}
+    </div>
+  {% endif %}
+
+  {% if card.content %}
+    <div class="ec-card-body">{{ card.content|clean_html }}</div>
+  {% endif %}
+
+  {% if card.youtube_id %}
+    <div class="ec-media">
+      <div class="ec-video" data-youtube-id="{{ card.youtube_id }}">
+        <button type="button" class="ec-video-consent" data-ec-youtube>
+          <i class="bi bi-youtube"></i>
+          <strong>Video abspielen</strong>
+          <small>Beim Abspielen werden Daten an YouTube (Google) übertragen.</small>
+        </button>
+      </div>
+    </div>
+  {% elif card.link_url %}
+    <div class="ec-media">
+      <a class="ec-link" href="{{ card.link_url }}" target="_blank" rel="noopener noreferrer nofollow">
+        <span class="ec-link-icon"><i class="bi bi-link-45deg"></i></span>
+        <span class="ec-link-text">
+          <span class="ec-link-domain d-block">{{ card.link_domain|default:"Link öffnen" }}</span>
+          <span class="ec-link-url">{{ card.link_url }}</span>
+        </span>
+      </a>
+    </div>
+  {% endif %}
+
+  {% if card.files %}
+    <div class="ec-media">
+      {% for file in card.files %}
+        {% if file.kind == 'image' %}
+          <div class="mb-2">
+            <button type="button" class="ec-thumb" data-bs-toggle="modal" data-bs-target="#ec-lightbox"
+                    data-src="{{ file.inline_url }}" data-download="{{ file.download_url }}" data-title="{{ card.title }}"
+                    aria-label="Bild vergrößern">
+              <img src="{{ file.inline_url }}" alt="{{ card.title }}" loading="lazy">
+              <span class="ec-zoom"><i class="bi bi-arrows-angle-expand"></i></span>
+            </button>
+            <div class="ec-file-actions">
+              <span class="ec-file-name">{{ file.name }}</span>
+              <a href="{{ file.download_url }}" class="ec-icon-btn" title="Download"><i class="bi bi-download"></i></a>
+            </div>
+          </div>
+        {% elif file.kind == 'pdf' %}
+          <div class="mb-2">
+            <div class="pdfjs-preview" data-pdf-url="{{ file.inline_url }}">
+              <a href="{{ file.inline_url }}" target="_blank" rel="noopener" aria-label="PDF im Browser öffnen">
+                <canvas></canvas>
+              </a>
+            </div>
+            <div class="ec-file-actions">
+              <i class="bi bi-file-earmark-pdf text-danger"></i>
+              <span class="ec-file-name">{{ file.name }}</span>
+              <a href="{{ file.inline_url }}" target="_blank" rel="noopener" class="ec-icon-btn" title="Öffnen"><i class="bi bi-box-arrow-up-right"></i></a>
+              <a href="{{ file.download_url }}" class="ec-icon-btn" title="Download"><i class="bi bi-download"></i></a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{{ file.download_url }}" class="ec-file" title="Download">
+            <i class="bi {{ file.icon }} ec-file-icon"></i>
+            <span>{{ file.name }}</span>
+            <i class="bi bi-download"></i>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if card.additional_info %}
+    <details class="ec-more">
+      <summary>Mehr anzeigen</summary>
+      <div>{{ card.additional_info|clean_html }}</div>
+    </details>
+  {% endif %}
+
+  <footer class="ec-card-foot">
+    <span class="ec-author" title="{{ card.created|date:'d.m.Y, H:i' }} Uhr">
+      {% if cards_page.show_author or is_member %}{% with name=card.display_author %}{% if name %}<span class="ec-avatar">{{ name|first|upper }}</span>{{ name }} · {% endif %}{% endwith %}{% endif %}{{ card.created|ago }}
+    </span>
+    {% if cards_page.allow_reactions %}
+      <button type="button" class="ec-react{% if card.liked %} is-liked{% endif %}" data-ec-react="{% url 'eduCards:react_card' card.id %}" aria-pressed="{% if card.liked %}true{% else %}false{% endif %}" title="Gefällt mir">
+        <i class="bi bi-heart"></i><span>{{ card.num_likes }}</span>
+      </button>
+    {% endif %}
+    {% if cards_page.allow_comments %}
+      <button type="button" class="ec-react" data-bs-toggle="collapse" data-bs-target="#comments-{{ card.id }}" aria-expanded="false" aria-controls="comments-{{ card.id }}" title="Kommentare">
+        <i class="bi bi-chat-left-text"></i><span>{{ card.comment_list|length }}</span>
+      </button>
+    {% endif %}
+  </footer>
+
+  {% if cards_page.allow_comments %}
+    <div class="collapse" id="comments-{{ card.id }}">
+      <div class="ec-comments">
+        {% for comment in card.comment_list %}
+          <div class="ec-comment">
+            <div class="ec-comment-body">
+              <div class="ec-comment-meta"><strong>{% if cards_page.show_author or is_member %}{{ comment.display_author }}{% else %}Anonym{% endif %}</strong> · {{ comment.created|ago }}</div>
+              {{ comment.text|linebreaksbr }}
+            </div>
+            {% if comment.can_delete %}
+              <form method="post" action="{% url 'eduCards:delete_comment' comment.id %}" onsubmit="return confirm('Kommentar löschen?');">{% csrf_token %}
+                <button class="ec-icon-btn" title="Kommentar löschen"><i class="bi bi-x-lg"></i></button>
+              </form>
+            {% endif %}
+          </div>
+        {% empty %}
+          <div class="ec-comment-meta py-1">Noch keine Kommentare.</div>
+        {% endfor %}
+        {% if can_comment %}
+          <form method="post" action="{% url 'eduCards:add_comment' card.id %}" class="ec-comment-form">{% csrf_token %}
+            <div class="flex-grow-1">
+              {% if not is_member and not user.is_authenticated %}
+                <input type="text" name="author_name" class="form-control form-control-sm mb-1" placeholder="Dein Name" maxlength="80" value="{{ guest_name }}">
+              {% endif %}
+              <textarea name="text" class="form-control" rows="1" placeholder="Kommentar schreiben …" maxlength="2000" required></textarea>
+            </div>
+            <button class="btn btn-ec btn-sm" title="Senden"><i class="bi bi-send"></i></button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</article>

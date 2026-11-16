@@ -1,0 +1,15 @@
+<a href="{% url 'eduCards:cards_page_detail' page.id %}" class="ec-tile">
+  <div class="ec-tile-cover" style="background: {{ page.background_css }};">
+    <span class="ec-tile-icon" aria-hidden="true">{{ page.icon|default:"📌" }}</span>
+    {% if shared %}<span class="ec-tile-badge badge rounded-pill text-bg-light"><i class="bi bi-people"></i> von {{ page.created_by.get_full_name|default:page.created_by.username }}</span>{% endif %}
+  </div>
+  <div class="ec-tile-body">
+    <div class="ec-tile-title">{{ page.title }}</div>
+    {% if page.description %}<p class="ec-tile-desc">{{ page.description }}</p>{% endif %}
+  </div>
+  <div class="ec-tile-meta">
+    <span title="Spalten"><i class="bi bi-layout-three-columns"></i> {{ page.num_columns }}</span>
+    <span title="Beiträge"><i class="bi bi-stickies"></i> {{ page.num_cards }}</span>
+    <span class="ms-auto" title="Zuletzt geändert"><i class="bi bi-clock-history"></i> {{ page.last_modified|date:"d.m.Y" }}</span>
+  </div>
+</a>

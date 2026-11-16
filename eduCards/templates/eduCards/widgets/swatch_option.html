@@ -1,0 +1,1 @@
+<label class="swatch" title="{{ widget.label }}"><input type="radio" name="{{ widget.name }}" value="{{ widget.value|stringformat:'s' }}"{% if widget.selected %} checked{% endif %}{% if widget.attrs.id %} id="{{ widget.attrs.id }}"{% endif %}><span class="swatch-dot" style="background: {{ widget.swatch }};"></span><span class="visually-hidden">{{ widget.label }}</span></label>

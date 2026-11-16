@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CardsPage, Category, Card, CardsPageAccessToken
+from .models import CardsPage, Category, Card, CardComment, CardReaction, CardsPageAccessToken
 
 
 class CategoryInline(admin.TabularInline):
@@ -9,8 +9,9 @@ class CategoryInline(admin.TabularInline):
 
 
 class CardsPageAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_by', 'created', 'is_active', 'order')
-    list_filter = ('is_active', 'created', 'created_by')
+    list_display = ('title', 'created_by', 'layout', 'created', 'last_modified', 'is_active')
+    list_filter = ('is_active', 'layout', 'require_approval', 'created', 'created_by')
+    filter_horizontal = ('shared_with',)
     search_fields = ('title', 'description')
     readonly_fields = ('created', 'last_modified', 'created_by', 'last_modified_by')
     inlines = [CategoryInline]
@@ -39,9 +40,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class CardAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'created_by', 'created', 'order')
-    list_filter = ('category__cards_page', 'category', 'created')
-    search_fields = ('title', 'content', 'additional_info')
+    list_display = ('title', 'category', 'created_by', 'author_name', 'is_approved', 'is_pinned', 'created')
+    list_filter = ('is_approved', 'is_pinned', 'color', 'category__cards_page', 'created')
+    search_fields = ('title', 'content', 'additional_info', 'author_name')
     readonly_fields = ('created', 'last_modified', 'created_by', 'last_modified_by')
 
     def save_model(self, request, obj, form, change):
@@ -59,7 +60,15 @@ class CardsPageAccessTokenAdmin(admin.ModelAdmin):
     readonly_fields = ('created',)
 
 
+class CardCommentAdmin(admin.ModelAdmin):
+    list_display = ('card', 'display_author', 'created')
+    list_filter = ('card__category__cards_page', 'created')
+    search_fields = ('text', 'author_name', 'user__username')
+
+
 admin.site.register(CardsPage, CardsPageAdmin)
+admin.site.register(CardComment, CardCommentAdmin)
+admin.site.register(CardReaction)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Card, CardAdmin)
 admin.site.register(CardsPageAccessToken, CardsPageAccessTokenAdmin)

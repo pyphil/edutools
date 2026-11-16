@@ -1,0 +1,51 @@
+<div class="ec-columns" id="ec-columns">
+  {% for category in categories %}
+    <section class="ec-column" data-category-id="{{ category.id }}" style="--col-color: {{ category.color }};" aria-labelledby="col-title-{{ category.id }}">
+      <header class="ec-column-head">
+        {% if is_member %}<span class="ec-column-drag ec-hide-present" title="Spalte verschieben"><i class="bi bi-grip-vertical"></i></span>{% endif %}
+        <h2 class="ec-column-title" id="col-title-{{ category.id }}">{{ category.name }}</h2>
+        <span class="ec-column-count">{{ category.visible_cards|length }}</span>
+        {% if can_create_cards %}
+          <a href="{% url 'eduCards:create_card' category.id %}" class="ec-icon-btn ec-hide-present" title="Beitrag in „{{ category.name }}“ hinzufügen"><i class="bi bi-plus-lg"></i></a>
+        {% endif %}
+        {% if is_member %}
+          <div class="dropdown ec-hide-present">
+            <button class="ec-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" title="Spalte bearbeiten"><i class="bi bi-three-dots-vertical"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{% url 'eduCards:edit_category' category.id %}"><i class="bi bi-pencil"></i> Spalte bearbeiten</a></li>
+              <li><a class="dropdown-item text-danger" href="{% url 'eduCards:delete_category' category.id %}"><i class="bi bi-trash3"></i> Spalte löschen</a></li>
+            </ul>
+          </div>
+        {% endif %}
+      </header>
+      {% if category.description %}<p class="ec-column-desc">{{ category.description }}</p>{% endif %}
+
+      <div class="ec-column-body" data-category-id="{{ category.id }}">
+        {% for card in category.visible_cards %}
+          {% include 'eduCards/_card.html' %}
+        {% endfor %}
+      </div>
+
+      {% if can_create_cards %}
+        <div class="ec-column-foot ec-hide-present">
+          <a href="{% url 'eduCards:create_card' category.id %}" class="ec-add-card"><i class="bi bi-plus-circle"></i> Beitrag hinzufügen</a>
+        </div>
+      {% endif %}
+    </section>
+  {% empty %}
+    <div class="ec-empty w-100" style="max-width: 560px; margin: 2rem auto; background: rgba(255,255,255,.85);">
+      <span class="ec-empty-icon">🗂️</span>
+      <h2 class="h5 text-body">Dieses Board ist noch leer</h2>
+      {% if is_member %}
+        <p>Lege eine erste Spalte an, um Beiträge zu sammeln.</p>
+        <a href="{% url 'eduCards:create_category' cards_page.id %}" class="btn btn-ec"><i class="bi bi-plus-lg"></i> Erste Spalte anlegen</a>
+      {% else %}
+        <p class="mb-0">Hier gibt es noch nichts zu sehen. Schau später noch einmal vorbei!</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  {% if is_member and categories %}
+    <a href="{% url 'eduCards:create_category' cards_page.id %}" class="ec-ghost-column ec-hide-present"><i class="bi bi-plus-lg"></i> Spalte hinzufügen</a>
+  {% endif %}
+</div>

@@ -1,35 +1,133 @@
 {% extends 'eduCards/base_educards.html' %}
-{% load i18n %}
-{% block content %}
+{% block title %}{{ title }}{% endblock title %}
 
-<div class="container mt-3 mb-5">
-  <div class="row justify-content-center">
-    <div class="col" style="max-width: 900px;">
-      <div class="card">
-        <div class="card-header">
-          <strong>{{ title }}</strong>
-          {% if cards_page %}
-            <br><small>{% trans "Created" %}: {{ cards_page.created_by }}, {{ cards_page.created|date:"d.m.Y H:i" }}
-            {% if cards_page.last_modified_by %}
-              <br>{% trans "Last modified" %}: {{ cards_page.last_modified_by }}, {{ cards_page.last_modified|date:"d.m.Y H:i" }}
-            {% endif %}</small>
-          {% endif %}
+{% block content %}
+<div class="container py-4" style="max-width: 980px;">
+  <a href="{% if cards_page %}{% url 'eduCards:cards_page_detail' cards_page.id %}{% else %}{% url 'eduCards:cards_page_list' %}{% endif %}" class="btn btn-link px-0 text-decoration-none mb-2"><i class="bi bi-arrow-left"></i> Zurück</a>
+  <h1 class="h3 fw-bold mb-3">{{ title }}</h1>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+    <div class="ec-preview-banner mb-4" id="ec-preview" style="background: {% if cards_page %}{{ cards_page.background_css }}{% else %}linear-gradient(135deg, #2b5876 0%, #4e4376 100%){% endif %};">
+      <span class="ec-board-icon" id="ec-preview-icon">{{ form.icon.value|default:"📌" }}</span>
+      <span id="ec-preview-title">{{ form.title.value|default:"Mein neues Board" }}</span>
+    </div>
+
+    <div class="ec-panel p-4 mb-4">
+      <h2 class="h6 text-uppercase text-secondary fw-bold mb-3">Allgemein</h2>
+      <div class="row g-3">
+        <div class="col-3 col-md-2">
+          <label class="form-label" for="{{ form.icon.id_for_label }}">{{ form.icon.label }}</label>
+          {{ form.icon }}
         </div>
-        <div class="card-body">
-          <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary mt-3">{% trans "Save" %}</button>
-            {% if cards_page %}
-              <a href="{% url 'eduCards:cards_page_detail' cards_page.id %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
-            {% else %}
-              <a href="{% url 'eduCards:cards_page_list' %}" class="btn btn-secondary mt-3">{% trans "Cancel" %}</a>
-            {% endif %}
-          </form>
+        <div class="col-9 col-md-10">
+          <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+          {{ form.title }}
+          {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-12">
+          <div class="d-flex flex-wrap gap-1" aria-label="Symbol-Vorschläge">
+            {% for emoji in emoji_suggestions %}<button type="button" class="btn btn-sm btn-light" data-emoji="{{ emoji }}">{{ emoji }}</button>{% endfor %}
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+          {{ form.description }}
         </div>
       </div>
     </div>
-  </div>
-</div>
 
+    {% if form.template %}
+      <div class="ec-panel p-4 mb-4">
+        <h2 class="h6 text-uppercase text-secondary fw-bold mb-3">Vorlage</h2>
+        <div class="ec-options">
+          {% for radio in form.template %}
+            <label class="ec-option">
+              {{ radio.tag }}
+              <span class="ec-option-box">
+                <i class="bi {% cycle 'bi-square' 'bi-lightbulb' 'bi-kanban' 'bi-hand-thumbs-up' 'bi-calendar-week' 'bi-chat-heart' %}"></i>
+                <strong>{{ radio.choice_label }}</strong>
+                <small>{% cycle 'Ohne Spalten starten' 'Ideen · Fragen · Ergebnisse' 'Zu erledigen · In Arbeit · Erledigt' 'Pro · Contra · Offene Fragen' 'Montag bis Freitag' 'Gut · Besser · Wünsche' %}</small>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ec-panel p-4 mb-4">
+      <h2 class="h6 text-uppercase text-secondary fw-bold mb-3">Darstellung</h2>
+      <label class="form-label">{{ form.layout.label }}</label>
+      <div class="ec-options mb-4">
+        {% for radio in form.layout %}
+          <label class="ec-option">
+            {{ radio.tag }}
+            <span class="ec-option-box">
+              <i class="bi {% cycle 'bi-layout-three-columns' 'bi-grid-3x3-gap' 'bi-view-stacked' %}"></i>
+              <strong>{{ radio.choice_label }}</strong>
+              <small>{% cycle 'Spalten nebeneinander – ideal zum Sortieren' 'Beiträge als Kachelwand je Abschnitt' 'Untereinander wie ein Blog' %}</small>
+            </span>
+          </label>
+        {% endfor %}
+      </div>
+      <label class="form-label">{{ form.background.label }}</label>
+      <div class="swatch-lg">{{ form.background }}</div>
+    </div>
+
+    <div class="ec-panel p-4 mb-4">
+      <h2 class="h6 text-uppercase text-secondary fw-bold mb-3">Mitmachen &amp; Moderation</h2>
+      {% for field in switch_fields %}
+        <div class="form-check form-switch mb-2">
+          {{ field }}
+          <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        </div>
+      {% endfor %}
+      <div class="form-text">Schüler:innen erhalten Zugang über einen QR-Code oder Link (Board → Teilen). Ohne Freigabe-Pflicht erscheinen ihre Beiträge sofort.</div>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-end">
+      <a href="{% if cards_page %}{% url 'eduCards:cards_page_detail' cards_page.id %}{% else %}{% url 'eduCards:cards_page_list' %}{% endif %}" class="btn btn-light rounded-pill px-4">Abbrechen</a>
+      <button type="submit" class="btn btn-ec px-4">{% if cards_page %}Speichern{% else %}Board erstellen{% endif %}</button>
+    </div>
+  </form>
+</div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var backgrounds = {
+    {% for key, css in background_css_map.items %}'{{ key }}': '{{ css|escapejs }}',{% endfor %}
+  };
+  var light = [{% for key in light_backgrounds %}'{{ key }}',{% endfor %}];
+  var preview = document.getElementById('ec-preview');
+  var icon = document.getElementById('{{ form.icon.id_for_label }}');
+  var title = document.getElementById('{{ form.title.id_for_label }}');
+  function sync() {
+    var checked = document.querySelector('input[name="background"]:checked');
+    if (checked && backgrounds[checked.value]) {
+      preview.style.background = backgrounds[checked.value];
+      preview.classList.toggle('is-light', light.indexOf(checked.value) !== -1);
+    }
+    document.getElementById('ec-preview-icon').textContent = icon.value || '📌';
+    document.getElementById('ec-preview-title').textContent = title.value || 'Mein neues Board';
+  }
+  document.addEventListener('input', sync);
+  document.addEventListener('change', sync);
+  document.querySelectorAll('[data-emoji]').forEach(function (btn) {
+    btn.addEventListener('click', function () { icon.value = btn.dataset.emoji; sync(); });
+  });
+  if (!document.querySelector('input[name="background"]:checked')) {
+    var first = document.querySelector('input[name="background"][value="ocean"]');
+    if (first) { first.checked = true; }
+  }
+  if (!document.querySelector('input[name="layout"]:checked')) {
+    var col = document.querySelector('input[name="layout"][value="columns"]');
+    if (col) { col.checked = true; }
+  }
+  sync();
+})();
+</script>
+{% endblock extra_js %}

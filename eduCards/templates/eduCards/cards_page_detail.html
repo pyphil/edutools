@@ -1,277 +1,120 @@
 {% extends 'eduCards/base_educards.html' %}
-{% load i18n %}
-{% block content %}
+{% block title %}{{ cards_page.title }}{% endblock title %}
+{% block body_class %}ec-board-page{% endblock body_class %}
+{% block body_attrs %}style="--ec-board-bg: {{ cards_page.background_css }};"{% endblock body_attrs %}
 
-<div class="container-fluid mt-3 mb-3">
-  <div class="row mb-3">
-    <div class="col">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h2>{{ cards_page.title }}</h2>
-          {% if cards_page.description %}
-            <p class="text-muted mb-0">{{ cards_page.description }}</p>
-          {% endif %}
-        </div>
-        {% if user_is_teacher %}
-          <div class="btn-group" role="group">
-            <a href="{% url 'eduCards:edit_cards_page' cards_page.id %}" class="btn btn-secondary btn-sm">
-              <i class="bi bi-pencil"></i> {% trans "Edit Page" %}
-            </a>
-            <a href="{% url 'eduCards:create_category' cards_page.id %}" class="btn btn-success btn-sm">
-              <i class="bi bi-plus-circle"></i> {% trans "Add Column" %}
-            </a>
-            <a href="{% url 'eduCards:share_cards_page' cards_page.id %}" class="btn btn-info btn-sm">
-              <i class="bi bi-share"></i> {% trans "Share" %}
-            </a>
-          </div>
-        {% endif %}
+{% block content %}
+<section class="ec-board-head{% if cards_page.has_light_background %} is-light{% endif %}">
+  <div class="ec-board-title">
+    <span class="ec-board-icon" aria-hidden="true">{{ cards_page.icon|default:"📌" }}</span>
+    <div class="flex-grow-1 min-w-0">
+      <h1>{{ cards_page.title }}</h1>
+      <div class="ec-board-meta">
+        {% if not cards_page.is_active %}<span class="badge text-bg-dark me-1"><i class="bi bi-archive"></i> Archiviert</span>{% endif %}
+        <span id="ec-card-total">{{ total_cards }}</span> Beitr{{ total_cards|pluralize:"ag,äge" }}
+        · zuletzt geändert {{ cards_page.last_modified|date:"d.m.Y, H:i" }} Uhr
       </div>
     </div>
   </div>
+  {% if cards_page.description %}
+    <p class="ec-board-desc">{{ cards_page.description|linebreaksbr }}</p>
+  {% endif %}
 
-  <div class="cards-page-container">
-    <div class="categories-row">
+  <div class="ec-board-tools ec-hide-present">
+    <label class="ec-search mb-0">
+      <i class="bi bi-search"></i>
+      <input type="search" id="ec-search" class="form-control" placeholder="Beiträge durchsuchen …" aria-label="Beiträge durchsuchen">
+    </label>
+
+    {% if is_member %}
       {% if categories %}
-        {% for category in categories %}
-          <div class="category-column">
-            <div class="card shadow-lg category-card-header" style="border-left: 4px solid {{ category.color }}; background-color: {{ category.color }}58;">
-              <div class="card-header p-2" style="background-color: {{ category.color }}58;">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div style="flex: 1;">
-                    <strong>{{ category.name }}</strong>
-                    {% if category.description %}
-                      <small class="d-block text-muted">{{ category.description }}</small>
-                    {% endif %}
-                  </div>
-                  {% if can_create_cards %}
-                    <div class="btn-group btn-group-sm ms-2" role="group">
-                      <a href="{% url 'eduCards:create_card' category.id %}" class="btn btn-success" title="{% trans 'Add Card' %}">
-                        <i class="bi bi-plus-circle"></i>
-                      </a>
-                      {% if user_is_teacher %}
-                        <a href="{% url 'eduCards:edit_category' category.id %}" class="btn btn-secondary" title="{% trans 'Edit Column' %}">
-                          <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="{% url 'eduCards:delete_category' category.id %}" class="btn btn-danger" title="{% trans 'Delete Column' %}" onclick="return confirm('{% trans "Are you sure you want to delete this column and all its cards?" %}');">
-                          <i class="bi bi-trash"></i>
-                        </a>
-                      {% endif %}
-                    </div>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-            <div class="category-column-content">
-              {% for card in category.cards.all %}
-                <div class="card mb-2 shadow card-item" style="background-color: #ffffff;">
-                  <h6 class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span style="font-size: 0.9rem; font-weight: 600;">{{ card.title }}</span>
-                      {% if user_is_teacher %}
-                        <div class="btn-group btn-group-sm" role="group">
-                          <a href="{% url 'eduCards:edit_card' card.id %}" class="btn btn-secondary btn-sm" title="{% trans 'Edit' %}">
-                            <i class="bi bi-pencil-fill"></i>
-                          </a>
-                          <a href="{% url 'eduCards:delete_card' card.id %}" class="btn btn-danger btn-sm" title="{% trans 'Delete' %}" onclick="return confirm('{% trans "Are you sure you want to delete this card?" %}');">
-                            <i class="bi bi-trash"></i>
-                          </a>
-                        </div>
-                      {% endif %}
-                    </div>
-                  </h6>
-                  <div class="card-body px-2 py-2">
-                    <small>
-                      <div style="font-size: 0.85rem;">{{ card.content|safe }}</div>
-                      {% if card.additional_info %}
-                        <div class="mt-2" style="font-size: 0.85rem;">
-                          <strong>{% trans "Additional Info" %}:</strong>
-                          <div>{{ card.additional_info|safe }}</div>
-                        </div>
-                      {% endif %}
-                      {% if card.attachment or card.attachments.all %}
-                        <div class="mt-2">
-                          {% for attachment in card.attachments.all %}
-                            {% with attachment_name=attachment.file.name|lower %}
-                              {% if '.png' in attachment_name or '.jpg' in attachment_name or '.jpeg' in attachment_name or '.gif' in attachment_name or '.webp' in attachment_name %}
-                                {% with modal_id=attachment.id|default:card.id %}
-                                  <div class="border rounded p-2 mb-2 bg-light">
-                                    <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" target="_blank" rel="noopener" class="d-block text-center" aria-label="Bild im Browser öffnen">
-                                      <img src="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" alt="{{ card.title }}" class="img-fluid rounded shadow-sm" style="max-height: 220px; width: auto; max-width: 100%;">
-                                    </a>
-                                    <div class="d-flex flex-wrap gap-2 mt-2">
-                                      <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
-                                        <i class="bi bi-download"></i>
-                                      </a>
-                                      {% if user_is_teacher %}
-                                        <form method="post" action="{% url 'eduCards:delete_attachment' card.id attachment.id %}" class="d-inline" onsubmit="return confirm('{% trans "Delete this file?" %}');">
-                                          {% csrf_token %}
-                                          <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans "Delete" %}">
-                                            <i class="bi bi-trash"></i>
-                                          </button>
-                                        </form>
-                                      {% endif %}
-                                    </div>
-                                  </div>
-                                {% endwith %}
-                              {% elif '.pdf' in attachment_name %}
-                                <div class="pdfjs-preview border rounded p-2 mb-2 bg-light" data-pdf-url="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" style="max-width: 100%;">
-                                  <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}&inline=1" target="_blank" rel="noopener" class="d-block text-decoration-none" aria-label="PDF im Browser öffnen">
-                                    <canvas class="w-100 rounded" style="display: block; max-height: 260px; background: white; border: 1px solid #dee2e6;"></canvas>
-                                  </a>
-                                  <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
-                                      <i class="bi bi-download"></i>
-                                    </a>
-                                    {% if user_is_teacher %}
-                                      <form method="post" action="{% url 'eduCards:delete_attachment' card.id attachment.id %}" class="d-inline" onsubmit="return confirm('{% trans "Delete this file?" %}');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans "Delete" %}">
-                                          <i class="bi bi-trash"></i>
-                                        </button>
-                                      </form>
-                                    {% endif %}
-                                  </div>
-                                </div>
-                              {% else %}
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                  <a href="{% url 'eduCards:download_attachment' card.id %}?attachment_id={{ attachment.id }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-download"></i> <small>{{ attachment.file.name|slice:"15:"|truncatechars:20 }}</small>
-                                  </a>
-                                  {% if user_is_teacher %}
-                                    <form method="post" action="{% url 'eduCards:delete_attachment' card.id attachment.id %}" class="d-inline" onsubmit="return confirm('{% trans "Delete this file?" %}');">
-                                      {% csrf_token %}
-                                      <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i> <small>{% trans "Delete" %}</small>
-                                      </button>
-                                    </form>
-                                  {% endif %}
-                                </div>
-                              {% endif %}
-                            {% endwith %}
-                          {% empty %}
-                            {% with attachment_name=card.attachment.name|lower %}
-                              {% if '.png' in attachment_name or '.jpg' in attachment_name or '.jpeg' in attachment_name or '.gif' in attachment_name or '.webp' in attachment_name %}
-                                {% with modal_id=card.id %}
-                                  <div class="border rounded p-2 mb-2 bg-light">
-                                    <a href="{% url 'eduCards:download_attachment' card.id %}?inline=1" target="_blank" rel="noopener" class="d-block text-center" aria-label="Bild im Browser öffnen">
-                                      <img src="{% url 'eduCards:download_attachment' card.id %}?inline=1" alt="{{ card.title }}" class="img-fluid rounded shadow-sm" style="max-height: 220px; width: auto; max-width: 100%;">
-                                    </a>
-                                    <div class="d-flex flex-wrap gap-2 mt-2">
-                                      <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
-                                        <i class="bi bi-download"></i>
-                                      </a>
-                                    </div>
-                                  </div>
-                                {% endwith %}
-                              {% elif '.pdf' in attachment_name %}
-                                <div class="pdfjs-preview border rounded p-2 mb-2 bg-light" data-pdf-url="{% url 'eduCards:download_attachment' card.id %}?inline=1" style="max-width: 100%;">
-                                  <a href="{% url 'eduCards:download_attachment' card.id %}?inline=1" target="_blank" rel="noopener" class="d-block text-decoration-none" aria-label="PDF im Browser öffnen">
-                                    <canvas class="w-100 rounded" style="display: block; max-height: 260px; background: white; border: 1px solid #dee2e6;"></canvas>
-                                  </a>
-                                  <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary" title="{% trans "Download" %}">
-                                      <i class="bi bi-download"></i>
-                                    </a>
-                                  </div>
-                                </div>
-                              {% else %}
-                                <a href="{% url 'eduCards:download_attachment' card.id %}" class="btn btn-sm btn-outline-primary mb-2" title="{% trans "Download" %}">
-                                  <i class="bi bi-download"></i>
-                                </a>
-                              {% endif %}
-                            {% endwith %}
-                          {% endfor %}
-                        </div>
-                      {% endif %}
-                        {% if user_is_teacher %}
-                        <hr class="my-2">
-                        <small class="text-muted" style="font-size: 0.75rem;">
-                          {% trans "Created" %}: {{ card.created_by }}, {{ card.created|date:"d.m.Y" }}<br>
-                          {% if card.last_modified_by %}
-                            {% trans "Modified" %}: {{ card.last_modified_by }}, {{ card.last_modified|date:"d.m.Y" }}
-                          {% endif %}
-                        </small>
-                      {% endif %}
-                    </small>
-                  </div>
-                </div>
-              {% empty %}
-                <div class="alert alert-info mb-0" style="font-size: 0.85rem;">
-                  <small>{% trans "No cards yet." %}</small>
-                  {% if can_create_cards %}
-                    <div class="mt-2">
-                      <a href="{% url 'eduCards:create_card' category.id %}" class="btn btn-sm btn-success">{% trans "Add First Card" %}</a>
-                    </div>
-                  {% endif %}
-                </div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endfor %}
-        {% if user_is_teacher %}
-          <!-- Add Column button at the end -->
-          <div class="category-column" style="flex: 0 0 350px; min-width: 350px; max-width: 350px; justify-content: center; align-items: center; padding: 20px;">
-            <a href="{% url 'eduCards:create_category' cards_page.id %}" class="btn btn-success btn-lg" style="width: 100%;">
-              <i class="bi bi-plus-circle"></i> {% trans "Add Column" %}
-            </a>
-          </div>
-        {% endif %}
-      {% else %}
-        <div class="category-column" style="flex: 0 0 350px; min-width: 350px; max-width: 350px; justify-content: center; align-items: center; padding: 20px;">
-          <div class="text-center">
-            <p class="mb-3">{% trans "No columns yet." %}</p>
-            {% if user_is_teacher %}
-              <a href="{% url 'eduCards:create_category' cards_page.id %}" class="btn btn-success btn-lg">
-                <i class="bi bi-plus-circle"></i> {% trans "Create First Column" %}
-              </a>
-            {% endif %}
-          </div>
-        </div>
+        <a href="{% url 'eduCards:create_card' categories.0.id %}" class="btn btn-ec"><i class="bi bi-plus-lg"></i> Beitrag</a>
       {% endif %}
+      <a href="{% url 'eduCards:create_category' cards_page.id %}" class="btn btn-glass"><i class="bi bi-layout-three-columns"></i> <span class="d-none d-md-inline">Spalte</span></a>
+      <a href="{% url 'eduCards:share_cards_page' cards_page.id %}" class="btn btn-glass"><i class="bi bi-qr-code"></i> <span class="d-none d-md-inline">Teilen</span></a>
+      <a href="{% url 'eduCards:edit_cards_page' cards_page.id %}" class="btn btn-glass" title="Einstellungen"><i class="bi bi-gear"></i> <span class="d-none d-md-inline">Einstellungen</span></a>
+    {% elif can_create_cards and categories %}
+      <a href="{% url 'eduCards:create_card' categories.0.id %}" class="btn btn-ec"><i class="bi bi-plus-lg"></i> Beitrag</a>
+    {% endif %}
+
+    <div class="dropdown">
+      <button class="btn btn-glass" data-bs-toggle="dropdown" aria-expanded="false" title="Weitere Aktionen"><i class="bi bi-three-dots"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button type="button" class="dropdown-item" data-ec-present><i class="bi bi-easel"></i> Präsentieren</button></li>
+        <li><button type="button" class="dropdown-item" onclick="window.print()"><i class="bi bi-printer"></i> Drucken / als PDF</button></li>
+        {% if is_member %}
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'eduCards:duplicate_cards_page' cards_page.id %}">
+              {% csrf_token %}
+              <button class="dropdown-item"><i class="bi bi-files"></i> Board duplizieren</button>
+            </form>
+          </li>
+          <li>
+            <form method="post" action="{% url 'eduCards:toggle_archive_cards_page' cards_page.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{% if cards_page.is_active %}{% url 'eduCards:cards_page_list' %}{% else %}{{ request.path }}{% endif %}">
+              <button class="dropdown-item">
+                {% if cards_page.is_active %}<i class="bi bi-archive"></i> Archivieren{% else %}<i class="bi bi-arrow-counterclockwise"></i> Wiederherstellen{% endif %}
+              </button>
+            </form>
+          </li>
+          {% if cards_page.created_by_id == user.id %}
+            <li><a class="dropdown-item text-danger" href="{% url 'eduCards:delete_cards_page' cards_page.id %}"><i class="bi bi-trash3"></i> Board löschen</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+    </div>
+
+    {% if is_member and pending_count %}
+      <a href="#" class="ec-chip is-warning" data-ec-jump=".ec-card.is-pending"><i class="bi bi-hourglass-split"></i> {{ pending_count }} wart{{ pending_count|pluralize:"et,en" }} auf Freigabe</a>
+    {% endif %}
+    {% if not is_member %}
+      {% if access_level == 'edit' %}
+        <span class="ec-chip"><i class="bi bi-pencil"></i> Du kannst Beiträge erstellen{% if cards_page.require_approval %} (mit Freigabe){% endif %}</span>
+      {% elif access_level == 'view' %}
+        <span class="ec-chip"><i class="bi bi-eye"></i> Nur ansehen</span>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+
+<div id="ec-board"
+     class="ec-board layout-{{ cards_page.layout }}{% if cards_page.has_light_background %} is-light{% endif %}"
+     data-state-url="{% url 'eduCards:cards_page_state' cards_page.id %}"
+     data-partial-url="{{ request.path }}?partial=1"
+     data-version="{{ board_version }}"
+     data-can-sort="{% if is_member %}1{% endif %}"
+     data-reorder-cards-url="{% url 'eduCards:reorder_cards' cards_page.id %}"
+     data-reorder-columns-url="{% url 'eduCards:reorder_categories' cards_page.id %}">
+  {% include 'eduCards/_board.html' %}
+</div>
+
+<button type="button" class="btn btn-dark ec-exit-present" data-ec-present><i class="bi bi-fullscreen-exit me-1"></i> Präsentation beenden</button>
+
+<div class="ec-live btn-group" id="ec-live">
+  <button type="button" class="btn btn-dark" data-ec-refresh><i class="bi bi-arrow-repeat me-1"></i> Neue Inhalte – aktualisieren</button>
+</div>
+
+<div class="modal fade" id="ec-lightbox" tabindex="-1" aria-label="Bildansicht" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <img src="" alt="">
+        <div class="d-flex justify-content-center gap-2 mt-3">
+          <a href="#" class="btn btn-light btn-sm" data-ec-lightbox-open target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Original öffnen</a>
+          <a href="#" class="btn btn-light btn-sm" data-ec-lightbox-download><i class="bi bi-download"></i> Download</a>
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Schließen</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
 {% endblock content %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    if (typeof pdfjsLib === 'undefined') {
-      return;
-    }
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    document.querySelectorAll('.pdfjs-preview').forEach(function (preview) {
-      const pdfUrl = preview.dataset.pdfUrl;
-      const canvas = preview.querySelector('canvas');
-      if (!pdfUrl || !canvas) {
-        return;
-      }
-
-      pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
-        return pdf.getPage(1);
-      }).then(function (page) {
-        const containerWidth = preview.clientWidth || 260;
-        const viewport = page.getViewport({ scale: 1 });
-        const scale = Math.min(containerWidth / viewport.width, 1.3);
-        const scaledViewport = page.getViewport({ scale: scale });
-
-        canvas.width = Math.ceil(scaledViewport.width);
-        canvas.height = Math.ceil(scaledViewport.height);
-
-        const context = canvas.getContext('2d');
-        return page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-      }).catch(function () {
-        canvas.style.display = 'none';
-        const fallback = document.createElement('div');
-        fallback.className = 'text-muted small';
-        fallback.textContent = 'PDF Vorschau konnte nicht geladen werden.';
-        preview.appendChild(fallback);
-      });
-    });
-  });
-</script>
+{% load static %}
+<script src="{% static 'eduCards/vendor/sortable/Sortable.min.js' %}"></script>
+<script src="{% static 'eduCards/vendor/pdfjs/pdf.min.js' %}"></script>
+<script src="{% static 'eduCards/board.js' %}" data-pdf-worker="{% static 'eduCards/vendor/pdfjs/pdf.worker.min.js' %}" id="ec-board-js"></script>
 {% endblock extra_js %}

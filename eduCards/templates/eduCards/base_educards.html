@@ -1,108 +1,76 @@
-{% load i18n %}
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="de">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=0.9">
-    <title>EduCards - {{ block.super }}</title>
-
-    {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}eduCards{% endblock title %} · {{ institution_name|default:"eduTools" }}</title>
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    
-    <style>
-      body {
-        background-color: #6279a7ad;
-      }
-      .alert-secondary {
-        background-color: #e2e3e59e;
-      }
-      .category-header {
-        border-left: 4px solid;
-      }
-      /* Column layout for categories */
-      .cards-page-container {
-        overflow-x: auto;
-        overflow-y: hidden;
-        width: 100%;
-        padding-bottom: 20px;
-      }
-      .categories-row {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 15px;
-        min-width: fit-content;
-        padding: 10px;
-      }
-      .category-column {
-        flex: 0 0 350px;
-        min-width: 350px;
-        max-width: 350px;
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 250px);
-        min-height: 500px;
-      }
-      .category-column-content {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-radius: 0 0 8px 8px;
-      }
-      .category-card-header {
-        flex-shrink: 0;
-        border-radius: 8px 8px 0 0;
-      }
-      .card-item {
-        margin-bottom: 10px;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'eduCards/educards.css' %}">
+    {% block extra_head %}{% endblock extra_head %}
   </head>
 
-  <body>
-  <div class="container-fluid">
-    <div class="row" style="{% if 'page' in request.path and request.path|slice:":9" == '/educards' %}width: fit-content; min-width: 100%;{% endif %}">
-      <nav class="navbar navbar-expand navbar-light bg-light mt-3 mb-3 shadow">
-        <div class="container-fluid">
-          <div class="d-flex">
-            {% if institution_logo %}
-              <img src="/{{ institution_logo }}" width="40" class="ms-2 me-2" style="object-fit: contain;">
+  <body class="ec-body {% block body_class %}ec-app{% endblock body_class %}" {% block body_attrs %}{% endblock body_attrs %}>
+    <header class="ec-topbar">
+      <a class="ec-brand" href="{% url 'eduCards:cards_page_list' %}">
+        {% if institution_logo %}
+          <img src="/{{ institution_logo }}" alt="">
+        {% else %}
+          <span class="ec-brand-mark"><i class="bi bi-stickies-fill"></i></span>
+        {% endif %}
+        <span>eduCards</span>
+      </a>
+      <span class="ec-user ec-hide-xs d-none d-md-inline">{{ institution_name }}</span>
+      <span class="ec-spacer"></span>
+      <a class="btn btn-sm btn-light ec-hide-xs" href="/" title="Zur eduTools-Startseite"><i class="bi bi-grid-3x3-gap"></i><span class="d-none d-lg-inline ms-1">eduTools</span></a>
+      <a class="btn btn-sm btn-light" href="{% url 'eduCards:cards_page_list' %}"><i class="bi bi-collection"></i><span class="d-none d-sm-inline ms-1">Boards</span></a>
+      {% if user_is_teacher %}
+        <a class="btn btn-sm btn-ec" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline ms-1">Neues Board</span></a>
+      {% endif %}
+      {% if user.is_authenticated %}
+        <div class="dropdown">
+          <button class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i><span class="d-none d-md-inline ms-1">{{ user.get_full_name|default:user.username }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            {% if user.is_staff %}
+              <li><a class="dropdown-item" href="/admin/eduCards/"><i class="bi bi-gear"></i> Verwaltung (Admin)</a></li>
+              <li><hr class="dropdown-divider"></li>
             {% endif %}
-            <a class="navbar-brand mt-2 me-5" href="/"><h4>{{ institution_name }} EduCards</h4></a>
-            <button class="navbar-toggler me-4" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-              <div class="navbar-nav">
-                <a class="btn btn-primary ms-3 shadow" href="{% url 'eduCards:cards_page_list' %}"><i class="bi bi-list-ul"></i> {% trans "All Pages" %}</a>
-                {% if user.is_authenticated %}
-                  <form method="post" action="{% url 'logout' %}">
-                  {% csrf_token %}
-                    <button class="btn btn-secondary shadow ms-3"><i class="bi bi-person-circle"></i> {% trans "Logout" %} ({{ user.username }})</button>
-                  </form>
-                  {% if user_is_teacher %}
-                    <a class="btn btn-success ms-3 shadow" href="{% url 'eduCards:create_cards_page' %}"><i class="bi bi-plus-circle"></i> {% trans "New Page" %}</a>
-                  {% endif %}
-                  {% if user.is_staff %}
-                    <a class="btn btn-warning ms-3 shadow" href="/admin/">{% trans "Django-Admin" %}</a>
-                  {% endif %}
-                {% else %}
-                  <a class="btn btn-secondary shadow ms-3" href="/accounts/login/?next={{ request.get_full_path|urlencode }}"><i class="bi bi-person-circle"></i> {% trans "Login" %}</a>
-                {% endif %}
-              </div>
-            </div>
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Abmelden</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      {% else %}
+        <a class="btn btn-sm btn-light" href="/accounts/login/?next={{ request.get_full_path|urlencode }}"><i class="bi bi-person-circle"></i><span class="d-none d-sm-inline ms-1">Anmelden</span></a>
+      {% endif %}
+    </header>
+
+    <main>
+      {% block content %}{% endblock content %}
+    </main>
+
+    <div class="ec-toasts" aria-live="polite" aria-atomic="true">
+      {% for message in messages %}
+        <div class="toast align-items-center text-bg-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% elif message.tags == 'info' %}primary{% else %}success{% endif %}" role="status" data-bs-delay="5000">
+          <div class="d-flex">
+            <div class="toast-body">{{ message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Schließen"></button>
           </div>
         </div>
-      </nav>
+      {% endfor %}
     </div>
-    {% block content %}
-    {% endblock content %}
-    </div>
-  </div>
-  {% block extra_js %}{% endblock extra_js %}
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+      document.querySelectorAll('.ec-toasts .toast').forEach(function (el) { new bootstrap.Toast(el).show(); });
+    </script>
+    {% block extra_js %}{% endblock extra_js %}
   </body>
 </html>
