@@ -613,3 +613,69 @@ class EmptyRichTextTests(EduCardsTestCase):
         self.assertEqual(card.content, '')
         self.assertEqual(card.additional_info, '')
         self.assertNotContains(self.client.get(self.board_url()), 'Mehr anzeigen')
+
+
+class DemoCommandTests(EduCardsTestCase):
+    def call(self, *args):
+        from io import StringIO
+        from django.core.management import call_command
+        out = StringIO()
+        call_command('educards_demo', *args, stdout=out)
+        return out.getvalue()
+
+    def test_creates_boards_for_existing_teacher_and_is_idempotent(self):
+        output = self.call('--owner', 'teacher')
+        self.assertIn('4 Demo-Board(s)', output)
+        boards = CardsPage.objects.filter(created_by=self.teacher).exclude(pk=self.page.pk)
+        self.assertEqual(boards.count(), 4)
+        climate = boards.get(title='Projektwoche Klimawandel')
+        self.assertTrue(climate.require_approval)
+        self.assertEqual(climate.categories.count(), 4)
+        self.assertTrue(Card.objects.filter(category__cards_page=climate, is_approved=False).exists())
+        self.assertTrue(CardAttachment.objects.filter(card__category__cards_page=climate).count() >= 2)
+        self.assertTrue(climate.access_tokens.exists())
+        self.assertFalse(User.objects.filter(username='demo_lehrkraft').exists())
+
+        self.assertIn('Übersprungen', self.call('--owner', 'teacher'))
+        self.assertEqual(boards.count(), 4)
+
+        self.call('--owner', 'teacher', '--reset')
+        self.assertEqual(boards.count(), 4)
+        self.assertTrue(CardsPage.objects.filter(pk=self.page.pk).exists())
+
+        self.login_teacher()
+        response = self.client.get(self.url('cards_page_detail', page_id=boards.get(title='Projektwoche Klimawandel').id))
+        self.assertContains(response, 'Gletscherschmelze')
+        self.assertContains(response, 'pdfjs-preview')
+
+    def test_reset_keeps_teachers_own_board_with_same_title(self):
+        own = CardsPage.objects.create(title='Mathe-Fragen 7b', description='Meine echte Klasse', created_by=self.teacher)
+        self.call('--owner', 'teacher')
+        self.call('--owner', 'teacher', '--reset')
+        self.assertTrue(CardsPage.objects.filter(pk=own.pk).exists())
+        self.assertEqual(CardsPage.objects.filter(title='Mathe-Fragen 7b').count(), 2)
+
+    def test_rejects_unknown_or_non_teacher_owner(self):
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            self.call('--owner', 'nobody')
+        with self.assertRaises(CommandError):
+            self.call('--owner', 'student')
+
+    @override_settings(DEBUG=False)
+    def test_demo_accounts_only_with_debug(self):
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            self.call()
+
+    @override_settings(DEBUG=True)
+    def test_creates_demo_accounts(self):
+        output = self.call()
+        teacher = User.objects.get(username='demo_lehrkraft')
+        colleague = User.objects.get(username='demo_kollege')
+        self.assertFalse(teacher.is_staff)
+        self.assertTrue(teacher.groups.filter(name='teachers').exists())
+        self.assertIn('demo_lehrkraft / ', output)
+        self.assertTrue(CardsPage.objects.get(title='Projektwoche Klimawandel').shared_with.filter(pk=colleague.pk).exists())
+        # second run doesn't print a new password
+        self.assertNotIn('demo_lehrkraft / ', self.call())
