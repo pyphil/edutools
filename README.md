@@ -112,7 +112,8 @@ DEFAULT_FROM_EMAIL=your-email@example.com
 
 Registration and password reset mails are sent from the address in the *Config* entry `noreply-mail`
 (admin area), falling back to `DEFAULT_FROM_EMAIL`. At least one of them must be set, otherwise no mails
-can be sent. Errors while sending mails are logged to the web server error log (or to `LOG_FILE`, if set).
+can be sent. The text of the registration mail is edited in the admin area under *Edutools settings*
+(field *Mailtext bei Accounterstellung*, placeholder `#LINK#`); a default text is created with the database. Errors while sending mails are logged to the web server error log (or to `LOG_FILE`, if set).
 
 Make sure that:
 

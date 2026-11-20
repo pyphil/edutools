@@ -20,20 +20,13 @@ def post_email_ratelimit_key(field_name):
     return key
 
 
-def get_config_value(name, attribute='setting'):
-    """Return the stripped value of a Config entry, or '' if it does not exist."""
-    config = Config.objects.filter(name=name).first()
-    if config is None:
-        return ''
-    return (getattr(config, attribute) or '').strip()
-
-
 def get_sender_address():
     """
     Sender address for account e-mails: the 'noreply-mail' Config entry,
     falling back to DEFAULT_FROM_EMAIL. Returns '' if neither is configured.
     """
-    sender = get_config_value('noreply-mail') or (settings.DEFAULT_FROM_EMAIL or '').strip()
+    config = Config.objects.filter(name='noreply-mail').first()
+    sender = (config.setting.strip() if config else '') or (settings.DEFAULT_FROM_EMAIL or '').strip()
     if not sender:
         logger.error(
             "No sender address configured for account e-mails: set the Config entry "

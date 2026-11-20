@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from WLANCodesWebApp.models import Config
+from edutools_home.models import DEFAULT_REGISTRATION_MAIL_TEXT, EdutoolsSetting
 
 from .models import RegistrationID, UserProfile
 
@@ -25,7 +26,7 @@ class AccountsTestCase(TestCase):
         self.client.defaults['HTTP_HOST'] = HOST
 
     def create_mail_config(self, text='Hier ist dein Link: #LINK#', sender='noreply@example.org'):
-        Config.objects.create(name='accounts_mail_text', text=text)
+        EdutoolsSetting.objects.update_or_create(name='settings', defaults={'registration_mail_text': text})
         Config.objects.create(name='noreply-mail', setting=sender)
 
 
@@ -85,15 +86,15 @@ class EmailCheckTests(AccountsTestCase):
         self.assertFalse(RegistrationID.objects.exists())
 
     def test_missing_link_placeholder_is_reported(self):
-        Config.objects.filter(name='accounts_mail_text').update(text='Text ohne Link')
+        EdutoolsSetting.objects.filter(name='settings').update(registration_mail_text='Text ohne Link')
         with self.assertLogs('accounts', level='ERROR'):
             response = self.client.post(self.url, {'mail': 'max.muster@schule.de'})
 
         self.assertEqual(response.context['email_error'], 'mail_failed')
         self.assertEqual(len(mail.outbox), 0)
 
-    def test_missing_config_is_reported(self):
-        Config.objects.all().delete()
+    def test_missing_settings_are_reported(self):
+        EdutoolsSetting.objects.all().delete()
         with self.assertLogs('accounts', level='ERROR'):
             response = self.client.post(self.url, {'mail': 'max.muster@schule.de'})
 
@@ -106,6 +107,16 @@ class EmailCheckTests(AccountsTestCase):
 
         self.assertEqual(response.context['email_error'], 'mail_failed')
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_default_text_is_used(self):
+        EdutoolsSetting.objects.filter(name='settings').update(
+            registration_mail_text=DEFAULT_REGISTRATION_MAIL_TEXT)
+        self.client.post(self.url, {'mail': 'max.muster@schule.de'})
+
+        body = mail.outbox[0].body
+        self.assertNotIn('#LINK#', body)
+        self.assertIn('48 Stunden gültig', body)
+        self.assertIn(f'https://{HOST}/accounts/register/{RegistrationID.objects.get().uuid}/', body)
 
     @override_settings(DEFAULT_FROM_EMAIL='fallback@example.org')
     def test_sender_falls_back_to_default_from_email(self):

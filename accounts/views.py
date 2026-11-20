@@ -12,10 +12,11 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django_ratelimit.decorators import ratelimit
 
+from edutools_home.models import EdutoolsSetting
+
 from .forms import ChangeUsernameForm, RegisterUserForm
 from .mail import (
     build_absolute_link,
-    get_config_value,
     get_sender_address,
     normalize_email,
     post_email_ratelimit_key,
@@ -35,13 +36,18 @@ def _email_already_used(email):
     )
 
 
+def get_registration_mail_text():
+    settings_obj = EdutoolsSetting.objects.filter(name='settings').first()
+    return settings_obj.registration_mail_text if settings_obj else ''
+
+
 def send_registration_mail(request, email):
     """Create a registration link for email and send it. Returns True on success."""
-    mail_text = get_config_value('accounts_mail_text', attribute='text')
+    mail_text = get_registration_mail_text()
     if '#LINK#' not in mail_text:
         logger.error(
-            "Registration mail not sent: the Config entry 'accounts_mail_text' is missing "
-            "or does not contain the placeholder #LINK#."
+            "Registration mail not sent: the registration mail text in the eduTools settings "
+            "(EdutoolsSetting 'settings') is missing or does not contain the placeholder #LINK#."
         )
         return False
     sender = get_sender_address()
