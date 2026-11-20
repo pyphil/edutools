@@ -9,7 +9,8 @@
         <h4 class="mb-4">Registrieren</h4>
         {% if link_error %} 
           <div class="alert alert-danger">
-            Dieser Link ist kein gültiger Registrierungslink.
+            Dieser Link ist kein gültiger Registrierungslink oder er ist abgelaufen.
+            Bitte fordere über die <a href="{% url 'email_check' %}">Registrierung</a> einen neuen Link an.
           </div>
         {% else %}
           <form method="POST">
