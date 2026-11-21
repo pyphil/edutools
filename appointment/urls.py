@@ -11,5 +11,6 @@ urlpatterns = [
     path('appointment_admin', views.appointment_admin, name='appointment_admin'),
     path('appointment_email', views.appointment_email, name='appointment_email'),
     path('success_appointment', views.success_appointment, name='success_appointment'),
+    path('delete_past_appointments', views.delete_past_appointments, name='delete_past_appointments'),
     path('appointment_settings', views.appointment_settings, name='appointment_settings'),
 ]

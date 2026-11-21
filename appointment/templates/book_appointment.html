@@ -10,22 +10,30 @@
         <h5><b>Zeit:</b> {{ form.instance.time }} Uhr</h5>
       </div>
       <div class="card-body">
-        <form method="post" onsubmit="disableSubmitButton(event)"">
+        <form method="post" onsubmit="disableSubmitButton(event)">
           {% csrf_token %}
-          {% if alert == "email" %}
+          {% if form.errors and not alert %}
             <div class="alert alert-danger">
-              Die E-Mail-Adressen stimmen nicht überein.
+              Bitte prüfen Sie Ihre Eingaben.
+            </div>
+          {% endif %}
+          {% if alert == "limited" %}
+            <div class="alert alert-danger">
+              Es wurden zu viele Buchungsversuche gesendet. Bitte versuchen Sie es in einigen Minuten erneut.
             </div>
           {% endif %}
           {% if alert == "booked" %}
             <div class="alert alert-danger">
               <b>
-                Der Termin wurde in der Zwischenzeit leider schon gebucht. Bitte kehren Sie zur Buchungsseite zurück und wählen Sie einen neuen Termin.<br><br>
+                Der Termin wurde in der Zwischenzeit leider schon gebucht oder ist nicht mehr verfügbar. Bitte kehren Sie zur Buchungsseite zurück und wählen Sie einen neuen Termin.<br><br>
                 <a href="{% url 'appointment' %}">Zurück zur Buchungsseite</a>
               </b>
             </div>
           {% endif %}
           {{ form.as_p }}
+          {% if privacy_notice and not edit %}
+            <p class="mt-2"><small>{{ privacy_notice|linebreaksbr }}</small></p>
+          {% endif %}
           {% if edit %}
             <button class="btn btn-primary" name="change">Änderung speichern</button>
             <a href="javascript:history.back()" class="btn btn-secondary">Zurück</a>
@@ -37,6 +45,11 @@
       </div>
     </div>
   </div>
+
+<style>
+  /* honeypot field against bots */
+  #id_website, label[for="id_website"] { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+</style>
 
 <script>
 function disableSubmitButton(event) {

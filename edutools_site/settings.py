@@ -60,6 +60,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'appointment': {
+            'handlers': ['console', 'file'] if LOG_FILE else ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'django.contrib.auth': {
             'handlers': ['console', 'file'] if LOG_FILE else ['console'],
             'level': 'WARNING',
