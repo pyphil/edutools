@@ -5,6 +5,7 @@ from .forms import InventoryItemForm, LibraryBorrowedItemsForm, LibraryCategoryS
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
+from urllib.parse import urlencode
 
 
 def is_library_admin(user):
@@ -100,13 +101,27 @@ def edit(request, id):
             elif inst.status.name == "verschwunden":
                 inst.status = LibraryStatus.objects.get(name="verfügbar")
             inst.save()
-            filter_category = request.GET.get('filter_category', '0')
-            filter_status = request.GET.get('filter_status', '0')
+            filter_category_raw = request.GET.get('filter_category', '0')
+            filter_status_raw = request.GET.get('filter_status', '0')
             filter_text = request.GET.get('filter_text', '')
-            return redirect(
-                f"{reverse('inventory')}?filter_category={filter_category}&filter_status={filter_status}"
-                f"&filter_text={filter_text}&location={inst.location_id}"
-            )
+
+            try:
+                filter_category = int(filter_category_raw)
+            except (TypeError, ValueError):
+                filter_category = 0
+
+            try:
+                filter_status = int(filter_status_raw)
+            except (TypeError, ValueError):
+                filter_status = 0
+
+            query = urlencode({
+                'filter_category': filter_category,
+                'filter_status': filter_status,
+                'filter_text': filter_text,
+                'location': inst.location_id,
+            })
+            return redirect(f"{reverse('inventory')}?{query}")
         else:
             return render(request, 'library_edit.html', {'form': f})
 
