@@ -1,7 +1,8 @@
+import os
 from django.shortcuts import render, redirect
 from .forms import KompetenzkarteForm
 from .models import Kompetenzkarte, Fach
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -115,8 +116,14 @@ def get_image(request, filename):
 
 
 def get_logo(request, filename):
+    base_dir = os.path.abspath(os.path.join(settings.MEDIA_ROOT, 'logo'))
+    requested_path = os.path.abspath(os.path.join(base_dir, filename))
+
+    if os.path.commonpath([base_dir, requested_path]) != base_dir:
+        raise Http404("File not found")
+
     return FileResponse(
-        open(settings.MEDIA_ROOT + '/logo/' + filename, 'rb'),
+        open(requested_path, 'rb'),
         as_attachment=False,
         filename=filename
     )
