@@ -31,6 +31,14 @@
         <h4>Termine anlegen</h4>
         <form method="post">
           {% csrf_token %}
+          {% if form.errors %}
+            <div class="alert alert-danger">
+              Die Termine wurden nicht angelegt. Bitte prüfen Sie die Eingaben:
+              <ul class="mb-0">
+                {% for field in form %}{% for error in field.errors %}<li>{{ field.name }}: {{ error }}</li>{% endfor %}{% endfor %}
+              </ul>
+            </div>
+          {% endif %}
           <div class="row mb-3">
             <label for="date" class="col-sm-3 col-form-label">Datum:</label>
             <div class="col-sm-auto">
@@ -48,22 +56,21 @@
           <div class="row mb-3">
             <label for="interval" class="col-sm-3 col-form-label">Länge eines Termins in Minuten:</label>
             <div class="col-sm-1">
-              <input type="number" class="form-control" id="interval" name="interval" required>
+              <input type="number" class="form-control" id="interval" name="interval" min="1" max="480" required>
             </div>
           </div>
         
           <div class="row mb-3">
             <label for="number" class="col-sm-3 col-form-label">Anzahl der zu generierenden Termine:</label>
             <div class="col-sm-1">
-              <input type="number" class="form-control" id="number" name="number" required>
+              <input type="number" class="form-control" id="number" name="number" min="1" max="200" required>
             </div>
           </div>
 
           <div class="row mb-3">
-            <label for="slots
-            " class="col-sm-3 col-form-label">Anzahl der zu generierenden Slots:</label>
+            <label for="slots" class="col-sm-3 col-form-label">Anzahl der zu generierenden Slots:</label>
             <div class="col-sm-1">
-              <input type="number" class="form-control" id="slots" name="slots" required>
+              <input type="number" class="form-control" id="slots" name="slots" min="1" max="50" required>
             </div>
           </div>
 

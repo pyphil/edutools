@@ -1,0 +1,29 @@
+{% extends 'edutools_base.html' %}
+{% block content %}
+
+  <div class="container mt-5 pb-5">
+    <div class="card">
+      <div class="card-header">
+        <h3>Vergangene Termine löschen</h3>
+      </div>
+      <div class="card-body">
+        {% if count %}
+          <p>
+            Es werden <b>{{ count }}</b> Termine vor dem {{ today|date:"d.m.Y" }} endgültig gelöscht,
+            davon <b>{{ booked_count }}</b> gebuchte Termine mit den personenbezogenen Daten der Familien.
+          </p>
+          <p>Bitte drucken oder exportieren Sie die Terminlisten vorher, falls Sie sie noch benötigen. Das Löschen kann nicht rückgängig gemacht werden.</p>
+          <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" name="delete" value="1">Endgültig löschen</button>
+            <a href="{% url 'appointment_admin' %}" class="btn btn-secondary">Abbrechen</a>
+          </form>
+        {% else %}
+          <p>Es gibt keine vergangenen Termine.</p>
+          <a href="{% url 'appointment_admin' %}" class="btn btn-secondary">Zurück</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
