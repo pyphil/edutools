@@ -5,6 +5,7 @@ from .forms import InventoryItemForm, LibraryBorrowedItemsForm, LibraryCategoryS
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.http import url_has_allowed_host_and_scheme
 from urllib.parse import urlencode
 
 
@@ -121,7 +122,14 @@ def edit(request, id):
                 'filter_text': filter_text,
                 'location': inst.location_id,
             })
-            return redirect(f"{reverse('inventory')}?{query}")
+            redirect_url = f"{reverse('inventory')}?{query}"
+            if not url_has_allowed_host_and_scheme(
+                redirect_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                redirect_url = reverse('inventory')
+            return redirect(redirect_url)
         else:
             return render(request, 'library_edit.html', {'form': f})
 

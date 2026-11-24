@@ -1,9 +1,8 @@
-import os
 from django.shortcuts import render, redirect
 from .forms import KompetenzkarteForm
 from .models import Kompetenzkarte, Fach
-from django.http import FileResponse, Http404
-from django.conf import settings
+from django.http import FileResponse
+from edutools_site.file_utils import safe_media_path
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 
@@ -101,7 +100,7 @@ def karte_bearbeiten(request, id):
 @user_passes_test(is_teacher)
 def download(request, filename):
     return FileResponse(
-        open(settings.MEDIA_ROOT + '/downloads/' + filename, 'rb'),
+        open(safe_media_path('downloads', filename), 'rb'),
         as_attachment=True,
         filename=filename
     )
@@ -109,21 +108,15 @@ def download(request, filename):
 
 def get_image(request, filename):
     return FileResponse(
-        open(settings.MEDIA_ROOT + '/images/' + filename, 'rb'),
+        open(safe_media_path('images', filename), 'rb'),
         as_attachment=False,
         filename=filename
     )
 
 
 def get_logo(request, filename):
-    base_dir = os.path.abspath(os.path.join(settings.MEDIA_ROOT, 'logo'))
-    requested_path = os.path.abspath(os.path.join(base_dir, filename))
-
-    if os.path.commonpath([base_dir, requested_path]) != base_dir:
-        raise Http404("File not found")
-
     return FileResponse(
-        open(requested_path, 'rb'),
+        open(safe_media_path('logo', filename), 'rb'),
         as_attachment=False,
         filename=filename
     )

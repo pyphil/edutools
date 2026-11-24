@@ -1,12 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 import qrcode
 from django.core.files.base import ContentFile
 from .models import QRCodeModel
 from .forms import QRCodeForm
 from io import BytesIO
-from django.conf import settings
 from django.http import FileResponse
+from edutools_site.file_utils import safe_media_path
 from django.contrib.auth.decorators import login_required
 import os
 
@@ -47,14 +47,11 @@ def generate_qr_code(request):
 
 @login_required
 def get_qr_image(request, filename):
-    obj = QRCodeModel.objects.get(image='qr_codes/' + filename)
-    if obj.user == request.user:
-        if request.GET.get('attach'):
-            attach = True
-        else:
-            attach = False
-        return FileResponse(
-            open(settings.MEDIA_ROOT + '/qr_codes/' + filename, 'rb'),
-            as_attachment=attach,
-            filename=filename
-        )
+    # Only the owner may access the QR code; anything else is a 404.
+    get_object_or_404(QRCodeModel, image='qr_codes/' + filename, user=request.user)
+    attach = bool(request.GET.get('attach'))
+    return FileResponse(
+        open(safe_media_path('qr_codes', filename), 'rb'),
+        as_attachment=attach,
+        filename=filename
+    )

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Activity, ActivityBlock, BookedActivity, ActivitySetting
 from .forms import ActivityBlockForm, ActivityForm, ActivitySettingForm
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.urls import reverse
 
 
 def is_activity_admin(user):
@@ -150,6 +151,8 @@ def update_order_on_save(instance, new_position, model):
 def manage_blocks_and_activities(request):
     block_form = ActivityBlockForm()
     activity_form = ActivityForm()
+    # Use the resolved URL of this view instead of request.path for redirects
+    manage_url = reverse('manage_blocks_and_activities')
 
     if request.method == "POST":
         # -------- Title --------
@@ -159,7 +162,7 @@ def manage_blocks_and_activities(request):
             if title_form.is_valid():
                 title_form.save()
                 # Optionally: show success message, handle further logic
-            return redirect(request.path)
+            return redirect(manage_url)
 
         # -------- Blocks --------
         if 'add_block' in request.POST:
@@ -167,8 +170,8 @@ def manage_blocks_and_activities(request):
             if block_form.is_valid():
                 new_block = block_form.save()
                 update_order_on_save(new_block, new_block.order, ActivityBlock)
-                return redirect(f"{request.path}#block-{new_block.id}")
-            return redirect(request.path)
+                return redirect(f"{manage_url}#block-{new_block.id}")
+            return redirect(manage_url)
 
         if 'save_block' in request.POST:
             block = get_object_or_404(ActivityBlock, pk=request.POST.get('block_id'))
@@ -179,13 +182,13 @@ def manage_blocks_and_activities(request):
                 new_position = block.order
             block.save()  # Zuerst Name speichern
             update_order_on_save(block, new_position, ActivityBlock)
-            return redirect(f"{request.path}#block-{block.id}")
+            return redirect(f"{manage_url}#block-{block.id}")
 
         if 'delete_block' in request.POST:
             block = get_object_or_404(ActivityBlock, pk=request.POST.get('block_id'))
             block.delete()
             renumber_items(ActivityBlock)
-            return redirect(f"{request.path}#block-list")
+            return redirect(f"{manage_url}#block-list")
 
         # -------- Activities --------
         if 'add_activity' in request.POST:
@@ -193,8 +196,8 @@ def manage_blocks_and_activities(request):
             if activity_form.is_valid():
                 new_activity = activity_form.save()
                 update_order_on_save(new_activity, new_activity.order, Activity)
-                return redirect(f"{request.path}#activity-{new_activity.id}")
-            return redirect(request.path)
+                return redirect(f"{manage_url}#activity-{new_activity.id}")
+            return redirect(manage_url)
 
         if 'save_activity' in request.POST:
             activity = get_object_or_404(Activity, pk=request.POST.get('activity_id'))
@@ -205,13 +208,13 @@ def manage_blocks_and_activities(request):
                 new_position = activity.order
             activity.save()
             update_order_on_save(activity, new_position, Activity)
-            return redirect(f"{request.path}#activity-{activity.id}")
+            return redirect(f"{manage_url}#activity-{activity.id}")
 
         if 'delete_activity' in request.POST:
             activity = get_object_or_404(Activity, pk=request.POST.get('activity_id'))
             activity.delete()
             renumber_items(Activity)
-            return redirect(f"{request.path}#activity-list")
+            return redirect(f"{manage_url}#activity-list")
 
     # GET
     blocks = ActivityBlock.objects.all().order_by('order')
